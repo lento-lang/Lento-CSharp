@@ -19,7 +19,7 @@ namespace LentoCore.Util
 
         public LineColumn Clone()
         {
-            return new LineColumn()
+            return new LineColumn
             {
                 Index = Index,
                 Line = Line,
@@ -29,7 +29,7 @@ namespace LentoCore.Util
 
         public LineColumn CloneAndSubtract(int offset)
         {
-            LineColumn result = new LineColumn()
+            LineColumn result = new LineColumn
             {
                 Index = Index - offset,
                 Line = Line,
