@@ -1,12 +1,13 @@
 <div align=center>
     <br><br>
-    <img src="assets/logo.png" height=250px/>
+    <img src="assets/logo_white.png" height=250px/>
     <h1>The Lento Programming Language</h1>
     <em>
     	A functional programming language<br>
         that aims to purify the object-oriented paradigm.
     </em>
 </div>
+
 
 
 
