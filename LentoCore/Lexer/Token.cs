@@ -5,11 +5,23 @@ namespace LentoCore.Lexer
 {
     public enum TokenType
     {
-        LParen, RParen, LBracket, RBracket, LCurlyBracket, RCurlyBracket,
+        LeftParen, RightParen, LeftBracket, RightBracket, LeftCurlyBracket, RightCurlyBracket,
 
-        Identifier, IdentifierList, Boolean,
+        Identifier, Atom, Integer, Float, Character, String, Boolean,
 
-        SemiColon, Newline, EOF
+        Mutable, Enum, If, Case, Condition, Type,
+        Attribute,
+
+        Assign, Addition, Subtraction, Multiplication, Division, Modulus,
+
+        Equals, NotEquals, LessThan, GreaterThan, LessThanOrEquals, GreaterThanOrEquals,
+        Negate, And, Or, QuestionMark,
+
+        Colon, SemiColon, Comma, Dot, RightArrow, ThickRightArrow,
+
+        SingleLineComment, MultiLineComment,
+
+        Newline, EOF
     }
 
     public class Token
@@ -41,7 +53,13 @@ namespace LentoCore.Lexer
             switch (Type)
             {
                 case TokenType.Identifier:
+                case TokenType.Atom:
+                case TokenType.Integer:
+                case TokenType.Float:
+                case TokenType.Character:
+                case TokenType.String:
                 case TokenType.Boolean:
+                case TokenType.Attribute:
                 {
                     name += $" '{Lexeme}'";
                     break;
