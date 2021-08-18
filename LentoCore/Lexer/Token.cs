@@ -9,7 +9,7 @@ namespace LentoCore.Lexer
 
         Identifier, Atom, Integer, Float, Character, String, Boolean,
 
-        Mutable, Enum, If, Case, Condition, Type,
+        Mutable, Enum, If, For, Case, Condition, Type,
         Attribute,
 
         Assign, Addition, Subtraction, Multiplication, Division, Modulus,
@@ -56,12 +56,16 @@ namespace LentoCore.Lexer
                 case TokenType.Atom:
                 case TokenType.Integer:
                 case TokenType.Float:
-                case TokenType.Character:
-                case TokenType.String:
                 case TokenType.Boolean:
                 case TokenType.Attribute:
                 {
                     name += $" '{Lexeme}'";
+                    break;
+                }
+                case TokenType.Character:
+                case TokenType.String:
+                {
+                    name += $" '{Formatting.EscapeString(Lexeme)}'";
                     break;
                 }
             }
