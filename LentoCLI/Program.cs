@@ -24,8 +24,7 @@ namespace LentoCLI
                         for (int i = 0; i < tokens.Length; i++)
                         {
                             Console.Write(tokens[i].ToString(), ConsoleColor.Yellow);
-                            if (i < tokens.Length - 2) Console.Write(", ");
-                            else if (i == tokens.Length - 2) Console.Write(" & ");
+                            if (i < tokens.Length - 1) Console.Write(", ");
                             else Console.WriteLine();
                         }
                     }
