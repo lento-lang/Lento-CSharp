@@ -46,18 +46,6 @@ namespace LentoCore.Parser
 
         #endregion
 
-        private string delimiterTokenTypesToString(TokenType[] types)
-        {
-            if (types.Length == 1) return $"a {types[0]}";
-            string result = string.Empty;
-            for (int i = 0; i < types.Length; i++)
-            {
-                result += types[i].ToString();
-                if (i < types.Length - 2) result += ", ";
-                else if (i == types.Length - 2) result += " or ";
-            }
-            return result;
-        }
         private List<Expression> ParseExpressions(TokenType endingTokenType, params TokenType[] expressionDelimiterTokenTypes)
         {
             List<Expression> expressions = new List<Expression>();
@@ -79,7 +67,7 @@ namespace LentoCore.Parser
                 if (expressionDelimiterTokenTypes.Contains(next.Type)) Eat(false); // Eat the separating token
                 else throw new ParseErrorException(ErrorUnexpected(next,
                     "expression" + (expressionDelimiterTokenTypes.Length > 0
-                        ? " separated by " + delimiterTokenTypesToString(expressionDelimiterTokenTypes)
+                        ? " separated by a " + Formatting.FormattableOptionsToString(expressionDelimiterTokenTypes)
                         : string.Empty)
                     ));
             }
