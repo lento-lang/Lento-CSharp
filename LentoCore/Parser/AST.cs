@@ -1,4 +1,5 @@
-﻿using LentoCore.Atoms;
+﻿using System.Linq;
+using LentoCore.Atoms;
 using LentoCore.Expressions;
 using LentoCore.Util;
 
@@ -23,6 +24,6 @@ namespace LentoCore.Parser
             return result;
         }
 
-        public override string ToString() => string.Join<Expression>('\n', CompilationUnit);
+        public override string ToString() => string.Join('\n', CompilationUnit.Select(e => e.ToString()));
     }
 }

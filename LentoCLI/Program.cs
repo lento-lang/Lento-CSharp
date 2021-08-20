@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using LentoCore.Atoms;
 using LentoCore.Exception;
 using LentoCore.Expressions;
 using LentoCore.Lexer;
 using LentoCore.Parser;
 using LentoCore.Util;
+using LentoCore.Evaluator;
 using Console = EzConsole.EzConsole;
 
 namespace LentoCLI
@@ -35,16 +37,21 @@ namespace LentoCLI
 
                         AST ast = parser.Parse(tokens);
                         Console.WriteLine("Expressions: ");
-                        foreach (Expression expression in ast.CompilationUnit)
-                        {
-                            Console.WriteLine($" {expression.ToString()}", ConsoleColor.Magenta);
-                        }
+                        Console.WriteLine(ast.ToString(), ConsoleColor.Magenta);
+
+                        Atomic result = Evaluator.Evaluate(ast);
+                        Console.Write("Result: ");
+                        Console.WriteLine(result.ToString(), ConsoleColor.Cyan);
                     }
                     catch (SyntaxErrorException e)
                     {
                         Console.WriteLine(e.Message);
                     }
                     catch (ParseErrorException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    catch (EvaluateErrorException e)
                     {
                         Console.WriteLine(e.Message);
                     }
