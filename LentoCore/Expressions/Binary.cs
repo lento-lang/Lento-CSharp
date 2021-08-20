@@ -18,8 +18,8 @@ namespace LentoCore.Expressions
         public Binary(BinaryOperator @operator, Expression lhs, Expression rhs, LineColumnSpan span) : base(span)
         {
             _operator = @operator;
-            this._lhs = lhs;
-            this._rhs = rhs;
+            _lhs = lhs;
+            _rhs = rhs;
         }
 
         public override Atomic Evaluate()

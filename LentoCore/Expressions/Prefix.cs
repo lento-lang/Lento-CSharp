@@ -17,7 +17,7 @@ namespace LentoCore.Expressions
         public Prefix(PrefixOperator @operator, Expression rhs, LineColumnSpan span) : base(span)
         {
             _operator = @operator;
-            this._rhs = rhs;
+            _rhs = rhs;
         }
 
         public override Atomic Evaluate()
