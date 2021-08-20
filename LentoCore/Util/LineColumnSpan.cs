@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace LentoCore.Util
 {
-    public class TokenSpan
+    public class LineColumnSpan
     {
         public LineColumn Start;
         public LineColumn End;
         public int Length => End.Index - Start.Index;
 
-        public TokenSpan(LineColumn start, LineColumn end)
+        public LineColumnSpan(LineColumn start, LineColumn end)
         {
             Start = start;
             End = end;

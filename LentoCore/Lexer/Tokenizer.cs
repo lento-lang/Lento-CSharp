@@ -12,30 +12,29 @@ namespace LentoCore.Lexer
     {
         private string _currentToken;
         private StreamReader _input;
+        private TokenStream _tokenStream;
         private readonly LineColumn _position;
-        private readonly List<Token> _tokens;
 
         public Tokenizer()
         {
             _position = new LineColumn();
-            _tokens = new List<Token>();
         }
 
         #region Tokenize
         
-        public Token[] Tokenize(Stream sourceStream, Encoding encoding)
+        public TokenStream Tokenize(Stream sourceStream, Encoding encoding)
         {
             _position.Clear();
-            _tokens.Clear();
+            _tokenStream = new TokenStream();
             _input = new StreamReader(sourceStream, encoding);
-            while (!EOF()) AddNext();
-            return _tokens.ToArray();
+            while (!EOF()) AddNext(); // Put in a thread and add a start method?
+            _tokenStream.WriteEndOfStream();
+            return _tokenStream;
         }
-        public Token[] Tokenize(Stream sourceStream) => Tokenize(sourceStream, Encoding.UTF8);
-
-        public Token[] Tokenize(string input, Encoding encoding) =>
+        public TokenStream Tokenize(Stream sourceStream) => Tokenize(sourceStream, Encoding.UTF8);
+        public TokenStream Tokenize(string input, Encoding encoding) =>
             Tokenize(new MemoryStream(encoding.GetBytes(input ?? "")), encoding);
-        public Token[] Tokenize(string input) => Tokenize(input, Encoding.UTF8);
+        public TokenStream Tokenize(string input) => Tokenize(input, Encoding.UTF8);
 
         #endregion
 
@@ -63,10 +62,16 @@ namespace LentoCore.Lexer
         private void Add(TokenType type)
         {
             if (_currentToken == string.Empty) throw new InvalidOperationException("Cannot use Add(TokenType type) here! _currentToken is empty, probably due to a previous call to GetCurrentToken().");
-            _tokens.Add(new Token(type, _currentToken, new TokenSpan(_position.CloneAndSubtract(_currentToken.Length), _position.Clone())));
+            Add(type, _currentToken);
         }
-        private void Add(TokenType type, string lexeme) => _tokens.Add(new Token(type, lexeme, new TokenSpan(_position.CloneAndSubtract(lexeme.Length), _position.Clone())));
-        
+        private void Add(TokenType type, string lexeme) => Add(type, lexeme, new LineColumnSpan(_position.CloneAndSubtract(lexeme.Length), _position.Clone()));
+
+        private void Add(TokenType type, string lexeme, LineColumnSpan span, bool validateSpanLexemeLength = true)
+        {
+            if (validateSpanLexemeLength && lexeme.Length != span.Length) throw new ArgumentException("Span must have the same length as the lexeme!", nameof(span));
+            _tokenStream.Write(new Token(type, lexeme, span));
+        }
+
         private string Error(string message) => ErrorHandler.SyntaxError(_position.CloneAndSubtract(1), message);
         private string ErrorUnexpected(char c) => Error($"Unexpected character '{c}'");
         private string ErrorUnexpected(char c, string expected) => Error($"Unexpected character '{Formatting.EscapeChar(c)}'. Expected {expected}");
@@ -116,13 +121,13 @@ namespace LentoCore.Lexer
                 }
                 case '<':
                 {
-                    if (Peek() == '=') { Eat(); Add(TokenType.LessThanOrEquals); }
+                    if (Peek() == '=') { Eat(); Add(TokenType.LessThanEquals); }
                     else Add(TokenType.LessThan);
                     break;
                 }
                 case '>':
                 {
-                    if (Peek() == '=') { Eat(); Add(TokenType.GreaterThanOrEquals); }
+                    if (Peek() == '=') { Eat(); Add(TokenType.GreaterThanEquals); }
                     else Add(TokenType.GreaterThan);
                     break;
                 }
@@ -144,6 +149,7 @@ namespace LentoCore.Lexer
                 case '%': { Add(TokenType.Modulus); break; }
                 case '&': { Add(TokenType.And); break; }
                 case '|': { Add(TokenType.Or); break; }
+                case '\\': { Add(TokenType.Exclude); break; }
                 case '?': { Add(TokenType.QuestionMark); break; }
                 
                 case '.': { Add(TokenType.Dot); break; }
@@ -151,8 +157,8 @@ namespace LentoCore.Lexer
                 case ';': { Add(TokenType.SemiColon); break; }
                 case '\n': { Add(TokenType.Newline); break; }
 
-                case '"': { ScanString(); break; }
-                case '\'': { ScanCharacter(); break; }
+                case '"': { ScanString(start); break; }
+                case '\'': { ScanCharacter(start); break; }
 
                 default:
                 {
@@ -208,7 +214,8 @@ namespace LentoCore.Lexer
         }
 
         private void ScanAtom()
-        {
+        { 
+            ClearCurrentToken();
             while (!EOF() && char.IsLetter(Peek())) Eat();
             Add(TokenType.Atom);
         }
@@ -270,7 +277,7 @@ namespace LentoCore.Lexer
             ClearCurrentToken(); // Clear current token
             return c;
         }
-        private void ScanCharacter()
+        private void ScanCharacter(LineColumn start)
         {
             ClearCurrentToken();
             if (Peek() == '\'') throw new SyntaxErrorException(ErrorUnexpected('\'', "single character value, '' is not valid."));
@@ -278,10 +285,10 @@ namespace LentoCore.Lexer
             if (Peek() == '\'') Eat();
             else if (EOF()) throw new SyntaxErrorException(ErrorUnexpectedEOF("closing character quotation"));
             else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "closing character quotation. Did you intend to use a string?"));
-            Add(TokenType.Character, character.ToString());
+            Add(TokenType.Character, character.ToString(), new LineColumnSpan(start, _position), false);
         }
 
-        private void ScanString()
+        private void ScanString(LineColumn start)
         {
             ClearCurrentToken();
             string str = string.Empty;
@@ -289,7 +296,7 @@ namespace LentoCore.Lexer
             if (Peek() == '"') Eat();
             else if (EOF()) throw new SyntaxErrorException(ErrorUnexpectedEOF("closing string quotation"));
             else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "closing string quotation"));
-            Add(TokenType.String, str);
+            Add(TokenType.String, str, new LineColumnSpan(start, _position), false);
         }
 
         private void ScanAttribute()

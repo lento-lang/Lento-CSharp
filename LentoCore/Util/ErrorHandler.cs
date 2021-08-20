@@ -12,5 +12,9 @@ namespace LentoCore.Util
         {
             return "Syntax error at line " + position.Line + " column " + position.Column + ": " + message;
         }
+        public static string ParseError(LineColumn position, string message)
+        {
+            return "Parse error at line " + position.Line + " column " + position.Column + ": " + message;
+        }
     }
 }

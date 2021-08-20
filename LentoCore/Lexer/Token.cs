@@ -14,8 +14,8 @@ namespace LentoCore.Lexer
 
         Assign, Addition, Subtraction, Multiplication, Division, Modulus,
 
-        Equals, NotEquals, LessThan, GreaterThan, LessThanOrEquals, GreaterThanOrEquals,
-        Negate, And, Or, QuestionMark,
+        Equals, NotEquals, LessThan, GreaterThan, LessThanEquals, GreaterThanEquals,
+        Negate, And, Or, Exclude, QuestionMark,
 
         Colon, SemiColon, Comma, Dot, RightArrow, ThickRightArrow,
 
@@ -27,16 +27,14 @@ namespace LentoCore.Lexer
     public class Token
     {
         public readonly string Lexeme;
-        public readonly TokenSpan Span;
+        public readonly LineColumnSpan Span;
         public TokenType Type;
 
-        public Token(TokenType type, string lexeme, TokenSpan span)
+        public Token(TokenType type, string lexeme, LineColumnSpan span)
         {
             Type = type;
             Lexeme = lexeme;
             Span = span;
-
-            if (lexeme.Length != span.Length) throw new ArgumentException("Span must have the same length as the lexeme!", nameof(span));
         }
 
         public LineColumn Position => Span.Start;
@@ -44,7 +42,7 @@ namespace LentoCore.Lexer
 
         public static Token EOF(LineColumn position)
         {
-            return new Token(TokenType.EOF, "\0", new TokenSpan(position, position));
+            return new Token(TokenType.EOF, "\0", new LineColumnSpan(position, position));
         }
 
         public override string ToString()
