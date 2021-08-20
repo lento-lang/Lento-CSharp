@@ -12,12 +12,12 @@ namespace LentoCore.Expressions
     class Prefix : Expression
     {
         private readonly PrefixOperator _operator;
-        private readonly Expression rhs;
+        private readonly Expression _rhs;
 
         public Prefix(PrefixOperator @operator, Expression rhs, LineColumnSpan span) : base(span)
         {
             _operator = @operator;
-            this.rhs = rhs;
+            this._rhs = rhs;
         }
 
         public override Atomic Evaluate()
@@ -25,6 +25,6 @@ namespace LentoCore.Expressions
             throw new NotImplementedException();
         }
 
-        public override string ToString() => $"{_operator}({rhs.ToString()})";
+        public override string ToString() => $"{_operator}({_rhs.ToString()})";
     }
 }

@@ -12,14 +12,14 @@ namespace LentoCore.Expressions
     class Binary : Expression
     {
         private readonly BinaryOperator _operator;
-        private readonly Expression lhs;
-        private readonly Expression rhs;
+        private readonly Expression _lhs;
+        private readonly Expression _rhs;
 
         public Binary(BinaryOperator @operator, Expression lhs, Expression rhs, LineColumnSpan span) : base(span)
         {
             _operator = @operator;
-            this.lhs = lhs;
-            this.rhs = rhs;
+            this._lhs = lhs;
+            this._rhs = rhs;
         }
 
         public override Atomic Evaluate()
@@ -27,6 +27,6 @@ namespace LentoCore.Expressions
             throw new NotImplementedException();
         }
 
-        public override string ToString() => $"{_operator}({lhs.ToString()}, {rhs.ToString()})";
+        public override string ToString() => $"{_operator}({_lhs.ToString()}, {_rhs.ToString()})";
     }
 }
