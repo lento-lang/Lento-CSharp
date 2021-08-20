@@ -15,7 +15,7 @@ namespace LentoCore.Lexer
         Assign, Addition, Subtraction, Multiplication, Division, Modulus,
 
         Equals, NotEquals, LessThan, GreaterThan, LessThanEquals, GreaterThanEquals,
-        Negate, And, Or, Exclude, QuestionMark,
+        Not, And, Or, Exclude, QuestionMark,
 
         Colon, SemiColon, Comma, Dot, RightArrow, ThickRightArrow,
 

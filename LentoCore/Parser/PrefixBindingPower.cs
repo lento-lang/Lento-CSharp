@@ -8,7 +8,7 @@ namespace LentoCore.Parser
 {
     public enum PrefixOperator
     {
-        Negate, Negative
+        Not, Negative
     }
     public class PrefixBindingPower
     {

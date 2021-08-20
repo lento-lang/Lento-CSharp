@@ -19,7 +19,7 @@ namespace LentoCore.Parser
             _tokens = tokens;
             List<Expression> rootExpressions = ParseExpressions(TokenType.EOF, TokenType.Newline, TokenType.SemiColon);
             if (!_tokens.EndOfStream && (_tokens.CanRead && Peek(false).Type != TokenType.EOF)) throw new ParseErrorException("Could not parse whole input");
-            return new AST(rootExpressions.ToArray());
+            return new AST(rootExpressions.ToArray(), new LineColumnSpan(rootExpressions.First().Span.Start, rootExpressions.Last().Span.End));
         }
 
         #region Helper functions
@@ -95,7 +95,7 @@ namespace LentoCore.Parser
                 case TokenType.Atom: return new AtomicValue<Atoms.Atom>(new Atoms.Atom(token.Lexeme), token.Span);
                 case TokenType.Boolean: return new AtomicValue<Atoms.Boolean>(new Atoms.Boolean(token.Lexeme == "true"), token.Span);
                 case TokenType.Integer: return new AtomicValue<Atoms.Integer>(new Atoms.Integer(int.Parse(token.Lexeme)), token.Span);
-                case TokenType.Float: return new AtomicValue<Atoms.Float>(new Atoms.Float(float.Parse(token.Lexeme)), token.Span);
+                case TokenType.Float: return new AtomicValue<Atoms.Float>(new Atoms.Float(float.Parse(token.Lexeme.Replace('.',','))), token.Span);
                 case TokenType.String: return new AtomicValue<Atoms.String>(new Atoms.String(token.Lexeme), token.Span);
                 case TokenType.Character:
                 {
@@ -121,7 +121,7 @@ namespace LentoCore.Parser
                 }
                 // Prefix operators
                 case TokenType.Subtraction:
-                case TokenType.Negate:
+                case TokenType.Not:
                 {
                     PrefixOperator op = GetPrefixOperator(token);
                     Expression rhs = ParseExpression(GetPrefixOperatorBindingPower(op).Right);
@@ -181,7 +181,7 @@ namespace LentoCore.Parser
         private PrefixOperator GetPrefixOperator(Token token)
         {
             switch (token.Type) {
-                case TokenType.Negate: return PrefixOperator.Negate;
+                case TokenType.Not: return PrefixOperator.Not;
                 case TokenType.Subtraction: return PrefixOperator.Negative;
                 default: throw new ArgumentException("Unreachable hopefully");
             }
@@ -191,7 +191,7 @@ namespace LentoCore.Parser
         {
             switch (op)
             {
-                case PrefixOperator.Negate:
+                case PrefixOperator.Not:
                 case PrefixOperator.Negative: return new PrefixBindingPower(10);
                 default: throw new ArgumentException("Unreachable hopefully");
             }

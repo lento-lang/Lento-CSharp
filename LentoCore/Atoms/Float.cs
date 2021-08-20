@@ -15,6 +15,6 @@ namespace LentoCore.Atoms
             Value = value;
         }
 
-        public override string ToString() => Value.ToString();
+        public override string ToString() => Value.ToString().Replace(',','.');
     }
 }

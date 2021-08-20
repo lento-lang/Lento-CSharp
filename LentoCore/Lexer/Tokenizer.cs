@@ -116,7 +116,7 @@ namespace LentoCore.Lexer
                 case '!':
                 {
                     if (Peek() == '=') { Eat(); Add(TokenType.NotEquals); }
-                    else Add(TokenType.Negate);
+                    else Add(TokenType.Not);
                     break;
                 }
                 case '<':
