@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LentoCore.Atoms
 {
-    class IdentifierDotList : Atomic
+    public class IdentifierDotList : Atomic
     {
         public Identifier[] Identifiers;
 

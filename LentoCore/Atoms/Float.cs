@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LentoCore.Atoms
 {
-    class Float : Atomic
+    public class Float : Atomic
     {
         public float Value;
 

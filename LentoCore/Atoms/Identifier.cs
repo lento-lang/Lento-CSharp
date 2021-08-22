@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LentoCore.Atoms
 {
-    class Identifier : Atomic
+    public class Identifier : Atomic
     {
         public string Name;
 

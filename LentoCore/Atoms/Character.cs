@@ -7,7 +7,7 @@ using LentoCore.Util;
 
 namespace LentoCore.Atoms
 {
-    class Character : Atomic
+    public class Character : Atomic
     {
         public char Value;
 

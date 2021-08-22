@@ -7,7 +7,7 @@ using LentoCore.Util;
 
 namespace LentoCore.Atoms
 {
-    class String : Atomic
+    public class String : Atomic
     {
         public string Value;
 

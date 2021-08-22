@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LentoCore.Atoms
 {
-    class Unit : Atomic
+    public class Unit : Atomic
     {
         public override string ToString() => "()";
     }
