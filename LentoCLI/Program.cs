@@ -2,7 +2,7 @@
 using System.Linq;
 using LentoCore.Atoms;
 using LentoCore.Exception;
-using LentoCore.Expressions;
+using LentoCore.TypeChecker;
 using LentoCore.Lexer;
 using LentoCore.Parser;
 using LentoCore.Util;
@@ -38,6 +38,9 @@ namespace LentoCLI
                         AST ast = parser.Parse(tokens);
                         Console.WriteLine("Expressions: ");
                         Console.WriteLine(ast.ToString(), ConsoleColor.Magenta);
+
+                        TypeChecker tc = new TypeChecker(ast);
+                        tc.Run();
 
                         Atomic result = Evaluator.Evaluate(ast);
                         Console.Write("Result: ");

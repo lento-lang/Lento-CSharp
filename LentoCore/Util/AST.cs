@@ -3,7 +3,7 @@ using LentoCore.Atoms;
 using LentoCore.Expressions;
 using LentoCore.Util;
 
-namespace LentoCore.Parser
+namespace LentoCore.Util
 {
     public class AST : Expression
     {

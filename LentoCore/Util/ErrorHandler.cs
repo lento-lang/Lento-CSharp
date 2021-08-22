@@ -11,6 +11,7 @@ namespace LentoCore.Util
     {
         public static string SyntaxError(LineColumn position, string message) => $"Syntax error at line {position.Line} column {position.Column}: {message}";
         public static string ParseError(LineColumn position, string message) => $"Parse error at line {position.Line} column {position.Column}: {message}";
+        public static string TypeError(LineColumn position, string message) => $"Type error at line {position.Line} column {position.Column}: {message}";
         public static string EvaluateError(LineColumn position, string message) => $"Evaluation runtime error at line {position.Line} column {position.Column}: {message}";
 
         public static string EvaluateErrorTypeMismatch(LineColumn position, Atomic got, params Type[] expectedTypes) =>
