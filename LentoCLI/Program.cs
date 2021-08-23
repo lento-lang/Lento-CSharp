@@ -42,23 +42,29 @@ Options:
 		static void Main(string[] args)
         {
 			Arguments arguments = Arguments.Parse(args, (char)KeySelector.Linux);
-            
+
 			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(HELP);
 			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VERSION_TEXT);
 			else if (arguments.ContainsKey("-repl") || arguments.ContainsKey("r")) REPL.Run(true);
 			else if (arguments.ContainsKey("-lint") || arguments.ContainsKey("l"))
 			{
-				if (arguments.Keyless.Count > 0) Linter.Run(arguments.Keyless.ToArray());
+				string[] files = arguments.ContainsKey("-lint") ? arguments["-lint"] : arguments["l"];
+				if (files.Length > 0) Linter.Run(files);
 				else Console.WriteLine("No files found to lint");
 			}
 			else if (arguments.ContainsKey("-compile") || arguments.ContainsKey("c"))
 			{
-				if (arguments.Keyless.Count == 1) Compiler.Run(arguments.Keyless[0]);
-				else if (arguments.Keyless.Count > 1) Console.WriteLine("The compile option only accepts one file");
+				string[] files = arguments.ContainsKey("-compile") ? arguments["-compile"] : arguments["c"];
+				if (files.Length == 1) Compiler.Run(files[0]);
+				else if (files.Length > 1) Console.WriteLine("Too many files, the compile option only accepts a single file");
 				else Console.WriteLine("No file found to compile");
 			}
 			else if (arguments.Keyless.Count > 0) Interpreter.Run(arguments.Keyless.ToArray());
-			else Console.WriteLine("Error: Could not parse arguments!\nUnknown command: lt " + string.Join(' ', args) + "\n\nUse --help to get more information.");
+			else
+			{
+				Console.WriteLine("Error: Could not parse arguments!\nUnknown command: lt " + string.Join(' ', args), ConsoleColor.Red);
+				Console.WriteLine("\nUse --help to get more information.");
+			}
 		}
     }
 }
