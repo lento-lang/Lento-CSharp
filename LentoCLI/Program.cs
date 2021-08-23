@@ -7,10 +7,11 @@ namespace LentoCLI
 {
     class Program
     {
-		private static readonly string VERSION = "2.3.0";
+		private static readonly Version VERSION = new Version("2.3.0");
+		private static readonly string VERSION_TEXT = $"Lento CLI - Version {VERSION}";
 		private static readonly string DESCRIPTION = "A command line interface tool for the Lento programming language.";
 		private static readonly string COPYRIGHT = "Copyright (c) 2021 William Rågstad";
-		private static readonly string HELP = $@"Lento CLI - version {VERSION}
+		private static readonly string HELP = $@"{VERSION_TEXT}
 {DESCRIPTION}
 
 Usage: lt (<options>) (<files>)
@@ -43,7 +44,7 @@ Options:
 			Arguments arguments = Arguments.Parse(args, (char)KeySelector.Linux);
             
 			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(HELP);
-			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VERSION);
+			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VERSION_TEXT);
 			else if (arguments.ContainsKey("-repl") || arguments.ContainsKey("r")) REPL.Run(true);
 			else if (arguments.ContainsKey("-lint") || arguments.ContainsKey("l"))
 			{
