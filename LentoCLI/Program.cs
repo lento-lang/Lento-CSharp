@@ -57,7 +57,7 @@ Options:
 				else if (arguments.Keyless.Count > 1) Console.WriteLine("The compile option only accepts one file");
 				else Console.WriteLine("No file found to compile");
 			}
-			else if (arguments.Keyless.Count > 0) Runner.Run(arguments.Keyless.ToArray());
+			else if (arguments.Keyless.Count > 0) Interpreter.Run(arguments.Keyless.ToArray());
 			else Console.WriteLine("Error: Could not parse arguments!\nUnknown command: lt " + string.Join(' ', args) + "\n\nUse --help to get more information.");
 		}
     }

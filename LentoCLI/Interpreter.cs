@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LentoCLI
 {
-    public static class Runner
+    public static class Interpreter
     {
         public static void Run(string[] files)
         {
