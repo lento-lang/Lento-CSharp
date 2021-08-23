@@ -31,25 +31,32 @@ Options:
 		Prints the version of the program.
 	-r, --repl
 		Starts the REPL mode.
-	-l, --lint[files]
+	-l, --lint [<files>]
 		Lints the given files.
-	-c, --compile[files]          (Not implemented)
-		Compiles the given files.
+	-c, --compile [<file>]          (Not implemented)
+		Compiles the given file.
 
 {COPYRIGHT}";
 
 		static void Main(string[] args)
         {
-			args = new[] { "--hlp", "-he" };
 			Arguments arguments = Arguments.Parse(args, (char)KeySelector.Linux);
             
 			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(HELP);
-			else if (arguments.ContainsKey("version") || arguments.ContainsKey("v")) Console.WriteLine(VERSION);
-			else if (arguments.ContainsKey("repl") || arguments.ContainsKey("r")) REPL.Run(true);
-			else if (arguments.Keyless.Count > 0)
-            {
-
-            }
+			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VERSION);
+			else if (arguments.ContainsKey("-repl") || arguments.ContainsKey("r")) REPL.Run(true);
+			else if (arguments.ContainsKey("-lint") || arguments.ContainsKey("l"))
+			{
+				if (arguments.Keyless.Count > 0) Linter.Run(arguments.Keyless.ToArray());
+				else Console.WriteLine("No files found to lint");
+			}
+			else if (arguments.ContainsKey("-compile") || arguments.ContainsKey("c"))
+			{
+				if (arguments.Keyless.Count == 1) Compiler.Run(arguments.Keyless[0]);
+				else if (arguments.Keyless.Count > 1) Console.WriteLine("The compile option only accepts one file");
+				else Console.WriteLine("No file found to compile");
+			}
+			else if (arguments.Keyless.Count > 0) Runner.Run(arguments.Keyless.ToArray());
 			else Console.WriteLine("Error: Could not parse arguments!\nUnknown command: lt " + string.Join(' ', args) + "\n\nUse --help to get more information.");
 		}
     }
