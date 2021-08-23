@@ -8,7 +8,7 @@ namespace LentoCore.Exception
 {
     public class SyntaxErrorException : System.Exception
     {
-        public SyntaxErrorException(string? message) : base(message) { }
-        public SyntaxErrorException(string? message, System.Exception? innerException) : base(message, innerException) { }
+        public SyntaxErrorException(string message) : base(message) { }
+        public SyntaxErrorException(string message, System.Exception innerException) : base(message, innerException) { }
     }
 }

@@ -8,7 +8,7 @@ namespace LentoCore.Exception
 {
     public class EvaluateErrorException : System.Exception
     {
-        public EvaluateErrorException(string? message) : base(message) { }
-        public EvaluateErrorException(string? message, System.Exception? innerException) : base(message, innerException) { }
+        public EvaluateErrorException(string message) : base(message) { }
+        public EvaluateErrorException(string message, System.Exception innerException) : base(message, innerException) { }
     }
 }
