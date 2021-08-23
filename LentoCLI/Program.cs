@@ -7,12 +7,12 @@ namespace LentoCLI
 {
     class Program
     {
-		private static readonly Version VERSION = new Version("2.3.0");
-		private static readonly string VERSION_TEXT = $"Lento CLI - Version {VERSION}";
-		private static readonly string DESCRIPTION = "A command line interface tool for the Lento programming language.";
-		private static readonly string COPYRIGHT = "Copyright (c) 2021 William Rågstad";
-		private static readonly string HELP = $@"{VERSION_TEXT}
-{DESCRIPTION}
+		private static readonly Version Version = new Version("2.3.0");
+		private static readonly string VersionText = $"Lento CLI - Version {Version}";
+        private const string Description = "A command line interface tool for the Lento programming language.";
+        private const string Copyright = "Copyright (c) 2021 William Rågstad";
+        private static readonly string Help = $@"{VersionText}
+{Description}
 
 Usage: lt (<options>) (<files>)
 ¨¨¨¨¨
@@ -37,14 +37,14 @@ Options:
 	-c, --compile [<file>]          (Not implemented)
 		Compiles the given file.
 
-{COPYRIGHT}";
+{Copyright}";
 
 		static void Main(string[] args)
         {
 			Arguments arguments = Arguments.Parse(args, (char)KeySelector.Linux);
 
-			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(HELP);
-			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VERSION_TEXT);
+			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(Help);
+			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VersionText);
 			else if (arguments.ContainsKey("-repl") || arguments.ContainsKey("r")) REPL.Run(true);
 			else if (arguments.ContainsKey("-lint") || arguments.ContainsKey("l"))
 			{
