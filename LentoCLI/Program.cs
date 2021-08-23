@@ -1,65 +1,54 @@
 ﻿using System;
 using System.Linq;
-using LentoCore.Atoms;
-using LentoCore.Exception;
-using LentoCore.TypeChecker;
-using LentoCore.Lexer;
-using LentoCore.Parser;
-using LentoCore.Util;
-using LentoCore.Evaluator;
+using ArgumentsUtil;
 using Console = EzConsole.EzConsole;
 
 namespace LentoCLI
 {
     class Program
     {
-        static void Main(string[] args)
+		private static readonly string VERSION = "2.3.0";
+		private static readonly string DESCRIPTION = "A command line interface tool for the Lento programming language.";
+		private static readonly string COPYRIGHT = "Copyright (c) 2021 William Rågstad";
+		private static readonly string HELP = $@"Lento CLI - version {VERSION}
+{DESCRIPTION}
+
+Usage: lt (options) (files)
+¨¨¨¨¨
+
+Run file(s): lt [files]
+		Interpret files.
+
+Compile file: lt -c -l {"\"Java\""} [file]
+		(Cross) Compile a file to a target language, architecture standalone executable or dynamically linked library.
+
+Options:
+¨¨¨¨¨¨¨
+	-h, --help
+		Prints this help message.
+	-v, --version
+		Prints the version of the program.
+	-r, --repl
+		Starts the REPL mode.
+	-l, --lint[files]
+		Lints the given files.
+	-c, --compile[files]          (Not implemented)
+		Compiles the given files.
+
+{COPYRIGHT}";
+
+		static void Main(string[] args)
         {
-            Tokenizer lex = new Tokenizer();
-            Parser parser = new Parser();
-            while (true)
+			Arguments arguments = Arguments.Parse(args);
+            
+			if (args.Length == 0 || arguments.ContainsKey("help"))
             {
-                Console.Write("LI> "); 
-                string expr = Console.ReadLine();
-                if (!string.IsNullOrWhiteSpace(expr))
-                {
-                    try
-                    {
-                        TokenStream tokens = lex.Tokenize(expr);
-                        Console.Write("Tokens: ");
-                        int tokenCount = tokens.Count();
-                        foreach ((Token token, int i) in tokens.Select((value, index) => (value, index)))
-                        {
-                            Console.Write(token.ToString(), ConsoleColor.Yellow);
-                            if (i < tokenCount - 1) Console.Write(", ");
-                            else Console.WriteLine();
-                        }
-
-                        AST ast = parser.Parse(tokens);
-                        Console.WriteLine("Expressions: ");
-                        Console.WriteLine(ast.ToString(), ConsoleColor.Magenta);
-
-                        TypeChecker tc = new TypeChecker(ast);
-                        tc.Run();
-
-                        Atomic result = Evaluator.Evaluate(ast);
-                        Console.Write("Result: ");
-                        Console.WriteLine(result.ToString(), ConsoleColor.Cyan);
-                    }
-                    catch (SyntaxErrorException e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-                    catch (ParseErrorException e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-                    catch (EvaluateErrorException e)
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-                }
+				Console.WriteLine(HELP);
             }
+			else if (arguments.ContainsKey("repl"))
+            {
+				REPL.Run(true);
+			}
         }
     }
 }
