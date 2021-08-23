@@ -13,14 +13,15 @@ namespace LentoCLI
 		private static readonly string HELP = $@"Lento CLI - version {VERSION}
 {DESCRIPTION}
 
-Usage: lt (options) (files)
+Usage: lt (<options>) (<files>)
 ¨¨¨¨¨
 
-Run file(s): lt [files]
+Run file(s): lt [<files>]
 		Interpret files.
 
-Compile file: lt -c -l {"\"Java\""} [file]
-		(Cross) Compile a file to a target language, architecture standalone executable or dynamically linked library.
+Compile file: lt -c [<lang> | exe | dll] [<file>]
+		(Cross) Compile a file to a target language,
+		standalone executable or dynamically linked library.
 
 Options:
 ¨¨¨¨¨¨¨
@@ -39,16 +40,17 @@ Options:
 
 		static void Main(string[] args)
         {
-			Arguments arguments = Arguments.Parse(args);
+			args = new[] { "--hlp", "-he" };
+			Arguments arguments = Arguments.Parse(args, (char)KeySelector.Linux);
             
-			if (args.Length == 0 || arguments.ContainsKey("help"))
+			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(HELP);
+			else if (arguments.ContainsKey("version") || arguments.ContainsKey("v")) Console.WriteLine(VERSION);
+			else if (arguments.ContainsKey("repl") || arguments.ContainsKey("r")) REPL.Run(true);
+			else if (arguments.Keyless.Count > 0)
             {
-				Console.WriteLine(HELP);
+
             }
-			else if (arguments.ContainsKey("repl"))
-            {
-				REPL.Run(true);
-			}
-        }
+			else Console.WriteLine("Error: Could not parse arguments!\nUnknown command: lt " + string.Join(' ', args) + "\n\nUse --help to get more information.");
+		}
     }
 }
