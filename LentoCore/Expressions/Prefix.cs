@@ -21,6 +21,14 @@ namespace LentoCore.Expressions
             _rhs = rhs;
         }
 
+        private Atoms.Tuple EvaluateTupleElements(Atoms.Tuple tuple, PrefixOperator op)
+        {
+            Prefix[] negativeElementsExpressions = tuple.BaseExpression.Elements.Select(e => new Prefix(op, e, e.Span)).ToArray();
+            Atomic[] negativeAtoms = negativeElementsExpressions.Select(n => n.Evaluate()).ToArray();
+            tuple.Elements = negativeAtoms;
+            return tuple;
+        }
+
         public override Atomic Evaluate()
         {
             Atomic value = _rhs.Evaluate();
@@ -30,12 +38,21 @@ namespace LentoCore.Expressions
                 {
                     if (value is Integer @integer) return new Atoms.Integer(@integer.Value * -1);
                     if (value is Float @float) return new Atoms.Float(@float.Value * -1);
-                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Integer), typeof(Float)));
+                    if (value is Atoms.Tuple @tuple) return EvaluateTupleElements(@tuple, _operator);
+                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Integer), typeof(Float), typeof(Atoms.Tuple)));
                 }
                 case PrefixOperator.Not:
                 {
                     if (value is Atoms.Boolean @bool) return new Atoms.Boolean(!@bool.Value);
-                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Atoms.Boolean)));
+                    if (value is Atoms.Tuple @tuple) return EvaluateTupleElements(@tuple, _operator);
+                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Atoms.Boolean), typeof(Atoms.Tuple)));
+                }
+                case PrefixOperator.Referenced:
+                {
+                    // Find reference in scope
+                    if (value is Atoms.Identifier @ident) return new Reference(@ident);
+                    if (value is Atoms.IdentifierDotList @identDotList) return new Reference(@identDotList);
+                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Atoms.Identifier)));
                 }
                 default: throw new EvaluateErrorException(ErrorHandler.EvaluateError(Span.Start, $"Could not evaluate {_operator}. Invalid prefix operator!"));
             }

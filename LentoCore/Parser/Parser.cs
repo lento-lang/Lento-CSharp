@@ -43,36 +43,9 @@ namespace LentoCore.Parser
 
         private string Error(Token errorToken, string message) => ErrorHandler.SyntaxError(errorToken.Position, message);
         private string ErrorUnexpected(Token errorToken, string expected) => Error(errorToken, $"Unexpected {errorToken} token. Expected {expected}");
+        private string ErrorUnexpectedEOF(string expected) => Error(_tokens.Last(), $"Unexpected end of file. Expected {expected}");
 
         #endregion
-
-        private List<Expression> ParseExpressions(TokenType endingTokenType, params TokenType[] expressionDelimiterTokenTypes)
-        {
-            List<Expression> expressions = new List<Expression>();
-            while (!_tokens.EndOfStream)
-            {
-                if (!_tokens.CanRead)
-                {
-                    Thread.Sleep(100);
-                    continue;
-                }
-
-                if (Peek(true).Type == endingTokenType) break;
-                Expression expression = ParseExpression(0);
-                expressions.Add(expression);
-                if (_tokens.EndOfStream) break;
-                while (!_tokens.EndOfStream && !_tokens.CanRead) Thread.Sleep(100);
-                Token next = Peek(false);
-                if (next.Type == endingTokenType) break;
-                if (expressionDelimiterTokenTypes.Contains(next.Type)) Eat(false); // Eat the separating token
-                else throw new ParseErrorException(ErrorUnexpected(next,
-                    "expression" + (expressionDelimiterTokenTypes.Length > 0
-                        ? " separated by a " + Formatting.FormattableOptionsToString(expressionDelimiterTokenTypes)
-                        : string.Empty)
-                    ));
-            }
-            return expressions;
-        }
 
         private Expression ParseNextToken(int minBindingPower)
         {
@@ -94,7 +67,10 @@ namespace LentoCore.Parser
                 {
                     if (_tokens.CanRead && Peek().Type == TokenType.Dot)
                     {
-                        List<Identifier> identifiers = new List<Identifier>();
+                        List<Identifier> identifiers = new List<Identifier>
+                        {
+                            new Identifier(token.Lexeme)
+                        };
                         Token identifier;
                         do
                         {
@@ -102,10 +78,17 @@ namespace LentoCore.Parser
                             identifier = Eat();
                             if (identifier.Type == TokenType.Identifier) identifiers.Add(new Identifier(identifier.Lexeme));
                             else throw new ParseErrorException(ErrorUnexpected(identifier, "identifier"));
-                        } while (Peek().Type == TokenType.Dot);
+                        } while (_tokens.CanRead && Peek().Type == TokenType.Dot);
                         return new AtomicValue<Atoms.IdentifierDotList>(new IdentifierDotList(identifiers.ToArray()), new LineColumnSpan(token.Span.Start, identifier.Span.End));
                     }
                     return new AtomicValue<Atoms.Identifier>(new Atoms.Identifier(token.Lexeme), token.Span);
+                }
+                case TokenType.LeftParen:
+                {
+                    List<Expression> expressions = ParseExpressions(TokenType.RightParen, TokenType.Comma);
+                    Token rightParen = Eat();
+                    if (expressions.Count > 0) return new Expressions.Tuple(new LineColumnSpan(token.Span.Start, rightParen.Span.End), expressions.ToArray());
+                    return new Expressions.AtomicValue<Atoms.Unit>(new Unit(), new LineColumnSpan(token.Span.Start, rightParen.Span.End));
                 }
                 // Prefix operators
                 case TokenType.Reference:
@@ -145,7 +128,6 @@ namespace LentoCore.Parser
                 default: return null;
             }
         }
-
         private InfixBindingPower GetBinaryOperatorBindingPower(BinaryOperator op)
         {
             switch (op) {
@@ -166,30 +148,28 @@ namespace LentoCore.Parser
                 default: throw new ArgumentException($"Failed to get binding power for operator! {op} does not match any of the current alternatives in GetBinaryOperatorBindingPower");
             }
         }
-
         private PrefixOperator GetPrefixOperator(Token token)
         {
             switch (token.Type) {
                 case TokenType.Not: return PrefixOperator.Not;
                 case TokenType.Subtraction: return PrefixOperator.Negative;
-                case TokenType.Reference: return PrefixOperator.Reference;
+                case TokenType.Reference: return PrefixOperator.Referenced;
                 default: throw new ArgumentException("Unreachable hopefully");
             }
         }
-
         private PrefixBindingPower GetPrefixOperatorBindingPower(PrefixOperator op)
         {
             switch (op)
             {
                 case PrefixOperator.Not:
-                case PrefixOperator.Reference:
+                case PrefixOperator.Referenced:
                 case PrefixOperator.Negative: return new PrefixBindingPower(10);
                 default: throw new ArgumentException("Unreachable hopefully");
             }
         }
-
         private Expression ParseExpression(int minBindingPower)
         {
+            if (_tokens.EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("expression"));
             Expression lhs = ParseNextToken(minBindingPower);
             while (true)
             {
@@ -209,6 +189,33 @@ namespace LentoCore.Parser
                 lhs = new Expressions.Binary((BinaryOperator)op, lhs, rhs, new LineColumnSpan(lhs.Span.Start, rhs.Span.End)); // Aggregate downwards
             }
             return lhs;
+        }
+        private List<Expression> ParseExpressions(TokenType endingTokenType, params TokenType[] expressionDelimiterTokenTypes)
+        {
+            List<Expression> expressions = new List<Expression>();
+            while (!_tokens.EndOfStream)
+            {
+                if (!_tokens.CanRead)
+                {
+                    Thread.Sleep(100);
+                    continue;
+                }
+
+                if (Peek(true).Type == endingTokenType) break;
+                Expression expression = ParseExpression(0);
+                expressions.Add(expression);
+                if (_tokens.EndOfStream) break;
+                while (!_tokens.EndOfStream && !_tokens.CanRead) Thread.Sleep(100);
+                Token next = Peek(false);
+                if (next.Type == endingTokenType) break;
+                if (expressionDelimiterTokenTypes.Contains(next.Type)) Eat(false); // Eat the separating token
+                else throw new ParseErrorException(ErrorUnexpected(next,
+                    "expression" + (expressionDelimiterTokenTypes.Length > 0
+                        ? " separated by a " + Formatting.FormattableOptionsToString(expressionDelimiterTokenTypes)
+                        : string.Empty)
+                ));
+            }
+            return expressions;
         }
     }
 }

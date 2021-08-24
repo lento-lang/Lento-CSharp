@@ -146,9 +146,9 @@ namespace LentoCore.Lexer
                 }
                 case '&':
                 {
-                    if (Peek() == '&') Add(TokenType.And);
-                    else if (char.IsLetter(Peek())) Add(TokenType.Reference);
-                    else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "logical and or reference to trailing identifier literal"));
+                    if (Peek() == '&') { Eat(); Add(TokenType.And); }
+                    else if (char.IsLetter(Peek())) { Eat(); Add(TokenType.Reference); }
+                    else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "logical AND or referenced identifier"));
                     break;
                 }
                 case '+': { Add(TokenType.Addition); break; }
