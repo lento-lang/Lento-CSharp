@@ -6,17 +6,24 @@ using System.Text;
 using System.Threading.Tasks;
 using LentoCLI.Util;
 using LentoCore.Evaluator;
+using Console = EzConsole.EzConsole;
 
 namespace LentoCLI
 {
     public static class Interpreter
     {
         public static void Run(string[] files)
-        {            
-            foreach(string file in files)
+        {
+            try
             {
-                if (FileHelper.Validate(file)) Evaluator.EvaluateFile(File.OpenRead(file));
-                else throw new ArgumentException($"File '{file}' could not be read!");
+                foreach(string file in files)
+                {
+                    if (FileHelper.ValidateAndOpen(file, out FileStream fs)) Evaluator.EvaluateFile(fs);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message, ConsoleColor.Red);
             }
         }
     }

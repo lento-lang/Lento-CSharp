@@ -61,15 +61,15 @@ namespace LentoCLI
                     }
                     catch (SyntaxErrorException e)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.Message, ConsoleColor.Red);
                     }
                     catch (ParseErrorException e)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.Message, ConsoleColor.Red);
                     }
                     catch (EvaluateErrorException e)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.Message, ConsoleColor.Red);
                     }
                 }
             }
