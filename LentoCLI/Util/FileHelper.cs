@@ -8,7 +8,7 @@ namespace LentoCLI.Util
     {
         public static bool ValidateAndOpen(string file, out FileStream stream)
         {
-            stream = (FileStream)Stream.Null;
+            stream = null;
             if (!File.Exists(file))
             {
                 Console.WriteLine($"File '{file}' does not exist!", ConsoleColor.Red);
