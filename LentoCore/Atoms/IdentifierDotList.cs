@@ -15,6 +15,6 @@ namespace LentoCore.Atoms
             Identifiers = identifiers;
         }
 
-        public override string ToString() => string.Join<Identifier>('.', Identifiers);
+        public override string ToString() => string.Join('.', Identifiers.Select(i => i.ToString()));
     }
 }
