@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,11 +15,8 @@ namespace LentoCLI
         {            
             foreach(string file in files)
             {
-                if (FileHelper.Validate(file))
-                {
-
-                    Evaluator.Evaluate();
-                }
+                if (FileHelper.Validate(file)) Evaluator.EvaluateFile(File.OpenRead(file));
+                else throw new ArgumentException($"File '{file}' could not be read!");
             }
         }
     }

@@ -48,7 +48,7 @@ namespace LentoCLI
                         TypeChecker tc = new TypeChecker(ast);
                         tc.Run();
 
-                        Atomic result = Evaluator.Evaluate(ast);
+                        Atomic result = Evaluator.EvaluateExpression(ast);
                         if (verbose)
                         {
                             Console.Write("Result: ");

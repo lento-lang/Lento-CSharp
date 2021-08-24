@@ -144,10 +144,16 @@ namespace LentoCore.Lexer
                     else Add(TokenType.Division);
                     break;
                 }
+                case '&':
+                {
+                    if (Peek() == '&') Add(TokenType.And);
+                    else if (char.IsLetter(Peek())) Add(TokenType.Reference);
+                    else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "logical and or reference to trailing identifier literal"));
+                    break;
+                }
                 case '+': { Add(TokenType.Addition); break; }
                 case '*': { Add(TokenType.Multiplication); break; }
                 case '%': { Add(TokenType.Modulus); break; }
-                case '&': { Add(TokenType.And); break; }
                 case '|': { Add(TokenType.Or); break; }
                 case '\\': { Add(TokenType.Exclude); break; }
                 case '?': { Add(TokenType.QuestionMark); break; }

@@ -17,7 +17,7 @@ namespace LentoCore.Lexer
         Equals, NotEquals, LessThan, GreaterThan, LessThanEquals, GreaterThanEquals,
         Not, And, Or, Exclude, QuestionMark,
 
-        Colon, SemiColon, Comma, Dot, RightArrow, ThickRightArrow,
+        Colon, SemiColon, Comma, Dot, RightArrow, ThickRightArrow, Reference,
 
         SingleLineComment, MultiLineComment,
 

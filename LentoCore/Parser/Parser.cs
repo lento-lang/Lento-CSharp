@@ -108,6 +108,7 @@ namespace LentoCore.Parser
                     return new AtomicValue<Atoms.Identifier>(new Atoms.Identifier(token.Lexeme), token.Span);
                 }
                 // Prefix operators
+                case TokenType.Reference:
                 case TokenType.Subtraction:
                 case TokenType.Not:
                 {
@@ -171,6 +172,7 @@ namespace LentoCore.Parser
             switch (token.Type) {
                 case TokenType.Not: return PrefixOperator.Not;
                 case TokenType.Subtraction: return PrefixOperator.Negative;
+                case TokenType.Reference: return PrefixOperator.Reference;
                 default: throw new ArgumentException("Unreachable hopefully");
             }
         }
@@ -180,6 +182,7 @@ namespace LentoCore.Parser
             switch (op)
             {
                 case PrefixOperator.Not:
+                case PrefixOperator.Reference:
                 case PrefixOperator.Negative: return new PrefixBindingPower(10);
                 default: throw new ArgumentException("Unreachable hopefully");
             }
