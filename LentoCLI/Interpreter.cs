@@ -14,15 +14,18 @@ namespace LentoCLI
     {
         public static void Run(string[] files)
         {
+            string currentFile = null;
             try
             {
                 foreach(string file in files)
                 {
+                    currentFile = file;
                     if (FileHelper.ValidateAndOpen(file, out FileStream fs)) Evaluator.EvaluateFile(fs);
                 }
             }
             catch (Exception e)
             {
+                if (currentFile != null) Console.Write($"File '{currentFile}':\n   ", ConsoleColor.Red);
                 Console.WriteLine(e.Message, ConsoleColor.Red);
             }
         }

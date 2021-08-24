@@ -16,11 +16,14 @@ namespace LentoCLI
         {
             try
             {
-                if (FileHelper.ValidateAndOpen(file, out FileStream fs)) Evaluator.EvaluateFile(fs);
+                if (FileHelper.ValidateAndOpen(file, out FileStream fs))
+                {
+                    // Compile
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message, ConsoleColor.Red);
+                Console.WriteLine($"File '{file}':\n    {e.Message}", ConsoleColor.Red);
             }
         }
     }
