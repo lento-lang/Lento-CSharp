@@ -297,7 +297,7 @@ namespace LentoCore.Parser
                 // Destructuring
                 throw new NotImplementedException(); // TODO: Implement this
             }
-            throw new NotImplementedException("Assignment is not implemented for left hand side atoms of type " + lhs.GetTypeName());
+            throw new NotImplementedException("Assignment is not implemented for left hand side atoms of type " + lhs.GetAtomicType().ToString());
         }
 
         private TypedIdentifier[] ParseTypedIdentifierList(TokenType closingTokenType)
@@ -313,7 +313,7 @@ namespace LentoCore.Parser
 
                 TypedIdentifier duplicate = identifiers.Find(ti => ti.Identifier.Name == paramName.Lexeme);
                 if (duplicate != null) throw new ParseErrorException(Error(paramName, $"duplicate parameter '{paramName.Lexeme}'"));
-                identifiers.Add(new TypedIdentifier(new Identifier(paramType.Lexeme), new Identifier(paramName.Lexeme)));
+                identifiers.Add(new TypedIdentifier(new Atoms.AtomicType(paramType.Lexeme), new Identifier(paramName.Lexeme)));
 
                 AssureCanRead("separating comma or assignment operator");
                 if (Peek().Type == TokenType.Comma)

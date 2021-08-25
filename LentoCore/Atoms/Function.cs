@@ -34,9 +34,9 @@ namespace LentoCore.Atoms
 
         private static string GetArgumentTypeNameList(Dictionary<string, string> arguments) =>
             string.Join(", ", arguments.Select(kvp => $"{kvp.Value} {kvp.Key}"));
-
-        public override string GetTypeName() => $"Function[{Name}]<{FunctionVariations.Count}>";
-        public override string ToString() => GetTypeName();
+        
+        public override AtomicType GetAtomicType() => new AtomicObjectType(GetType().Name, $"{GetType().Name}[{Name}]<{FunctionVariations.Count}>", FunctionVariations.Count);
+        public override string ToString() => GetAtomicType().ToString();
 
         public class Variation : Atomic
         {
@@ -48,10 +48,10 @@ namespace LentoCore.Atoms
                 Arguments = arguments;
                 Expression = expression;
             }
+            
+            public override AtomicType GetAtomicType() => new AtomicObjectType("FunctionVariation", $"FunctionVariation<{GetArgumentTypeNameList(Arguments)}>", GetArgumentTypeNameList(Arguments));
 
-            public override string GetTypeName() => $"FunctionVariation<{GetArgumentTypeNameList(Arguments)}>";
-
-            public override string ToString() => GetTypeName();
+            public override string ToString() => GetAtomicType().ToString();
         }
     }
 }

@@ -30,7 +30,7 @@ namespace LentoCore.Expressions
             return tuple;
         }
         
-        private EvaluateErrorException OperationTypeError(Atomic val, PrefixOperator op, params Type[] expected)
+        private EvaluateErrorException OperationTypeError(Atomic val, PrefixOperator op, params System.Type[] expected)
         {
             return new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, op.ToString(), val, expected));
         }

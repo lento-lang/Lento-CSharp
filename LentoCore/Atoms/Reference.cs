@@ -14,7 +14,7 @@ namespace LentoCore.Atoms
             Referenced = referenced;
         }
         
-        public override string GetTypeName() => GetType().Name;
+        public override AtomicType GetAtomicType() => new AtomicType(GetType().Name);
         public override string ToString() => $"<Reference: {Referenced.ToString()}>";
     }
 }

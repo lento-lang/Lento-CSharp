@@ -8,7 +8,8 @@ namespace LentoCore.Atoms
 {
     public abstract class Atomic
     {
-        public abstract string GetTypeName();
+        public abstract Atoms.AtomicType GetAtomicType();
+        // public abstract string GetTypeName();
         public new abstract string ToString();
     }
 }

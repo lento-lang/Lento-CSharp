@@ -22,7 +22,7 @@ namespace LentoCore.Atoms
             Elements = elements;
         }
         
-        public override string GetTypeName() => GetType().Name + $"<{Size}>";
+        public override AtomicType GetAtomicType() => new AtomicObjectType(GetType().Name, $"{GetType().Name}<{Size}>", Size);
         public override string ToString() => $"#({string.Join(", ", Elements.Select(e => e.ToString()))})";
     }
 }
