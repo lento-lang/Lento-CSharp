@@ -19,30 +19,48 @@ namespace LentoCore.Parser
         {
             _tokens = tokens;
             List<Expression> rootExpressions = ParseExpressions(TokenType.EOF, TokenType.Newline, TokenType.SemiColon);
-            if (!_tokens.EndOfStream && (_tokens.CanRead && Peek(false).Type != TokenType.EOF)) throw new ParseErrorException("Could not parse whole input");
+            if (!EndOfStream && (CanRead && Peek(false).Type != TokenType.EOF)) throw new ParseErrorException("Could not parse whole input");
             return new AST(rootExpressions.ToArray(), new LineColumnSpan(rootExpressions.First().Span.Start, rootExpressions.Last().Span.End));
         }
 
         #region Helper functions
 
+        /// <summary>
+        /// Wait until next token can be read
+        /// </summary>
+        /// <param name="nextExpressionExpect">Error message to show in case of EOF</param>
+        private void AssureCanRead(string nextExpressionExpect)
+        {
+            while (!EndOfStream && !CanRead) Thread.Sleep(100);
+            if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF(nextExpressionExpect));
+        }
+        private bool CanRead => _tokens.CanRead;
+        private bool EndOfStream => _tokens.EndOfStream;
         private Token Peek() => Peek(true);
         private Token Peek(bool ignoreNewlines) => Peek(ignoreNewlines, 0);
         private Token Peek(bool ignoreNewlines, int offset) {
-            if (_tokens.EndOfStream || !_tokens.CanSeek(offset)) throw new IndexOutOfRangeException("Cannot peek in stream at offset " + offset + "! We have reached the end of the stream.");
+            if (EndOfStream || !_tokens.CanSeek(offset)) throw new IndexOutOfRangeException("Cannot peek in stream at offset " + offset + "! We have reached the end of the stream.");
             Token ret = _tokens.Seek(offset);
             if (ignoreNewlines && ret.Type == TokenType.Newline) return Peek(true, offset + 1);
+            return ret;
+        }
+        private Token Seek(int offset) => Seek(offset, true);
+        private Token Seek(int offset, bool ignoreNewlines) {
+            if (EndOfStream || !_tokens.CanSeek(offset)) throw new IndexOutOfRangeException("Cannot seek outside of the stream");
+            Token ret = _tokens.Seek(offset);
+            if (ignoreNewlines && ret.Type == TokenType.Newline) return Seek(offset + 1, true);
             return ret;
         }
 
         private Token Eat() => Eat(true);
         private Token Eat(bool ignoreNewlines) {
-            if (_tokens.EndOfStream) throw new IndexOutOfRangeException("Cannot read from stream! We have reached the end of the stream.");
+            if (EndOfStream) throw new IndexOutOfRangeException("Cannot read from stream! We have reached the end of the stream.");
             Token ret = _tokens.Read();
             if (ignoreNewlines && ret.Type == TokenType.Newline) return Eat(true);
             return ret;
         }
 
-        private string Error(Token errorToken, string message) => ErrorHandler.SyntaxError(errorToken.Position, message);
+        private string Error(Token errorToken, string message) => ErrorHandler.ParseError(errorToken.Position, message);
         private string ErrorUnexpected(Token errorToken, string expected) => Error(errorToken, $"Unexpected {errorToken} token. Expected {expected}");
         private string ErrorUnexpectedEOF(string expected) => Error(_tokens.Last(), $"Unexpected end of file. Expected {expected}");
 
@@ -50,6 +68,7 @@ namespace LentoCore.Parser
 
         private Expression ParseNextToken(int minBindingPower)
         {
+            AssureCanRead("expression");
             Token token = Eat();
             switch (token.Type)
             {
@@ -66,7 +85,7 @@ namespace LentoCore.Parser
                 }
                 case TokenType.Identifier:
                 {
-                    if (_tokens.CanRead && Peek().Type == TokenType.Dot)
+                    if (CanRead && Peek().Type == TokenType.Dot)
                     {
                         List<Identifier> identifiers = new List<Identifier>
                         {
@@ -76,18 +95,22 @@ namespace LentoCore.Parser
                         do
                         {
                             Eat(); // Dot
+                            AssureCanRead("dot followed by identifier");
                             identifier = Eat();
                             if (identifier.Type == TokenType.Identifier) identifiers.Add(new Identifier(identifier.Lexeme));
                             else throw new ParseErrorException(ErrorUnexpected(identifier, "identifier"));
-                        } while (_tokens.CanRead && Peek().Type == TokenType.Dot);
+                        } while (CanRead && Peek().Type == TokenType.Dot);
                         return new AtomicValue<Atoms.IdentifierDotList>(new IdentifierDotList(identifiers.ToArray()), new LineColumnSpan(token.Span.Start, identifier.Span.End));
                     }
-                    return new AtomicValue<Atoms.Identifier>(new Atoms.Identifier(token.Lexeme), token.Span);
+
+                    Atoms.Identifier ident = new Atoms.Identifier(token.Lexeme);
+                    if (CanRead && (Peek().Type == TokenType.Assign || Peek().Type == TokenType.Identifier)) return ParseAssignExpression(token.Span.Start, ident);
+                    return new AtomicValue<Atoms.Identifier>(ident, token.Span);
                 }
                 case TokenType.LeftParen:
                 { 
                     Expression expression = ParseExpression(0);
-                    if (_tokens.EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing parenthesis"));
+                    if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing parenthesis"));
                     if (Peek().Type != TokenType.RightParen) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing parenthesis"));
                     Eat(); // Right paren
                     return expression;
@@ -95,7 +118,7 @@ namespace LentoCore.Parser
                 case TokenType.LeftBracket:
                 {
                     List<Expression> expressions = ParseExpressions(TokenType.RightBracket, TokenType.Comma);
-                    if (_tokens.EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing bracket"));
+                    if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing bracket"));
                     if (Peek().Type != TokenType.RightBracket) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing bracket"));
                     Token rightBracket = Eat();
                     return new Expressions.List(new LineColumnSpan(token.Span.Start, rightBracket.Span.End), expressions);
@@ -104,7 +127,7 @@ namespace LentoCore.Parser
                 {
                     Eat(); // Eat opening parenthesis #(
                     List<Expression> expressions = ParseExpressions(TokenType.RightParen, TokenType.Comma);
-                    if (_tokens.EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing parenthesis"));
+                    if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing parenthesis"));
                     if (Peek().Type != TokenType.RightParen) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing parenthesis"));
                     Token rightParen = Eat();
                     if (expressions.Count > 0) return new Expressions.Tuple(new LineColumnSpan(token.Span.Start, rightParen.Span.End), expressions.ToArray());
@@ -129,6 +152,7 @@ namespace LentoCore.Parser
 
         private BinaryOperator? PeekNextBinaryOperator()
         {
+            if (!CanRead) return null;
             switch (Peek().Type)
             {
                 case TokenType.Addition: return BinaryOperator.Add;
@@ -189,17 +213,10 @@ namespace LentoCore.Parser
         }
         private Expression ParseExpression(int minBindingPower)
         {
-            if (_tokens.EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("expression"));
             Expression lhs = ParseNextToken(minBindingPower);
             while (true)
             {
                 // Infix operators
-                if (_tokens.EndOfStream) break;
-                if (!_tokens.CanRead)
-                {
-                    Thread.Sleep(100);
-                    continue;
-                }
                 BinaryOperator? op = PeekNextBinaryOperator();
                 if (op == null) break;
                 InfixBindingPower bindingPower = GetBinaryOperatorBindingPower((BinaryOperator)op);
@@ -213,9 +230,9 @@ namespace LentoCore.Parser
         private List<Expression> ParseExpressions(TokenType endingTokenType, params TokenType[] expressionDelimiterTokenTypes)
         {
             List<Expression> expressions = new List<Expression>();
-            while (!_tokens.EndOfStream)
+            while (!EndOfStream)
             {
-                if (!_tokens.CanRead)
+                if (!CanRead)
                 {
                     Thread.Sleep(100);
                     continue;
@@ -224,8 +241,7 @@ namespace LentoCore.Parser
                 if (Peek(true).Type == endingTokenType) break;
                 Expression expression = ParseExpression(0);
                 expressions.Add(expression);
-                if (_tokens.EndOfStream) break;
-                while (!_tokens.EndOfStream && !_tokens.CanRead) Thread.Sleep(100);
+                if (!CanRead && endingTokenType == TokenType.EOF) break;
                 Token next = Peek(false);
                 if (next.Type == endingTokenType) break;
                 if (expressionDelimiterTokenTypes.Contains(next.Type)) Eat(false); // Eat the separating token
@@ -236,6 +252,79 @@ namespace LentoCore.Parser
                 ));
             }
             return expressions;
+        }
+
+        /// <summary>
+        /// Assign expressions could either be variable declaration, function declaration, or struct, tuple or list destructuring.
+        /// </summary>
+        /// <example>
+        /// pi = 3.1415
+        /// add a b = a + b
+        /// [x | xs] = [1, 2, 3, 4, 5]
+        /// #(ok, err, ign) = #(:Ok, :Error, :Ignore)
+        /// </example>
+        /// <returns>Expression for either case.</returns>
+        private Expression ParseAssignExpression(LineColumn start, Atomic lhs)
+        {
+            if (lhs is Atoms.Identifier name)
+            {
+                // Variable or function
+                if (Peek().Type == TokenType.Assign)
+                {
+                    // Variable
+                    Eat(); // Assignment
+                    Expression value = ParseExpression(0);
+                    return new VariableDeclaration(new LineColumnSpan(start, value.Span.End), name, value);
+                }
+                if (Peek().Type == TokenType.Identifier)
+                {
+                    // Function
+                    Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.Assign);
+                    if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("assignment token"));
+                    Eat(); // Assignment
+                    Expression body = ParseExpression(0); 
+                    return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), name, parameterList, body);
+                }
+                throw new ParseErrorException(ErrorUnexpected(Peek(), "Assignment (equal sign) or function parameter list (identifier)"));
+            }
+            if (lhs is Atoms.Tuple tuple)
+            {
+                // Destructuring
+                throw new NotImplementedException(); // TODO: Implement this
+            }
+            if (lhs is Atoms.List list)
+            {
+                // Destructuring
+                throw new NotImplementedException(); // TODO: Implement this
+            }
+            throw new NotImplementedException("Assignment is not implemented for left hand side atoms of type " + lhs.GetTypeName());
+        }
+
+        private TypedIdentifier[] ParseTypedIdentifierList(TokenType closingTokenType)
+        {
+            List<TypedIdentifier> identifiers = new List<TypedIdentifier>();
+            while (CanRead)
+            {
+                Token paramType = Eat();
+                if (paramType.Type != TokenType.Identifier) throw new ParseErrorException(ErrorUnexpected(paramType, "parameter identifier type"));
+                AssureCanRead("parameter identifier name");
+                Token paramName = Eat();
+                if (paramName.Type != TokenType.Identifier) throw new ParseErrorException(ErrorUnexpected(paramName, "parameter identifier name"));
+
+                TypedIdentifier duplicate = identifiers.Find(ti => ti.Identifier.Name == paramName.Lexeme);
+                if (duplicate != null) throw new ParseErrorException(Error(paramName, $"duplicate parameter '{paramName.Lexeme}'"));
+                identifiers.Add(new TypedIdentifier(new Identifier(paramType.Lexeme), new Identifier(paramName.Lexeme)));
+
+                AssureCanRead("separating comma or assignment operator");
+                if (Peek().Type == TokenType.Comma)
+                {
+                    Eat();
+                    AssureCanRead("another typed function parameter");
+                }
+                else if (Peek().Type == closingTokenType) break;
+            }
+
+            return identifiers.ToArray();
         }
     }
 }
