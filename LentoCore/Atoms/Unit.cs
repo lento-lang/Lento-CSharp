@@ -9,6 +9,6 @@ namespace LentoCore.Atoms
     public class Unit : Tuple
     {
         public Unit() : base(new Atomic[0]) { }
-        public override string ToString() => "()";
+        public override string ToString() => "#()";
     }
 }
