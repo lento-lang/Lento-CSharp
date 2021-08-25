@@ -24,6 +24,6 @@ namespace LentoCore.Util
             return result;
         }
 
-        public override string ToString() => string.Join('\n', CompilationUnit.Select(e => e.ToString()));
+        public override string ToString(string indent) => string.Join('\n', CompilationUnit.Select(e => e.ToString(indent)));
     }
 }

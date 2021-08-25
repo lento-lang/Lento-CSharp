@@ -22,7 +22,7 @@ namespace LentoCore.Expressions
             return _value;
         }
 
-        public override string ToString() => $"Atomic {typeof(TAtom).Name}: {_value.ToString()}";
+        public override string ToString(string indent) => $"Atomic {typeof(TAtom).Name}: {_value.ToString()}";
     }
     /*
     class AtomicValue : AtomicValue<Atom>

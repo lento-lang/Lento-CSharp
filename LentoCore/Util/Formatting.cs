@@ -9,6 +9,7 @@ namespace LentoCore.Util
 {
     public static class Formatting
     {
+        public static readonly string Indentation = "    ";
         public static readonly Dictionary<char, char> CharacterEscapeCodes = new Dictionary<char, char> {
             {'0', '\0'},
             {'a', (char)7},

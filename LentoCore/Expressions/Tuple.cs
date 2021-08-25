@@ -24,6 +24,6 @@ namespace LentoCore.Expressions
             return new Atoms.Tuple(this, evaluatedElements);
         }
 
-        public override string ToString() => $"Tuple: (\n    {string.Join(",\n    ", Elements.Select(e => e.ToString()))}\n)";
+        public override string ToString(string indent) => $"Tuple: (\n{indent + Formatting.Indentation}{string.Join($",\n{indent}{Formatting.Indentation}", Elements.Select(e => e.ToString(indent + Formatting.Indentation)))}\n{indent})";
     }
 }

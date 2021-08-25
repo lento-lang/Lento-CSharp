@@ -18,6 +18,7 @@ namespace LentoCore.Expressions
         }
 
         public abstract Atomic Evaluate(); // Add Scope as parameter
-        public new abstract string ToString();
+        public override string ToString() => ToString("");
+        public abstract string ToString(string indent);
     }
 }

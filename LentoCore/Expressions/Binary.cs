@@ -166,6 +166,6 @@ namespace LentoCore.Expressions
             }
         }
 
-        public override string ToString() => $"{_operator}({_lhs.ToString()}, {_rhs.ToString()})";
+        public override string ToString(string indent) => $"{_operator}({_lhs.ToString(indent)}, {_rhs.ToString(indent)})";
     }
 }
