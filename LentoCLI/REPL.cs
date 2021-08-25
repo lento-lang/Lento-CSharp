@@ -7,6 +7,7 @@ using LentoCore.Lexer;
 using LentoCore.Parser;
 using LentoCore.Util;
 using LentoCore.Evaluator;
+using LentoCore.Expressions;
 using Console = EzConsole.EzConsole;
 
 namespace LentoCLI
@@ -42,7 +43,11 @@ namespace LentoCLI
                         if (verbose)
                         {
                             Console.WriteLine("Expressions: ");
-                            Console.WriteLine(ast.ToString(), ConsoleColor.Magenta);
+                            foreach (Expression expression in ast.CompilationUnit)
+                            {
+                                Console.Write("- ");
+                                Console.WriteLine(expression.ToString(), ConsoleColor.Magenta);
+                            }
                         }
 
                         TypeChecker tc = new TypeChecker(ast);
