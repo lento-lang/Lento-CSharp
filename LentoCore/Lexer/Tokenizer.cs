@@ -97,7 +97,7 @@ namespace LentoCore.Lexer
                 case '#':
                 {
                     if (Peek() == '(') Add(TokenType.TupleHashTag);
-                    else throw new System.Data.SyntaxErrorException(ErrorUnexpected(Peek(), "Tuple declaration"));
+                    else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "Left parenthesis to declare tuple"));
                     break;
                 }
                 case '@':
