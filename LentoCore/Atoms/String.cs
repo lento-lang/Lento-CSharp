@@ -15,7 +15,8 @@ namespace LentoCore.Atoms
         {
             Value = value;
         }
-
+        
+        public override string GetTypeName() => GetType().Name;
         public override string ToString() => $"\"{Formatting.EscapeString(Value)}\"";
     }
 }

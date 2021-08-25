@@ -21,7 +21,8 @@ namespace LentoCore.Atoms
             BaseExpression = baseExpression;
             Elements = elements;
         }
-
+        
+        public override string GetTypeName() => GetType().Name + $"<{Size}>";
         public override string ToString() => $"#({string.Join(", ", Elements.Select(e => e.ToString()))})";
     }
 }

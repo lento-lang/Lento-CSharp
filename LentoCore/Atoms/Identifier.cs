@@ -14,7 +14,8 @@ namespace LentoCore.Atoms
         {
             Name = name;
         }
-
+        
+        public override string GetTypeName() => GetType().Name;
         public override string ToString() => Name;
     }
 }
