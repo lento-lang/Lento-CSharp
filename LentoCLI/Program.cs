@@ -26,7 +26,7 @@ Compile file: lt -c [<lang> | exe | dll] [<file>]
 Options:
     -h, --help                Prints this help message.
     -v, --version             Prints the version of the program.
-    -r, --repl                Starts the REPL mode.
+    -r, --repl (verbose)      Starts the REPL mode.
     -l, --lint [<files>]      Lints the given files.
     -c, --compile [<file>]    Compiles the given file. (Not implemented)
 
@@ -38,7 +38,8 @@ Options:
 
 			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(Help);
 			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VersionText);
-			else if (arguments.ContainsKey("-repl") || arguments.ContainsKey("r")) REPL.Run(true);
+            else if (arguments.ContainsKey("-repl")) REPL.Run(arguments["-repl"].Contains("verbose"));
+            else if (arguments.ContainsKey("r")) REPL.Run(arguments["r"].Contains("verbose"));
 			else if (arguments.ContainsKey("-lint") || arguments.ContainsKey("l"))
 			{
 				string[] files = arguments.ContainsKey("-lint") ? arguments["-lint"] : arguments["l"];

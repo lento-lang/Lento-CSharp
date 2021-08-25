@@ -7,35 +7,51 @@ using System.Threading.Tasks;
 using LentoCore.Atoms;
 using LentoCore.Expressions;
 using LentoCore.Lexer;
+using LentoCore.Parser;
 using LentoCore.Util;
 
 namespace LentoCore.Evaluator
 {
     public class Evaluator
     {
-        public static Atomic EvaluateFile(Stream fileStream)
+        private readonly Tokenizer _lexer;
+        private readonly Parser.Parser _parser;
+        private readonly TypeChecker.TypeChecker _typeChecker;
+        
+        public event EventHandler<TokenizeDoneEventArgs> OnTokenizeDone;
+        public event EventHandler<ParseDoneEventArgs> OnParseDone;
+        public event EventHandler<EvaluationDoneEventArgs> OnEvaluationDone;
+
+        public Evaluator()
         {
-            Tokenizer lex = new Tokenizer();
-            TokenStream tokens = lex.Tokenize(fileStream);
-            Parser.Parser parser = new Parser.Parser();
-            AST ast = parser.Parse(tokens);
-            TypeChecker.TypeChecker tc = new TypeChecker.TypeChecker(ast);
-            tc.Run();
-            return EvaluateExpression(ast);
+            _lexer = new Tokenizer();
+            _parser = new Parser.Parser();
+            _typeChecker = new TypeChecker.TypeChecker();
         }
-        public static Atomic EvaluateInput(string input)
+
+        public Atomic EvaluateFile(Stream fileStream)
         {
-            Tokenizer lex = new Tokenizer();
-            TokenStream tokens = lex.Tokenize(input);
-            Parser.Parser parser = new Parser.Parser();
-            AST ast = parser.Parse(tokens);
-            TypeChecker.TypeChecker tc = new TypeChecker.TypeChecker(ast);
-            tc.Run();
-            return EvaluateExpression(ast);
+            TokenStream tokens = _lexer.Tokenize(fileStream);
+            OnTokenizeDone?.Invoke(this, new TokenizeDoneEventArgs(tokens));
+            AST ast = _parser.Parse(tokens);
+            OnParseDone?.Invoke(this, new ParseDoneEventArgs(ast));
+            _typeChecker.Check(ast);
+            Atomic result = ast.Evaluate(new GlobalScope());
+            OnEvaluationDone?.Invoke(this, new EvaluationDoneEventArgs(result));
+            return result;
         }
-        public static Atomic EvaluateExpression(Expression expression)
+
+        public Atomic EvaluateInput(string input) => EvaluateInput(input, new GlobalScope());
+        public Atomic EvaluateInput(string input, Scope scope)
         {
-            return expression.Evaluate();
+            TokenStream tokens = _lexer.Tokenize(input);
+            OnTokenizeDone?.Invoke(this, new TokenizeDoneEventArgs(tokens));
+            AST ast = _parser.Parse(tokens);
+            OnParseDone?.Invoke(this, new ParseDoneEventArgs(ast));
+            _typeChecker.Check(ast);
+            Atomic result = ast.Evaluate(scope);
+            OnEvaluationDone?.Invoke(this, new EvaluationDoneEventArgs(result));
+            return result;
         }
     }
 }

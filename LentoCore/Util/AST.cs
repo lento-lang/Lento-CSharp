@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using LentoCore.Atoms;
+using LentoCore.Evaluator;
 using LentoCore.Expressions;
 using LentoCore.Util;
 
@@ -14,13 +15,10 @@ namespace LentoCore.Util
             CompilationUnit = compilationUnit;
         }
 
-        public override Atomic Evaluate()
+        public override Atomic Evaluate(Scope scope)
         {
             Atomic result = new Atoms.Unit();
-            foreach (Expression expression in CompilationUnit)
-            {
-                result = expression.Evaluate();
-            }
+            foreach (Expression expression in CompilationUnit) result = expression.Evaluate(scope);
             return result;
         }
 

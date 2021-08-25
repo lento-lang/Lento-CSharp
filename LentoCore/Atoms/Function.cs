@@ -22,10 +22,10 @@ namespace LentoCore.Atoms
             };
         }
 
-        public void AddVariation(Dictionary<string, string> arguments, Expressions.Expression expression)
+        public void AddVariation(LineColumn position, Dictionary<string, string> arguments, Expressions.Expression expression)
         {
             string[] argTypes = GetArgumentTypes(arguments);
-            if (FunctionVariations.ContainsKey(argTypes)) throw new EvaluateErrorException($"Function already contains a definition matching: {Name} {GetArgumentTypeNameList(arguments)}");
+            if (FunctionVariations.ContainsKey(argTypes)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(position, $"Function already contains a definition matching: {Name} {GetArgumentTypeNameList(arguments)}"));
             FunctionVariations.Add(argTypes, new Variation(arguments, expression));
         }
 

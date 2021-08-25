@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Parser;
 using LentoCore.Util;
@@ -46,19 +47,19 @@ namespace LentoCore.Expressions
                 op(l, r);
                 return true;
             }, out bool _);
-        private bool TupleCrossOperation<TAtomic>(Atomic lhs, Atomic rhs, BinaryOperator op,
+        private bool TupleCrossOperation<TAtomic>(Atomic lhs, Atomic rhs, BinaryOperator op, Scope scope,
             out Atoms.Tuple result)
         {
             if (lhs is TAtomic && rhs is Atoms.Tuple @tupleRhs)
             {
                 result = @tupleRhs;
-                result.Elements = @tupleRhs.BaseExpression.Elements.Select(e => new Binary(_operator, _lhs, e, e.Span).Evaluate()).ToArray();
+                result.Elements = @tupleRhs.BaseExpression.Elements.Select(e => new Binary(_operator, _lhs, e, e.Span).Evaluate(scope)).ToArray();
                 return true;
             }
             if (rhs is TAtomic && lhs is Atoms.Tuple @tupleLhs)
             {
                 result = @tupleLhs;
-                result.Elements = @tupleLhs.BaseExpression.Elements.Select(e => new Binary(_operator, _rhs, e, e.Span).Evaluate()).ToArray();
+                result.Elements = @tupleLhs.BaseExpression.Elements.Select(e => new Binary(_operator, _rhs, e, e.Span).Evaluate(scope)).ToArray();
                 return true;
             }
 
@@ -66,18 +67,18 @@ namespace LentoCore.Expressions
             return false;
         }
 
-        private bool TupleOperation(Atomic lhs, Atomic rhs, BinaryOperator op,
+        private bool TupleOperation(Atomic lhs, Atomic rhs, BinaryOperator op, Scope scope,
             out Atoms.Tuple result)
         {
             if (lhs is Atoms.Tuple @tupleLhs && rhs is Atoms.Tuple @tupleRhs)
             {
-                if (!@tupleLhs.Size.Equals(@tupleRhs.Size)) throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, rhs, @tupleLhs.GetAtomicType().ToString()));
+                if (!@tupleLhs.Size.Equals(@tupleRhs.Size)) throw new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, rhs, @tupleLhs.GetAtomicType().ToString()));
                 result = @tupleLhs;
                 for (int i = 0; i < result.Size; i++)
                 {
                     Expression left = @tupleLhs.BaseExpression.Elements[i];
                     Expression right = @tupleRhs.BaseExpression.Elements[i];
-                    result.Elements[i] = new Binary(op, left, right, new LineColumnSpan(left.Span.Start, right.Span.End)).Evaluate();
+                    result.Elements[i] = new Binary(op, left, right, new LineColumnSpan(left.Span.Start, right.Span.End)).Evaluate(scope);
                 }
                 return true;
             }
@@ -86,15 +87,15 @@ namespace LentoCore.Expressions
             return false;
         }
 
-        private EvaluateErrorException OperationTypeError(Atomic lhs, BinaryOperator op, params Type[] expected)
+        private RuntimeErrorException OperationTypeError(Atomic lhs, BinaryOperator op, params Type[] expected)
         {
-            return new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_lhs.Span.Start, op.ToString(), lhs, expected));
+            return new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_lhs.Span.Start, op.ToString(), lhs, expected));
         }
 
-        public override Atomic Evaluate()
+        public override Atomic Evaluate(Scope scope)
         {
-            Atomic lhs = _lhs.Evaluate();
-            Atomic rhs = _rhs.Evaluate();
+            Atomic lhs = _lhs.Evaluate(scope);
+            Atomic rhs = _rhs.Evaluate(scope);
             switch (_operator)
             {
                 case BinaryOperator.Add:
@@ -103,7 +104,7 @@ namespace LentoCore.Expressions
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
                     if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
-                    if (TupleOperation(lhs, rhs, _operator, out Atoms.Tuple resultTuple)) return resultTuple;
+                    if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
                     if (VoidOperation<Atoms.List>(lhs, rhs, (l, r) => l.Elements.AddRange(r.Elements))) return lhs;
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
@@ -113,7 +114,7 @@ namespace LentoCore.Expressions
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value - r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
                     if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value - r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value - r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
-                    if (TupleOperation(lhs, rhs, _operator, out Atoms.Tuple resultTuple)) return resultTuple;
+                    if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
                 case BinaryOperator.Multiply:
@@ -122,7 +123,7 @@ namespace LentoCore.Expressions
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
                     if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
-                    if (TupleCrossOperation<Atoms.Integer>(lhs, rhs, _operator, out Atoms.Tuple resultTuple)) return resultTuple;
+                    if (TupleCrossOperation<Atoms.Integer>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
                 case BinaryOperator.Divide:
@@ -152,12 +153,12 @@ namespace LentoCore.Expressions
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
                     if (Operation<Atoms.String, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultString)) return new Atoms.Boolean(resultString);
                     if (Operation<Atoms.Unit, bool>(lhs, rhs, (l, r) => true, out bool _)) return new Atoms.Boolean(true);
-                    if (TupleOperation(lhs, rhs, _operator, out Atoms.Tuple resultTuple)) return resultTuple;
+                    if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple));
                 }
                 case BinaryOperator.NotEquals:
                 {
-                    return new Atoms.Boolean(!((Atoms.Boolean)new Binary(BinaryOperator.Equals, _lhs, _rhs, Span).Evaluate()).Value);
+                    return new Atoms.Boolean(!((Atoms.Boolean)new Binary(BinaryOperator.Equals, _lhs, _rhs, Span).Evaluate(scope)).Value);
                 }
                 case BinaryOperator.LessThan:
                 {
@@ -211,7 +212,7 @@ namespace LentoCore.Expressions
                 {
                     throw new NotImplementedException();
                 }
-                default: throw new EvaluateErrorException(ErrorHandler.EvaluateError(_lhs.Span.End, $"Unknown infix binary operator '{_operator}'!"));
+                default: throw new RuntimeErrorException(ErrorHandler.EvaluateError(_lhs.Span.End, $"Unknown infix binary operator '{_operator}'!"));
             }
         }
 

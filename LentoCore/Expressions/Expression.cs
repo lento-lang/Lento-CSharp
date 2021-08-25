@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LentoCore.Atoms;
+using LentoCore.Evaluator;
 using LentoCore.Util;
 
 namespace LentoCore.Expressions
@@ -17,7 +18,7 @@ namespace LentoCore.Expressions
             Span = span;
         }
 
-        public abstract Atomic Evaluate(); // Add Scope as parameter
+        public abstract Atomic Evaluate(Scope scope); // Add Scope as parameter
         public override string ToString() => ToString("");
         public abstract string ToString(string indent);
     }

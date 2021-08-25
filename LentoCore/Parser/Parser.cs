@@ -266,7 +266,7 @@ namespace LentoCore.Parser
         /// <returns>Expression for either case.</returns>
         private Expression ParseAssignExpression(LineColumn start, Atomic lhs)
         {
-            if (lhs is Atoms.Identifier name)
+            if (lhs is Atoms.Identifier identifier)
             {
                 // Variable or function
                 if (Peek().Type == TokenType.Assign)
@@ -274,7 +274,7 @@ namespace LentoCore.Parser
                     // Variable
                     Eat(); // Assignment
                     Expression value = ParseExpression(0);
-                    return new VariableDeclaration(new LineColumnSpan(start, value.Span.End), name, value);
+                    return new VariableDeclaration(new LineColumnSpan(start, value.Span.End), identifier.Name, value);
                 }
                 if (Peek().Type == TokenType.Identifier)
                 {
@@ -283,7 +283,7 @@ namespace LentoCore.Parser
                     if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("assignment token"));
                     Eat(); // Assignment
                     Expression body = ParseExpression(0); 
-                    return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), name, parameterList, body);
+                    return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), identifier.Name, parameterList, body);
                 }
                 throw new ParseErrorException(ErrorUnexpected(Peek(), "Assignment (equal sign) or function parameter list (identifier)"));
             }

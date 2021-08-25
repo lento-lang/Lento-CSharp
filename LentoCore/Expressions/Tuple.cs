@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LentoCore.Atoms;
+using LentoCore.Evaluator;
 using LentoCore.Util;
 
 namespace LentoCore.Expressions
@@ -18,9 +19,9 @@ namespace LentoCore.Expressions
             Elements = elements;
         }
 
-        public override Atomic Evaluate()
+        public override Atomic Evaluate(Scope scope)
         {
-            Atomic[] evaluatedElements = Elements.Select(e => e.Evaluate()).ToArray();
+            Atomic[] evaluatedElements = Elements.Select(e => e.Evaluate(scope)).ToArray();
             return new Atoms.Tuple(this, evaluatedElements);
         }
 

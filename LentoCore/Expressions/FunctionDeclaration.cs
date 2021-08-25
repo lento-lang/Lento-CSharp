@@ -5,6 +5,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using LentoCore.Atoms;
+using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Util;
 
@@ -12,24 +13,25 @@ namespace LentoCore.Expressions
 {
     public class FunctionDeclaration : Expression
     {
-        protected readonly Atoms.Identifier Name;
-        protected readonly Atoms.TypedIdentifier[] Parameters;
+        private readonly string _name;
+        private readonly Atoms.TypedIdentifier[] _parameters;
         protected readonly Expression Body;
-        public FunctionDeclaration(LineColumnSpan span, Identifier name, Atoms.TypedIdentifier[] parameters, Expression body) : base(span)
+        public FunctionDeclaration(LineColumnSpan span, string name, Atoms.TypedIdentifier[] parameters, Expression body) : base(span)
         {
-            Name = name;
-            Parameters = parameters;
+            _name = name;
+            _parameters = parameters;
             Body = body;
         }
 
-        public override Atomic Evaluate()
+        public override Atomic Evaluate(Scope scope)
         {
-            // TODO: Add key value to scope
             Dictionary<string, string> arguments = new Dictionary<string, string>();
-            foreach (var parameter in Parameters) arguments.Add(parameter.Identifier.Name, parameter.Type.Name);
-            return new Atoms.Function(Name.Name, arguments, Body);
+            foreach (var parameter in _parameters) arguments.Add(parameter.Identifier.Name, parameter.Type.Name);
+            Atoms.Function function = new Atoms.Function(_name, arguments, Body);
+            scope.Set(_name, function);
+            return function;
         }
 
-        public override string ToString(string indent) => $"Function declaration: {Name.ToString()}({string.Join(", ", Parameters.Select(p => p.ToString()))}) = {Body.ToString(indent)}";
+        public override string ToString(string indent) => $"Function declaration: {_name}({string.Join(", ", _parameters.Select(p => p.ToString()))}) = {Body.ToString(indent)}";
     }
 }
