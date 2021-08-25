@@ -22,6 +22,6 @@ namespace LentoCore.Atoms
             Elements = elements;
         }
 
-        public override string ToString() => $"({string.Join(", ", Elements.Select(e => e.ToString()))})";
+        public override string ToString() => $"#({string.Join(", ", Elements.Select(e => e.ToString()))})";
     }
 }
