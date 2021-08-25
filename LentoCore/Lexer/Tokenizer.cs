@@ -94,6 +94,12 @@ namespace LentoCore.Lexer
                 case '{': { Add(TokenType.LeftCurlyBracket); break; }
                 case '}': { Add(TokenType.RightCurlyBracket); break; }
 
+                case '#':
+                {
+                    if (Peek() == '(') Add(TokenType.TupleHashTag);
+                    else throw new System.Data.SyntaxErrorException(ErrorUnexpected(Peek(), "Tuple declaration"));
+                    break;
+                }
                 case '@':
                 {
                     if (char.IsLetter(Peek())) ScanAttribute();

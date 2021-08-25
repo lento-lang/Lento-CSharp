@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using LentoCore.Atoms;
 using LentoCore.Exception;
@@ -84,8 +85,19 @@ namespace LentoCore.Parser
                     return new AtomicValue<Atoms.Identifier>(new Atoms.Identifier(token.Lexeme), token.Span);
                 }
                 case TokenType.LeftParen:
+                { 
+                    Expression expression = ParseExpression(0);
+                    if (_tokens.EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing parenthesis"));
+                    if (Peek().Type != TokenType.RightParen) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing parenthesis"));
+                    Eat(); // Right paren
+                    return expression;
+                }
+                case TokenType.TupleHashTag:
                 {
+                    Eat(); // Eat opening parenthesis #(
                     List<Expression> expressions = ParseExpressions(TokenType.RightParen, TokenType.Comma);
+                    if (_tokens.EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing parenthesis"));
+                    if (Peek().Type != TokenType.RightParen) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing parenthesis"));
                     Token rightParen = Eat();
                     if (expressions.Count > 0) return new Expressions.Tuple(new LineColumnSpan(token.Span.Start, rightParen.Span.End), expressions.ToArray());
                     return new Expressions.AtomicValue<Atoms.Unit>(new Unit(), new LineColumnSpan(token.Span.Start, rightParen.Span.End));
