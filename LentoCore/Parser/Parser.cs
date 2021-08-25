@@ -92,6 +92,14 @@ namespace LentoCore.Parser
                     Eat(); // Right paren
                     return expression;
                 }
+                case TokenType.LeftBracket:
+                {
+                    List<Expression> expressions = ParseExpressions(TokenType.RightBracket, TokenType.Comma);
+                    if (_tokens.EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing bracket"));
+                    if (Peek().Type != TokenType.RightBracket) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing bracket"));
+                    Token rightBracket = Eat();
+                    return new Expressions.List(new LineColumnSpan(token.Span.Start, rightBracket.Span.End), expressions);
+                }
                 case TokenType.TupleHashTag:
                 {
                     Eat(); // Eat opening parenthesis #(

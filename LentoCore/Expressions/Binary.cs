@@ -42,6 +42,10 @@ namespace LentoCore.Expressions
             return false;
         }
 
+        private bool VoidOperation<TAtomic>(Atomic lhs, Atomic rhs, Action<TAtomic, TAtomic> op) => CrossOperation<TAtomic, TAtomic, bool>(lhs, rhs, (l, r) => {
+                op(l, r);
+                return true;
+            }, out bool _);
         private bool TupleCrossOperation<TAtomic>(Atomic lhs, Atomic rhs, BinaryOperator op,
             out Atoms.Tuple result)
         {
@@ -100,6 +104,7 @@ namespace LentoCore.Expressions
                     if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
                     if (TupleOperation(lhs, rhs, _operator, out Atoms.Tuple resultTuple)) return resultTuple;
+                    if (VoidOperation<Atoms.List>(lhs, rhs, (l, r) => l.Elements.AddRange(r.Elements))) return lhs;
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
                 case BinaryOperator.Subtract:
