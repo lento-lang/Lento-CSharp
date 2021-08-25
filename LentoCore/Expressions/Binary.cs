@@ -71,7 +71,7 @@ namespace LentoCore.Expressions
         {
             if (lhs is Atoms.Tuple @tupleLhs && rhs is Atoms.Tuple @tupleRhs)
             {
-                if (!@tupleLhs.Size.Equals(@tupleRhs.Size)) throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, rhs, @tupleLhs.GetTypeName()));
+                if (!@tupleLhs.Size.Equals(@tupleRhs.Size)) throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, rhs, @tupleLhs.GetAtomicType().ToString()));
                 result = @tupleLhs;
                 for (int i = 0; i < result.Size; i++)
                 {
