@@ -23,6 +23,7 @@ namespace LentoCore.Expressions
 
         private Atoms.Tuple EvaluateTupleElements(Atoms.Tuple tuple, PrefixOperator op)
         {
+            if (tuple.Elements.Length == 0) return tuple;
             Prefix[] negativeElementsExpressions = tuple.BaseExpression.Elements.Select(e => new Prefix(op, e, e.Span)).ToArray();
             Atomic[] negativeAtoms = negativeElementsExpressions.Select(n => n.Evaluate()).ToArray();
             tuple.Elements = negativeAtoms;
@@ -39,13 +40,13 @@ namespace LentoCore.Expressions
                     if (value is Integer @integer) return new Atoms.Integer(@integer.Value * -1);
                     if (value is Float @float) return new Atoms.Float(@float.Value * -1);
                     if (value is Atoms.Tuple @tuple) return EvaluateTupleElements(@tuple, _operator);
-                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Integer), typeof(Float), typeof(Atoms.Tuple)));
+                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Integer), typeof(Float)));
                 }
                 case PrefixOperator.Not:
                 {
                     if (value is Atoms.Boolean @bool) return new Atoms.Boolean(!@bool.Value);
                     if (value is Atoms.Tuple @tuple) return EvaluateTupleElements(@tuple, _operator);
-                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Atoms.Boolean), typeof(Atoms.Tuple)));
+                    throw new EvaluateErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, value, typeof(Atoms.Boolean)));
                 }
                 case PrefixOperator.Referenced:
                 {
