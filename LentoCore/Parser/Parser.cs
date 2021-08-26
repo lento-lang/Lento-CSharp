@@ -60,6 +60,15 @@ namespace LentoCore.Parser
             return ret;
         }
 
+        private Token AssertNext(params TokenType[] expected) => AssertNext(Formatting.FormattableOptionsToString(expected), expected);
+        private Token AssertNext(string expectedText, params TokenType[] expected)
+        {
+            AssureCanRead(expectedText);
+            Token next = Eat();
+            if (!expected.Contains(next.Type)) throw new ParseErrorException(ErrorUnexpected(next, expectedText));
+            return next;
+        }
+
         private string Error(Token errorToken, string message) => ErrorHandler.ParseError(errorToken.Position, message);
         private string ErrorUnexpected(Token errorToken, string expected) => Error(errorToken, $"Unexpected {errorToken} token. Expected {expected}");
         private string ErrorUnexpectedEOF(string expected) => Error(_tokens.Last(), $"Unexpected end of file. Expected {expected}");
@@ -95,10 +104,8 @@ namespace LentoCore.Parser
                         do
                         {
                             Eat(); // Dot
-                            AssureCanRead("dot followed by identifier");
-                            identifier = Eat();
-                            if (identifier.Type == TokenType.Identifier) identifiers.Add(new Identifier(identifier.Lexeme));
-                            else throw new ParseErrorException(ErrorUnexpected(identifier, "identifier"));
+                            identifier = AssertNext("dot followed by identifier", TokenType.Identifier);
+                            identifiers.Add(new Identifier(identifier.Lexeme));
                         } while (CanRead && Peek().Type == TokenType.Dot);
                         return new AtomicValue<Atoms.IdentifierDotList>(new IdentifierDotList(identifiers.ToArray()), new LineColumnSpan(token.Span.Start, identifier.Span.End));
                     }
@@ -110,26 +117,26 @@ namespace LentoCore.Parser
                 case TokenType.LeftParen:
                 { 
                     Expression expression = ParseExpression(0);
-                    if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing parenthesis"));
-                    if (Peek().Type != TokenType.RightParen) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing parenthesis"));
-                    Eat(); // Right paren
+                    AssertNext("Right closing parenthesis", TokenType.RightParen);
                     return expression;
                 }
                 case TokenType.LeftBracket:
                 {
                     List<Expression> expressions = ParseExpressions(TokenType.RightBracket, TokenType.Comma);
-                    if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing bracket"));
-                    if (Peek().Type != TokenType.RightBracket) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing bracket"));
-                    Token rightBracket = Eat();
+                    Token rightBracket = AssertNext("Right closing bracket", TokenType.RightBracket);
                     return new Expressions.List(new LineColumnSpan(token.Span.Start, rightBracket.Span.End), expressions);
+                }
+                case TokenType.LeftCurlyBracket:
+                {
+                    List<Expression> expressions = ParseExpressions(TokenType.RightCurlyBracket, TokenType.SemiColon, TokenType.Newline);
+                    Token rightCurlyBracket = AssertNext("Right curly bracket", TokenType.RightCurlyBracket);
+                    return new Expressions.Block(new LineColumnSpan(token.Span.Start, rightCurlyBracket.Span.End), expressions.ToArray());
                 }
                 case TokenType.TupleHashTag:
                 {
                     Eat(); // Eat opening parenthesis #(
                     List<Expression> expressions = ParseExpressions(TokenType.RightParen, TokenType.Comma);
-                    if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("Right closing parenthesis"));
-                    if (Peek().Type != TokenType.RightParen) throw new ParseErrorException(ErrorUnexpected(Peek(), "Right closing parenthesis"));
-                    Token rightParen = Eat();
+                    Token rightParen = AssertNext("Right closing parenthesis", TokenType.RightParen);
                     if (expressions.Count > 0) return new Expressions.Tuple(new LineColumnSpan(token.Span.Start, rightParen.Span.End), expressions.ToArray());
                     return new Expressions.AtomicValue<Atoms.Unit>(new Unit(), new LineColumnSpan(token.Span.Start, rightParen.Span.End));
                 }
@@ -232,12 +239,7 @@ namespace LentoCore.Parser
             List<Expression> expressions = new List<Expression>();
             while (!EndOfStream)
             {
-                if (!CanRead)
-                {
-                    Thread.Sleep(100);
-                    continue;
-                }
-
+                AssureCanRead("expression");
                 if (Peek(true).Type == endingTokenType) break;
                 Expression expression = ParseExpression(0);
                 expressions.Add(expression);
@@ -280,8 +282,7 @@ namespace LentoCore.Parser
                 {
                     // Function
                     Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.Assign);
-                    if (EndOfStream) throw new ParseErrorException(ErrorUnexpectedEOF("assignment token"));
-                    Eat(); // Assignment
+                    AssertNext(TokenType.Assign);
                     Expression body = ParseExpression(0); 
                     return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), identifier.Name, parameterList, body);
                 }
