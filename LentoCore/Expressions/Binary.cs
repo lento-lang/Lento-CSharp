@@ -42,11 +42,6 @@ namespace LentoCore.Expressions
             result = default;
             return false;
         }
-
-        private bool VoidOperation<TAtomic>(Atomic lhs, Atomic rhs, Action<TAtomic, TAtomic> op) => CrossOperation<TAtomic, TAtomic, bool>(lhs, rhs, (l, r) => {
-                op(l, r);
-                return true;
-            }, out bool _);
         private bool TupleCrossOperation<TAtomic>(Atomic lhs, Atomic rhs, BinaryOperator op, Scope scope,
             out Atoms.Tuple result)
         {
@@ -105,7 +100,7 @@ namespace LentoCore.Expressions
                     if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
                     if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
-                    if (VoidOperation<Atoms.List>(lhs, rhs, (l, r) => l.Elements.AddRange(r.Elements))) return lhs;
+                    if (Operation<Atoms.List, System.Collections.Generic.List<Atomic>>(lhs, rhs, (l, r) => l.Elements.Concat(r.Elements).ToList(), out System.Collections.Generic.List<Atomic> resultList)) return new Atoms.List(resultList);
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
                 case BinaryOperator.Subtract:
@@ -123,7 +118,8 @@ namespace LentoCore.Expressions
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
                     if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
-                    if (TupleCrossOperation<Atoms.Integer>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
+                    if (TupleCrossOperation<Atoms.Integer>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTupleInt)) return resultTupleInt;
+                    if (TupleCrossOperation<Atoms.Float>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTupleFloat)) return resultTupleFloat;
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
                 case BinaryOperator.Divide:
