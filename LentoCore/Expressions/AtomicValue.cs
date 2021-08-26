@@ -34,6 +34,8 @@ namespace LentoCore.Expressions
             return _value;
         }
 
+        public TAtom GetAtomicValue() => _value;
+
         public override string ToString(string indent) => $"Atomic {typeof(TAtom).Name}: {_value.ToString()}";
     }
     /*

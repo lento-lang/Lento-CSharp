@@ -186,7 +186,7 @@ namespace LentoCore.Lexer
                 case '&':
                 {
                     if (ExpectNext('&')) Add(TokenType.And);
-                    else if (ExpectNext(char.IsLetter)) Add(TokenType.Reference);
+                    else if (CheckNext(char.IsLetter)) Add(TokenType.Reference);
                     else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "logical AND or referenced identifier"));
                     break;
                 }

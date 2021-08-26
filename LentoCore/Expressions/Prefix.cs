@@ -55,10 +55,10 @@ namespace LentoCore.Expressions
                 }
                 case PrefixOperator.Referenced:
                 {
-                    // Find reference in scope
-                    if (value is Atoms.Identifier @ident) return new Reference(@ident);
-                    if (value is Atoms.IdentifierDotList @identDotList) return new Reference(@identDotList);
-                    throw OperationTypeError(value, _operator, typeof(Atoms.Identifier));
+                    // Find reference in scope when evaluating function call
+                    if (_rhs is Expressions.AtomicValue<Atoms.Identifier> identifier) return new Reference(identifier.GetAtomicValue());
+                    if (_rhs is Expressions.AtomicValue<Atoms.IdentifierDotList> identifierDotList) return new Reference(identifierDotList.GetAtomicValue());
+                    throw OperationTypeError(value, _operator, typeof(Atoms.Identifier), typeof(Atoms.IdentifierDotList));
                 }
                 default: throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Could not evaluate {_operator}. Invalid prefix operator!"));
             }
