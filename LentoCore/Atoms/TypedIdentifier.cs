@@ -11,13 +11,12 @@ namespace LentoCore.Atoms
         public AtomicType IdentifierType;
         public Identifier Identifier;
 
-        public TypedIdentifier(AtomicType type, Identifier identifier)
+        public TypedIdentifier(AtomicType type, Identifier identifier) : base(BaseType)
         {
             IdentifierType = type;
             Identifier = identifier;
-            Type = new AtomicType(GetType().Name);
         }
-
+        public new static AtomicType BaseType => new AtomicType(nameof(TypedIdentifier));
         public override string ToString() => $"{IdentifierType.ToString()} {Identifier.ToString()}";
     }
 }

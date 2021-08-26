@@ -8,6 +8,7 @@ using LentoCore.Parser;
 using LentoCore.Util;
 using LentoCore.Evaluator;
 using LentoCore.Expressions;
+using LentoCore.StandardLibrary;
 using Console = EzConsole.EzConsole;
 
 namespace LentoCLI
@@ -46,6 +47,7 @@ namespace LentoCLI
             }
 
             GlobalScope scope = new GlobalScope();
+            StandardLibrary.Load(scope);
 
             while (true)
             {

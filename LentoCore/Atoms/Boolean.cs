@@ -10,11 +10,11 @@ namespace LentoCore.Atoms
     {
         public bool Value;
 
-        public Boolean(bool value)
+        public Boolean(bool value) : base(BaseType)
         {
             Value = value;
-            Type = new AtomicType(GetType().Name);
         }
+        public new static AtomicType BaseType => new AtomicType(nameof(Boolean));
         public override string ToString() => Value.ToString().ToLower();
     }
 }

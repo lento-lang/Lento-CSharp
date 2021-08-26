@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,16 +10,19 @@ namespace LentoCore.Atoms
     public class AtomicType : Atomic
     {
         public string Name;
-        private readonly string _stringRepresentation;
-        public AtomicType(string name) : this(name, string.Empty) { }
-        public AtomicType(string name, string stringRepresentation)
+        public AtomicType(string name) : base(null)
         {
             Name = name;
-            _stringRepresentation = stringRepresentation;
         }
-        public virtual bool Equals(AtomicType other) => Name.Equals(other.Name);
 
-        public override string ToString() =>
-            _stringRepresentation != string.Empty ? _stringRepresentation : Name;
+        public virtual bool Equals(AtomicType other)
+        {
+            if (this is AtomicAnyType || other is AtomicAnyType) return true;
+            return Name.Equals(other.Name);
+        }
+
+        public new static AtomicType BaseType => null; // Base type
+
+        public override string ToString() => Name;
     }
 }

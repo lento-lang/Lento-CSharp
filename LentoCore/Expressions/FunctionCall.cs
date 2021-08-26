@@ -16,8 +16,8 @@ namespace LentoCore.Expressions
         private readonly Expression[] _arguments;
         public FunctionCall(LineColumnSpan span, Identifier identifier, Expression[] arguments) : base(span)
         {
-            this._identifier = identifier;
-            this._arguments = arguments;
+            _identifier = identifier;
+            _arguments = arguments;
         }
 
         public override Atomic Evaluate(Scope scope)
@@ -26,14 +26,14 @@ namespace LentoCore.Expressions
             if (!(functionAtom is Atoms.Function function)) throw new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(Span.Start, functionAtom, typeof(Function)));
             Atomic[] arguments = _arguments.Select(argumentExpression => argumentExpression.Evaluate(scope)).ToArray();
             AtomicType[] argumentTypes = arguments.Select(a => a.Type).ToArray();
-            foreach (KeyValuePair<AtomicType[], Function.Variation> variation in function.FunctionVariations)
+            foreach (var (variationTypes, variation) in function.Variations)
             {
-                if (variation.Key.Length == argumentTypes.Length)
+                if (variationTypes.Length == argumentTypes.Length)
                 {
                     bool allMatch = true;
-                    for (int i = 0; i < variation.Key.Length; i++)
+                    for (int i = 0; i < variationTypes.Length; i++)
                     {
-                        if (!variation.Key[i].Equals(argumentTypes[i]))
+                        if (!variationTypes[i].Equals(argumentTypes[i]))
                         {
                             allMatch = false;
                             break;
@@ -42,21 +42,44 @@ namespace LentoCore.Expressions
 
                     if (allMatch)
                     {
-                        Scope variationScope = variation.Value.Scope;
-                        Scope callScope = variation.Value.Scope.Derive("Function Call: " + _identifier.Name);
-                        string[] argumentNames = variation.Value.Arguments.Select(a => a.Item1).ToArray();
-                        for (int i = 0; i < argumentNames.Length; i++)
+                        if (variation is Function.UserDefinedVariation userDefinedVariation)
                         {
-                            callScope.Set(argumentNames[i], _arguments[i].Evaluate(variationScope));
+                            Scope variationScope = userDefinedVariation.Scope;
+                            Scope callScope = userDefinedVariation.Scope.Derive("Function Call: " + _identifier.Name);
+                            string[] argumentNames = userDefinedVariation.Arguments.Select(a => a.Item1).ToArray();
+                            for (int i = 0; i < argumentNames.Length; i++)
+                            {
+                                callScope.Set(argumentNames[i], _arguments[i].Evaluate(variationScope));
+                            }
+
+                            return userDefinedVariation.EvaluateVariation(callScope);
                         }
 
-                        return variation.Value.Expression.Evaluate(callScope);
+                        if (variation is Function.BuiltInVariation builtInVariation)
+                        {
+                            return builtInVariation.EvaluateVariation(arguments, Span);
+                        }
+
+                        throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Unknown variation value '{variation}'"));
                     }
                 }
             }
-            throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"No function variation of '{_identifier.Name}' matches the given argument signature: {string.Join(", ", argumentTypes.Select(t => t.ToString()))}"));
+            throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"No function variation matches the given argument signature '{_identifier.Name}({string.Join(", ", argumentTypes.Select(t => t.ToString()))})'." +
+                $"\nValid function variations are:" +
+                $"\n{Formatting.Indentation}{_identifier.Name}(" + string.Join($")\n{Formatting.Indentation}{_identifier.Name}(", function.Variations.Select(
+                    v =>
+                    {
+                        if (v.Value is Function.UserDefinedVariation userDefinedVariation) return GetArgumentTypeNameList(userDefinedVariation.Arguments);
+                        if (v.Value is Function.BuiltInVariation builtInVariation) return GetArgumentTypesList(builtInVariation.ParameterTypes);
+                        throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Unknown variation value '{v.Value}'"));
+                    }).ToArray()) + ')'
+                ));
         }
-
+        
+        private static string GetArgumentTypeNameList(List<(string, Atoms.AtomicType)> arguments) =>
+            string.Join(", ", arguments.Select(arg => $"{arg.Item2.ToString()} {arg.Item1}"));
+        private static string GetArgumentTypesList(Atoms.AtomicType[] arguments) =>
+            string.Join(", ", arguments.Select(arg => arg.ToString()));
         public override string ToString(string indent) => $"{_identifier.Name}({string.Join(", ", _arguments.Select(a => a.ToString()))})";
     }
 }

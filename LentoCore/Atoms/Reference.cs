@@ -9,11 +9,11 @@ namespace LentoCore.Atoms
     public class Reference : Atomic
     {
         public Atomic Referenced;
-        public Reference(Atomic referenced)
+        public Reference(Atomic referenced) : base(BaseType)
         {
             Referenced = referenced;
-            Type = new AtomicType(GetType().Name);
         }
+        public new static AtomicType BaseType => new AtomicType(nameof(Reference));
         public override string ToString() => $"<Reference: {Referenced.ToString()}>";
     }
 }

@@ -10,11 +10,11 @@ namespace LentoCore.Atoms
     {
         public Identifier[] Identifiers;
 
-        public IdentifierDotList(Identifier[] identifiers)
+        public IdentifierDotList(Identifier[] identifiers) : base(BaseType)
         {
             Identifiers = identifiers;
-            Type = new AtomicType(GetType().Name);
         }
+        public new static AtomicType BaseType => new AtomicType(nameof(IdentifierDotList));
         public override string ToString() => string.Join('.', Identifiers.Select(i => i.ToString()));
     }
 }

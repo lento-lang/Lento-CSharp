@@ -11,11 +11,11 @@ namespace LentoCore.Atoms
     {
         public char Value;
 
-        public Character(char value)
+        public Character(char value) : base(BaseType)
         {
             Value = value;
-            Type = new AtomicType(GetType().Name);
         }
+        public new static AtomicType BaseType => new AtomicType(nameof(Character));
         public override string ToString() => $"'{Formatting.EscapeChar(Value)}'";
     }
 }
