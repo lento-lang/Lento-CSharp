@@ -42,6 +42,14 @@ namespace LentoCore.Expressions
             result = default;
             return false;
         }
+
+        private bool SymmetricOperation<TAtomic1, TAtomic2, TPrimitive>(Atomic lhs, Atomic rhs,
+            Func<TAtomic1, TAtomic2, TPrimitive> op, out TPrimitive result)
+        {
+            if (CrossOperation(lhs, rhs, op, out result)) return true;
+            if (CrossOperation(rhs, lhs, op, out result)) return true;
+            return false;
+        }
         private bool TupleCrossOperation<TAtomic>(Atomic lhs, Atomic rhs, BinaryOperator op, Scope scope,
             out Atoms.Tuple result)
         {
@@ -97,9 +105,9 @@ namespace LentoCore.Expressions
                 {
                     if (Operation<Atoms.Integer, int>(lhs, rhs, (l, r) => l.Value + r.Value, out int resultInt)) return new Atoms.Integer(resultInt);
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
+                    if (Operation<Atoms.String, string>(lhs, rhs, (l, r) => l.Value + r.Value, out string resultString)) return new Atoms.String(resultString);
                     if (Operation<Atoms.List, System.Collections.Generic.List<Atomic>>(lhs, rhs, (l, r) => l.Elements.Concat(r.Elements).ToList(), out System.Collections.Generic.List<Atomic> resultList)) return new Atoms.List(resultList);
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
@@ -107,8 +115,7 @@ namespace LentoCore.Expressions
                 {
                     if (Operation<Atoms.Integer, int>(lhs, rhs, (l, r) => l.Value - r.Value, out int resultInt)) return new Atoms.Integer(resultInt);
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value - r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value - r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value - r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value - r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
@@ -116,8 +123,7 @@ namespace LentoCore.Expressions
                 {
                     if (Operation<Atoms.Integer, int>(lhs, rhs, (l, r) => l.Value * r.Value, out int resultInt)) return new Atoms.Integer(resultInt);
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     if (TupleCrossOperation<Atoms.Integer>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTupleInt)) return resultTupleInt;
                     if (TupleCrossOperation<Atoms.Float>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTupleFloat)) return resultTupleFloat;
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
@@ -126,24 +132,21 @@ namespace LentoCore.Expressions
                 {
                     if (Operation<Atoms.Integer, int>(lhs, rhs, (l, r) => l.Value / r.Value, out int resultInt)) return new Atoms.Integer(resultInt);
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value / r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value / r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value / r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value / r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
                 case BinaryOperator.Modulus:
                 {
                     if (Operation<Atoms.Integer, int>(lhs, rhs, (l, r) => l.Value % r.Value, out int resultInt)) return new Atoms.Integer(resultInt);
                     if (Operation<Atoms.Float, float>(lhs, rhs, (l, r) => l.Value % r.Value, out float resultFloat)) return new Atoms.Float(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value % r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, float>(lhs, rhs, (l, r) => l.Value % r.Value, out float resultFloatInt)) return new Atoms.Float(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, float>(lhs, rhs, (l, r) => l.Value % r.Value, out float resultIntFloat)) return new Atoms.Float(resultIntFloat);
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
                 }
                 case BinaryOperator.Equals:
                 {
                     if (Operation<Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultInt)) return new Atoms.Boolean(resultInt);
                     if (Operation<Atoms.Float, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultFloat)) return new Atoms.Boolean(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultFloatInt)) return new Atoms.Boolean(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
                     if (Operation<Atoms.Boolean, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultBool)) return new Atoms.Boolean(resultBool);
                     if (Operation<Atoms.Atom, bool>(lhs, rhs, (l, r) => l.Name == r.Name, out bool resultAtom)) return new Atoms.Boolean(resultAtom);
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
@@ -160,8 +163,7 @@ namespace LentoCore.Expressions
                 {
                     if (Operation<Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultInt)) return new Atoms.Boolean(resultInt);
                     if (Operation<Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultFloat)) return new Atoms.Boolean(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultFloatInt)) return new Atoms.Boolean(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Character));
                 }
@@ -169,8 +171,7 @@ namespace LentoCore.Expressions
                 {
                     if (Operation<Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value <= r.Value, out bool resultInt)) return new Atoms.Boolean(resultInt);
                     if (Operation<Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value <= r.Value, out bool resultFloat)) return new Atoms.Boolean(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value <= r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value <= r.Value, out bool resultFloatInt)) return new Atoms.Boolean(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value <= r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value <= r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Character));
                 }
@@ -178,8 +179,7 @@ namespace LentoCore.Expressions
                 {
                     if (Operation<Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value > r.Value, out bool resultInt)) return new Atoms.Boolean(resultInt);
                     if (Operation<Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value > r.Value, out bool resultFloat)) return new Atoms.Boolean(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value > r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value > r.Value, out bool resultFloatInt)) return new Atoms.Boolean(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value > r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value > r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Character));
                 }
@@ -187,8 +187,7 @@ namespace LentoCore.Expressions
                 {
                     if (Operation<Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value >= r.Value, out bool resultInt)) return new Atoms.Boolean(resultInt);
                     if (Operation<Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value >= r.Value, out bool resultFloat)) return new Atoms.Boolean(resultFloat);
-                    if (CrossOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value >= r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
-                    if (CrossOperation<Atoms.Float, Atoms.Integer, bool>(lhs, rhs, (l, r) => l.Value >= r.Value, out bool resultFloatInt)) return new Atoms.Boolean(resultFloatInt);
+                    if (SymmetricOperation<Atoms.Integer, Atoms.Float, bool>(lhs, rhs, (l, r) => l.Value >= r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value >= r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Character));
                 }
