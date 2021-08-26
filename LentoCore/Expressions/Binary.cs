@@ -55,14 +55,14 @@ namespace LentoCore.Expressions
         {
             if (lhs is TAtomic && rhs is Atoms.Tuple @tupleRhs)
             {
-                result = @tupleRhs;
-                result.Elements = @tupleRhs.BaseExpression.Elements.Select(e => new Binary(_operator, _lhs, e, e.Span).Evaluate(scope)).ToArray();
+                Expressions.Tuple resultExpression = new Expressions.Tuple(_rhs.Span, @tupleRhs.BaseExpression.Elements.Select(e => (Expression)new Binary(_operator, _lhs, e, e.Span)).ToArray());
+                result = (Atoms.Tuple)resultExpression.Evaluate(scope);
                 return true;
             }
             if (rhs is TAtomic && lhs is Atoms.Tuple @tupleLhs)
             {
-                result = @tupleLhs;
-                result.Elements = @tupleLhs.BaseExpression.Elements.Select(e => new Binary(_operator, _rhs, e, e.Span).Evaluate(scope)).ToArray();
+                Expressions.Tuple resultExpression = new Expressions.Tuple(_rhs.Span, @tupleLhs.BaseExpression.Elements.Select(e => (Expression)new Binary(_operator, _rhs, e, e.Span)).ToArray());
+                result = (Atoms.Tuple)resultExpression.Evaluate(scope);
                 return true;
             }
 
@@ -76,13 +76,14 @@ namespace LentoCore.Expressions
             if (lhs is Atoms.Tuple @tupleLhs && rhs is Atoms.Tuple @tupleRhs)
             {
                 if (!@tupleLhs.Size.Equals(@tupleRhs.Size)) throw new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, rhs, @tupleLhs.Type.ToString()));
-                result = @tupleLhs;
+                result = new Atoms.Tuple(new Tuple(Span, new Expression[@tupleLhs.Size]), new Atomic[@tupleLhs.Size]);
                 for (int i = 0; i < result.Size; i++)
                 {
                     Expression left = @tupleLhs.BaseExpression.Elements[i];
                     Expression right = @tupleRhs.BaseExpression.Elements[i];
-                    result.Elements[i] = new Binary(op, left, right, new LineColumnSpan(left.Span.Start, right.Span.End)).Evaluate(scope);
+                    result.BaseExpression.Elements[i] = new Binary(op, left, right, new LineColumnSpan(left.Span.Start, right.Span.End));
                 }
+                result = (Atoms.Tuple)result.BaseExpression.Evaluate(scope);
                 return true;
             }
 
@@ -153,7 +154,11 @@ namespace LentoCore.Expressions
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
                     if (Operation<Atoms.String, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultString)) return new Atoms.Boolean(resultString);
                     if (Operation<Atoms.Unit, bool>(lhs, rhs, (l, r) => true, out bool _)) return new Atoms.Boolean(true);
-                    if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
+                    if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple))
+                    {
+                        if (resultTuple.Elements.All(e => e is Atoms.Boolean b && b.Value == true)) return new Boolean(true);
+                        return new Boolean(false);
+                    };
                     throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple));
                 }
                 case BinaryOperator.NotEquals:
