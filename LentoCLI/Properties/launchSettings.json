@@ -1,11 +1,11 @@
 {
   "profiles": {
     "LentoCLI": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-r verbose"
     },
     "WSL": {
       "commandName": "WSL2",
-      "environmentVariables": {},
       "distributionName": ""
     }
   }
