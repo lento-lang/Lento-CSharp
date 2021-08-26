@@ -25,11 +25,21 @@ namespace LentoCore.Expressions
 
         public override Atomic Evaluate(Scope scope)
         {
-            Dictionary<string, string> arguments = new Dictionary<string, string>();
-            foreach (var parameter in _parameters) arguments.Add(parameter.Identifier.Name, parameter.Type.Name);
-            Atoms.Function function = new Atoms.Function(_name, arguments, Body);
-            scope.Set(_name, function);
-            return function;
+            List<(string, Atoms.AtomicType)> arguments = new List<(string, Atoms.AtomicType)>();
+            foreach (var parameter in _parameters) arguments.Add((parameter.Identifier.Name, parameter.Type));
+            if (scope.Contains(_name))
+            {
+                Atomic match = scope.Get(_name);
+                if (!(match is Atoms.Function currentFunction)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Cannot add variation to variable '{_name}'. {match.GetAtomicType().ToString()} is not a function"));
+                currentFunction.AddVariation(Span.Start, arguments, Body);
+                return currentFunction;
+            }
+            else
+            {
+                Atoms.Function newFunction = new Atoms.Function(_name, arguments, Body);
+                scope.Set(_name, newFunction);
+                return newFunction;
+            }
         }
 
         public override string ToString(string indent) => $"Function declaration: {_name}({string.Join(", ", _parameters.Select(p => p.ToString()))}) = {Body.ToString(indent)}";

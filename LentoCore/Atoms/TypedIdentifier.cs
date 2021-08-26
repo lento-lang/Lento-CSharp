@@ -11,7 +11,7 @@ namespace LentoCore.Atoms
         public AtomicType Type;
         public Identifier Identifier;
 
-        public TypedIdentifier(AtomicType  type, Identifier identifier)
+        public TypedIdentifier(AtomicType type, Identifier identifier)
         {
             Type = type;
             Identifier = identifier;

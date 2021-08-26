@@ -10,40 +10,64 @@ namespace LentoCore.Atoms
 {
     public class Function : Atomic
     {
-        public Dictionary<string[], Variation> FunctionVariations; /* Dictionary of argument types corresponding to function variation */ // TODO: Replace string[] with DataType type
+        public Dictionary<Atoms.AtomicType[], Variation> FunctionVariations; /* Dictionary of parameter type vector signature corresponding to function variation */
         public string Name;
 
-        public Function(string name, Dictionary<string, string> arguments, Expressions.Expression expression)
+        public Function(string name, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression)
         {
             Name = name;
-            FunctionVariations = new Dictionary<string[], Variation>
+            FunctionVariations = new Dictionary<Atoms.AtomicType[], Variation>
             {
                 {GetArgumentTypes(arguments), new Variation(arguments, expression)}
             };
         }
 
-        public void AddVariation(LineColumn position, Dictionary<string, string> arguments, Expressions.Expression expression)
+        public void AddVariation(LineColumn position, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression)
         {
-            string[] argTypes = GetArgumentTypes(arguments);
-            if (FunctionVariations.ContainsKey(argTypes)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(position, $"Function already contains a definition matching: {Name} {GetArgumentTypeNameList(arguments)}"));
+            Atoms.AtomicType[] argTypes = GetArgumentTypes(arguments);
+            if (ValidateArgumentSignatureCollisions(argTypes)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(position, $"Function already contains a definition matching: {Name} {GetArgumentTypeNameList(arguments)}"));
             FunctionVariations.Add(argTypes, new Variation(arguments, expression));
         }
 
-        private static string[] GetArgumentTypes(Dictionary<string, string> arguments) =>
-            arguments.Select(kvp => kvp.Value).ToArray();
+        /// <summary>
+        /// Check if the new variation argument type vector collide with any of the current function variations.
+        /// </summary>
+        /// <param name="args">The new variation argument types signature</param>
+        /// <returns>true if collision found</returns>
+        private bool ValidateArgumentSignatureCollisions(AtomicType[] args)
+        {
+            foreach (var (key, _) in FunctionVariations)
+            {
+                if (key.Length == args.Length)
+                {
+                    bool allMatch = true;
+                    for (int i = 0; i < key.Length; i++)
+                    {
+                        if (!key[i].Equals(args[i])) allMatch = false;
+                    }
 
-        private static string GetArgumentTypeNameList(Dictionary<string, string> arguments) =>
-            string.Join(", ", arguments.Select(kvp => $"{kvp.Value} {kvp.Key}"));
+                    if (allMatch) return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static Atoms.AtomicType[] GetArgumentTypes(List<(string, Atoms.AtomicType)> arguments) =>
+            arguments.Select(arg => arg.Item2).ToArray();
+
+        private static string GetArgumentTypeNameList(List<(string, Atoms.AtomicType)> arguments) =>
+            string.Join(", ", arguments.Select(arg => $"{arg.Item2.ToString()} {arg.Item1}"));
         
         public override AtomicType GetAtomicType() => new AtomicObjectType(GetType().Name, $"{GetType().Name}[{Name}]<{FunctionVariations.Count}>", FunctionVariations.Count);
         public override string ToString() => GetAtomicType().ToString();
 
         public class Variation : Atomic
         {
-            public Dictionary<string, string> Arguments; // <Name, Type>
+            public List<(string, Atoms.AtomicType)> Arguments; // <Name, Type>
             public Expressions.Expression Expression;
 
-            public Variation(Dictionary<string, string> arguments, Expressions.Expression expression)
+            public Variation(List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression)
             {
                 Arguments = arguments;
                 Expression = expression;
