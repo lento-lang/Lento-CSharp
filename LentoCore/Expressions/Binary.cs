@@ -47,7 +47,7 @@ namespace LentoCore.Expressions
             Func<TAtomic1, TAtomic2, TPrimitive> op12, Func<TAtomic2, TAtomic1, TPrimitive> op21, out TPrimitive result)
         {
             if (CrossOperation(lhs, rhs, op12, out result)) return true;
-            if (CrossOperation(rhs, lhs, op21, out result)) return true;
+            if (CrossOperation(lhs, rhs, op21, out result)) return true;
             return false;
         }
         private bool TupleCrossOperation<TAtomic>(Atomic lhs, Atomic rhs, BinaryOperator op, Scope scope,
