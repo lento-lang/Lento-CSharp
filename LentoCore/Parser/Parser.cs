@@ -111,7 +111,12 @@ namespace LentoCore.Parser
                     }
 
                     Atoms.Identifier ident = new Atoms.Identifier(token.Lexeme);
-                    if (CanRead && (Peek().Type == TokenType.Assign || Peek().Type == TokenType.Identifier)) return ParseAssignExpression(token.Span.Start, ident);
+                    if (CanRead)
+                    {
+                        if (Peek().Type == TokenType.Assign || Peek().Type == TokenType.Identifier) return ParseAssignExpression(token.Span.Start, ident);
+                        if (Peek().Type == TokenType.LeftParen)
+                            return ParseFunctionCallExpression(token.Span.Start, ident);
+                    }
                     return new AtomicValue<Atoms.Identifier>(ident, token.Span);
                 }
                 case TokenType.LeftParen:
@@ -325,6 +330,13 @@ namespace LentoCore.Parser
             }
 
             return identifiers.ToArray();
+        }
+        private Expression ParseFunctionCallExpression(LineColumn spanStart, Identifier ident)
+        {
+            Eat(); // LeftParen
+            List<Expression> arguments = ParseExpressions(TokenType.RightParen, TokenType.Comma);
+            Token rightParen = AssertNext("Right closing parenthesis", TokenType.RightParen);
+            return new FunctionCall(new LineColumnSpan(spanStart, rightParen.Span.End), ident, arguments.ToArray());
         }
     }
 }

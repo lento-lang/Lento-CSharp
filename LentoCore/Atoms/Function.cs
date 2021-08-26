@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Util;
 
@@ -13,21 +14,21 @@ namespace LentoCore.Atoms
         public Dictionary<Atoms.AtomicType[], Variation> FunctionVariations; /* Dictionary of parameter type vector signature corresponding to function variation */
         public string Name;
 
-        public Function(string name, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression)
+        public Function(string name, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression, Scope scope)
         {
             Name = name;
             FunctionVariations = new Dictionary<Atoms.AtomicType[], Variation>
             {
-                {GetArgumentTypes(arguments), new Variation(arguments, expression)}
+                {GetArgumentTypes(arguments), new Variation(arguments, expression, scope)}
             };
             Type = new AtomicObjectType(GetType().Name, $"{GetType().Name}[{Name}]<{FunctionVariations.Count}>", FunctionVariations.Count);
         }
 
-        public void AddVariation(LineColumn position, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression)
+        public void AddVariation(LineColumn position, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression, Scope scope)
         {
             Atoms.AtomicType[] argTypes = GetArgumentTypes(arguments);
             if (ValidateArgumentSignatureCollisions(argTypes)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(position, $"Function already contains a definition matching: {Name} {GetArgumentTypeNameList(arguments)}"));
-            FunctionVariations.Add(argTypes, new Variation(arguments, expression));
+            FunctionVariations.Add(argTypes, new Variation(arguments, expression, scope));
         }
 
         /// <summary>
@@ -65,11 +66,13 @@ namespace LentoCore.Atoms
         {
             public List<(string, Atoms.AtomicType)> Arguments; // <Name, Type>
             public Expressions.Expression Expression;
+            public Scope Scope;
 
-            public Variation(List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression)
+            public Variation(List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression, Scope scope)
             {
                 Arguments = arguments;
                 Expression = expression;
+                Scope = scope;
                 Type = new AtomicObjectType("FunctionVariation", $"FunctionVariation<{GetArgumentTypeNameList(Arguments)}>", GetArgumentTypeNameList(Arguments));
             }
 

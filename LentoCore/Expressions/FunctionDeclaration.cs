@@ -31,12 +31,12 @@ namespace LentoCore.Expressions
             {
                 Atomic match = scope.Get(_name);
                 if (!(match is Atoms.Function currentFunction)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Cannot add variation to variable '{_name}'. {match.Type.ToString()} is not a function"));
-                currentFunction.AddVariation(Span.Start, arguments, Body);
+                currentFunction.AddVariation(Span.Start, arguments, Body, scope);
                 return currentFunction;
             }
             else
             {
-                Atoms.Function newFunction = new Atoms.Function(_name, arguments, Body);
+                Atoms.Function newFunction = new Atoms.Function(_name, arguments, Body, scope);
                 scope.Set(_name, newFunction);
                 return newFunction;
             }
