@@ -34,6 +34,7 @@ Options:
 
 		static void Main(string[] args)
         {
+            // args = new[] {"-r"};
 			Arguments arguments = Arguments.Parse(args, (char)KeySelector.Linux);
 
 			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(Help);
