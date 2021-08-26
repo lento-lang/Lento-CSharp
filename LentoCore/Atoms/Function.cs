@@ -20,6 +20,7 @@ namespace LentoCore.Atoms
             {
                 {GetArgumentTypes(arguments), new Variation(arguments, expression)}
             };
+            Type = new AtomicObjectType(GetType().Name, $"{GetType().Name}[{Name}]<{FunctionVariations.Count}>", FunctionVariations.Count);
         }
 
         public void AddVariation(LineColumn position, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression)
@@ -58,9 +59,7 @@ namespace LentoCore.Atoms
 
         private static string GetArgumentTypeNameList(List<(string, Atoms.AtomicType)> arguments) =>
             string.Join(", ", arguments.Select(arg => $"{arg.Item2.ToString()} {arg.Item1}"));
-        
-        public override AtomicType GetAtomicType() => new AtomicObjectType(GetType().Name, $"{GetType().Name}[{Name}]<{FunctionVariations.Count}>", FunctionVariations.Count);
-        public override string ToString() => GetAtomicType().ToString();
+        public override string ToString() => Type.ToString();
 
         public class Variation : Atomic
         {
@@ -71,11 +70,10 @@ namespace LentoCore.Atoms
             {
                 Arguments = arguments;
                 Expression = expression;
+                Type = new AtomicObjectType("FunctionVariation", $"FunctionVariation<{GetArgumentTypeNameList(Arguments)}>", GetArgumentTypeNameList(Arguments));
             }
-            
-            public override AtomicType GetAtomicType() => new AtomicObjectType("FunctionVariation", $"FunctionVariation<{GetArgumentTypeNameList(Arguments)}>", GetArgumentTypeNameList(Arguments));
 
-            public override string ToString() => GetAtomicType().ToString();
+            public override string ToString() => Type.ToString();
         }
     }
 }

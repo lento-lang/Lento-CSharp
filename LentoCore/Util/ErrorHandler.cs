@@ -19,6 +19,6 @@ namespace LentoCore.Util
         public static string EvaluateErrorTypeMismatch(LineColumn position, string inOp, Atomic got, params System.Type[] expectedTypes) =>
             EvaluateError(position, $"Type mismatch in {inOp} operation. Expected {Formatting.FormattableOptionsToString(expectedTypes.Select(et => et.Name))} but got '{got.ToString()}' of type {got.GetType().Name}");
         public static string EvaluateErrorTypeMismatch(LineColumn position, Atomic got, string expected) =>
-            EvaluateError(position, $"Type mismatch. Expected {expected} but got '{got.ToString()}' of type {got.GetAtomicType().ToString()}");
+            EvaluateError(position, $"Type mismatch. Expected {expected} but got '{got.ToString()}' of type {got.Type.ToString()}");
     }
 }

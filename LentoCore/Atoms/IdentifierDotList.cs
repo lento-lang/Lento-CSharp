@@ -13,9 +13,8 @@ namespace LentoCore.Atoms
         public IdentifierDotList(Identifier[] identifiers)
         {
             Identifiers = identifiers;
+            Type = new AtomicType(GetType().Name);
         }
-        
-        public override AtomicType GetAtomicType() => new AtomicType(GetType().Name);
         public override string ToString() => string.Join('.', Identifiers.Select(i => i.ToString()));
     }
 }

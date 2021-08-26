@@ -12,16 +12,13 @@ namespace LentoCore.Atoms
         public List<Atomic> Elements;
         public int Size => Elements.Count;
         
-        public List(List<Atomic> elements)
-        {
-            Elements = elements;
-        }
+        public List(List<Atomic> elements) : this(null, elements) { }
         public List(Expressions.List baseExpression, List<Atomic> elements)
         {
             BaseExpression = baseExpression;
             Elements = elements;
+            Type = new AtomicType(GetType().Name);
         }
-        public override AtomicType GetAtomicType() => new AtomicType(GetType().Name);
         public override string ToString() => $"[{string.Join(", ", Elements.Select(e => e.ToString()))}]";
     }
 }

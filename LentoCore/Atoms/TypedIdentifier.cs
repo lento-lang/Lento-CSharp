@@ -8,17 +8,16 @@ namespace LentoCore.Atoms
 {
     public class TypedIdentifier : Atomic
     {
-        public AtomicType Type;
+        public AtomicType IdentifierType;
         public Identifier Identifier;
 
         public TypedIdentifier(AtomicType type, Identifier identifier)
         {
-            Type = type;
+            IdentifierType = type;
             Identifier = identifier;
+            Type = new AtomicType(GetType().Name);
         }
-        
-        public override AtomicType GetAtomicType() => new AtomicType(GetType().Name);
 
-        public override string ToString() => $"{Type.ToString()} {Identifier.ToString()}";
+        public override string ToString() => $"{IdentifierType.ToString()} {Identifier.ToString()}";
     }
 }

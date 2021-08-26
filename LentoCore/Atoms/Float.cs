@@ -13,9 +13,8 @@ namespace LentoCore.Atoms
         public Float(float value)
         {
             Value = value;
+            Type = new AtomicType(GetType().Name);
         }
-        
-        public override AtomicType GetAtomicType() => new AtomicType(GetType().Name);
         public override string ToString() => Value.ToString().Replace(',','.');
     }
 }

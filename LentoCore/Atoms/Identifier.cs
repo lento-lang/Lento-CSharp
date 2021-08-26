@@ -13,9 +13,8 @@ namespace LentoCore.Atoms
         public Identifier(string name)
         {
             Name = name;
+            Type = new AtomicType(GetType().Name);
         }
-        
-        public override AtomicType GetAtomicType() => new AtomicType(GetType().Name);
         public override string ToString() => Name;
     }
 }

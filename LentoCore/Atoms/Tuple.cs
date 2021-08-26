@@ -12,17 +12,13 @@ namespace LentoCore.Atoms
         public Atomic[] Elements;
         public int Size => Elements.Length;
         
-        public Tuple(Atomic[] elements)
-        {
-            Elements = elements;
-        }
+        public Tuple(Atomic[] elements) : this(null, elements) { }
         public Tuple(Expressions.Tuple baseExpression, Atomic[] elements)
         {
             BaseExpression = baseExpression;
             Elements = elements;
+            Type = new AtomicObjectType(GetType().Name, $"{GetType().Name}<{Size}>", Size);
         }
-        
-        public override AtomicType GetAtomicType() => new AtomicObjectType(GetType().Name, $"{GetType().Name}<{Size}>", Size);
         public override string ToString() => $"#({string.Join(", ", Elements.Select(e => e.ToString()))})";
     }
 }
