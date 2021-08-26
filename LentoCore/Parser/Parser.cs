@@ -39,7 +39,14 @@ namespace LentoCore.Parser
         private Token Peek() => Peek(true);
         private Token Peek(bool ignoreNewlines) => Peek(ignoreNewlines, 0);
         private Token Peek(bool ignoreNewlines, int offset) {
-            if (EndOfStream || !_tokens.CanSeek(offset)) throw new IndexOutOfRangeException("Cannot peek in stream at offset " + offset + "! We have reached the end of the stream.");
+            if (EndOfStream || !_tokens.CanSeek(offset)) {
+                if (ignoreNewlines)
+                {
+                    while (CanRead) Eat(false); // Eat the whitespace
+                    return Token.EOF(null);
+                }
+                throw new IndexOutOfRangeException("Cannot peek in stream at offset " + offset + "! We have reached the end of the stream.");
+            }
             Token ret = _tokens.Seek(offset);
             if (ignoreNewlines && ret.Type == TokenType.Newline) return Peek(true, offset + 1);
             return ret;

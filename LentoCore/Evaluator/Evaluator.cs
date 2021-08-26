@@ -29,19 +29,27 @@ namespace LentoCore.Evaluator
             _typeChecker = new TypeChecker.TypeChecker();
         }
 
-        public Atomic EvaluateFile(Stream fileStream)
+        public Atomic EvaluateFile(Stream fileStream, bool loadStandardLibrary)
         {
             TokenStream tokens = _lexer.Tokenize(fileStream);
             OnTokenizeDone?.Invoke(this, new TokenizeDoneEventArgs(tokens));
             AST ast = _parser.Parse(tokens);
             OnParseDone?.Invoke(this, new ParseDoneEventArgs(ast));
             _typeChecker.Check(ast);
-            Atomic result = ast.Evaluate(new GlobalScope());
+            Scope globalScope = new GlobalScope();
+            if (loadStandardLibrary) StandardLibrary.StandardLibrary.Load(globalScope);
+            Atomic result = ast.Evaluate(globalScope);
             OnEvaluationDone?.Invoke(this, new EvaluationDoneEventArgs(result));
             return result;
         }
 
-        public Atomic EvaluateInput(string input) => EvaluateInput(input, new GlobalScope());
+        public Atomic EvaluateInput(string input, bool loadStandardLibrary)
+        {
+            Scope globalScope = new GlobalScope();
+            if (loadStandardLibrary) StandardLibrary.StandardLibrary.Load(globalScope);
+            return EvaluateInput(input, globalScope);
+        }
+
         public Atomic EvaluateInput(string input, Scope scope)
         {
             TokenStream tokens = _lexer.Tokenize(input);

@@ -20,7 +20,7 @@ namespace LentoCLI
                 foreach(string file in files)
                 {
                     currentFile = file;
-                    if (FileHelper.ValidateAndOpen(file, out FileStream fs)) new Evaluator().EvaluateFile(fs);
+                    if (FileHelper.ValidateAndOpen(file, out FileStream fs)) new Evaluator().EvaluateFile(fs, true);
                 }
             }
             catch (Exception e)

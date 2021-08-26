@@ -23,6 +23,7 @@ namespace LentoCore.Expressions
         public override Atomic Evaluate(Scope scope)
         {
             Atomic functionAtom = scope.Get(_identifier.Name);
+            if (functionAtom == null) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Undefined function '{_identifier.ToString()}'"));
             if (!(functionAtom is Atoms.Function function)) throw new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(Span.Start, functionAtom, typeof(Function)));
             Atomic[] arguments = _arguments.Select(argumentExpression => argumentExpression.Evaluate(scope)).ToArray();
             AtomicType[] argumentTypes = arguments.Select(a => a.Type).ToArray();
