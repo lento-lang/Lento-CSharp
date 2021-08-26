@@ -134,7 +134,6 @@ namespace LentoCore.Parser
                 }
                 case TokenType.TupleHashTag:
                 {
-                    Eat(); // Eat opening parenthesis #(
                     List<Expression> expressions = ParseExpressions(TokenType.RightParen, TokenType.Comma);
                     Token rightParen = AssertNext("Right closing parenthesis", TokenType.RightParen);
                     if (expressions.Count > 0) return new Expressions.Tuple(new LineColumnSpan(token.Span.Start, rightParen.Span.End), expressions.ToArray());

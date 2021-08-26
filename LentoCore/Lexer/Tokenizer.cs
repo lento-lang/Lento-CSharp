@@ -50,6 +50,39 @@ namespace LentoCore.Lexer
             _currentToken += (char)c;
             return (char) c;
         }
+        /// <summary>
+        /// Check if the next character is the expected one, but don't consume it
+        /// </summary>
+        /// <param name="expected"></param>
+        /// <returns></returns>
+        private bool CheckNext(char expected) => CheckNext(next => next == expected);
+        /// <summary>
+        /// Check if the next character satisfies the predicate, but don't consume it
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        private bool CheckNext(Func<char, bool> predicate) => predicate(Peek());
+        /// <summary>
+        /// Expect that the next character is the expected one, if so consume it and return true otherwise return false
+        /// </summary>
+        /// <param name="expected"></param>
+        /// <returns>true if next character is the expected and got consumed</returns>
+        private bool ExpectNext(char expected) => ExpectNext(next => next == expected);
+        /// <summary>
+        /// Expect that the next character satisfies the predicate, if so consume it and return true otherwise return false
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns>true if next character satisfied the predicate and got consumed</returns>
+        private bool ExpectNext(Func<char, bool> predicate)
+        {
+            if (CheckNext(predicate))
+            {
+                Eat();
+                return true;
+            }
+
+            return false;
+        }
 
         private void ClearCurrentToken() => _currentToken = string.Empty;
         private string GetCurrentToken()
@@ -96,50 +129,50 @@ namespace LentoCore.Lexer
 
                 case '#':
                 {
-                    if (Peek() == '(') Add(TokenType.TupleHashTag);
+                    if (ExpectNext('(')) Add(TokenType.TupleHashTag);
                     else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "Left parenthesis to declare tuple"));
                     break;
                 }
                 case '@':
                 {
-                    if (char.IsLetter(Peek())) ScanAttribute();
+                    if (CheckNext(char.IsLetter)) ScanAttribute();
                     else throw new SyntaxErrorException(ErrorUnexpected(c, "attribute name"));
                     break;
                 }
                 case ':':
                 {
-                    if (char.IsLetter(Peek())) ScanAtom();
+                    if (CheckNext(char.IsLetter)) ScanAtom();
                     else Add(TokenType.Colon);
                     break;
                 }
                 case '=':
                 {
-                    if (Peek() == '=') { Eat(); Add(TokenType.Equals); }
-                    else if (Peek() == '>') { Eat(); Add(TokenType.ThickRightArrow); }
+                    if (ExpectNext('=')) Add(TokenType.Equals);
+                    else if (ExpectNext('>')) Add(TokenType.ThickRightArrow);
                     else Add(TokenType.Assign);
                     break;
                 }
                 case '!':
                 {
-                    if (Peek() == '=') { Eat(); Add(TokenType.NotEquals); }
+                    if (ExpectNext('=')) Add(TokenType.NotEquals);
                     else Add(TokenType.Not);
                     break;
                 }
                 case '<':
                 {
-                    if (Peek() == '=') { Eat(); Add(TokenType.LessThanEquals); }
+                    if (ExpectNext('=')) Add(TokenType.LessThanEquals);
                     else Add(TokenType.LessThan);
                     break;
                 }
                 case '>':
                 {
-                    if (Peek() == '=') { Eat(); Add(TokenType.GreaterThanEquals); }
+                    if (ExpectNext('=')) Add(TokenType.GreaterThanEquals);
                     else Add(TokenType.GreaterThan);
                     break;
                 }
                 case '-':
                 {
-                    if (Peek() == '>') { Eat(); Add(TokenType.RightArrow); }
+                    if (ExpectNext('>')) Add(TokenType.RightArrow);
                     else Add(TokenType.Subtraction);
                     break;
                 }
@@ -152,8 +185,8 @@ namespace LentoCore.Lexer
                 }
                 case '&':
                 {
-                    if (Peek() == '&') { Eat(); Add(TokenType.And); }
-                    else if (char.IsLetter(Peek())) { Eat(); Add(TokenType.Reference); }
+                    if (ExpectNext('&')) Add(TokenType.And);
+                    else if (ExpectNext(char.IsLetter)) Add(TokenType.Reference);
                     else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "logical AND or referenced identifier"));
                     break;
                 }
@@ -187,10 +220,10 @@ namespace LentoCore.Lexer
         private void ScanIdentifier()
         {
             bool expectIdent = false;
-            while (!EOF() && (char.IsLetter(Peek()) || char.IsDigit(Peek()) || Peek() == '_')) {
+            while (!EOF() && (CheckNext(char.IsLetter) || CheckNext(char.IsDigit) || CheckNext('_'))) {
                 Eat();
                 expectIdent = false;
-                if (!EOF() && Peek() == '.') {
+                if (!EOF() && CheckNext('.')) {
                     Eat();
                     expectIdent = true;
                 }
@@ -228,19 +261,19 @@ namespace LentoCore.Lexer
         private void ScanAtom()
         { 
             ClearCurrentToken();
-            while (!EOF() && char.IsLetter(Peek())) Eat();
+            while (!EOF() && CheckNext(char.IsLetter)) Eat();
             Add(TokenType.Atom);
         }
 
         private void ScanNumber()
         {
             bool isFloat = false;
-            while (!EOF() && (char.IsDigit(Peek()) || Peek() == '.'))
+            while (!EOF() && (CheckNext(char.IsDigit) || CheckNext('.')))
             {
-                if (Peek() == '.')
+                if (CheckNext('.'))
                 {
                     Eat(); // Eat the dot
-                    if (char.IsDigit(Peek())) isFloat = true; // 7.;
+                    if (CheckNext(char.IsDigit)) isFloat = true; // 7.;
                     else
                     {
                         // First add number
@@ -268,7 +301,7 @@ namespace LentoCore.Lexer
             {
                 // Escaped or special character
                 if (Formatting.CharacterEscapeCodes.ContainsKey(Peek())) c = Formatting.CharacterEscapeCodes[Eat()];
-                else if (Peek() == 'u')
+                else if (CheckNext('u'))
                 {
                     // Unicode character
                     Eat();
@@ -292,9 +325,9 @@ namespace LentoCore.Lexer
         private void ScanCharacter(LineColumn start)
         {
             ClearCurrentToken();
-            if (Peek() == '\'') throw new SyntaxErrorException(ErrorUnexpected('\'', "single character value, '' is not valid."));
+            if (CheckNext('\'')) throw new SyntaxErrorException(ErrorUnexpected('\'', "single character value, '' is not valid."));
             char character = ScanCharacterToken();
-            if (Peek() == '\'') Eat();
+            if (CheckNext('\'')) Eat();
             else if (EOF()) throw new SyntaxErrorException(ErrorUnexpectedEOF("closing character quotation"));
             else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "closing character quotation. Did you intend to use a string?"));
             Add(TokenType.Character, character.ToString(), new LineColumnSpan(start, _position), false);
@@ -305,7 +338,7 @@ namespace LentoCore.Lexer
             ClearCurrentToken();
             string str = string.Empty;
             while (!EOF() && Peek() != '"') str += ScanCharacterToken();
-            if (Peek() == '"') Eat();
+            if (CheckNext('"')) Eat();
             else if (EOF()) throw new SyntaxErrorException(ErrorUnexpectedEOF("closing string quotation"));
             else throw new SyntaxErrorException(ErrorUnexpected(Peek(), "closing string quotation"));
             Add(TokenType.String, str, new LineColumnSpan(start, _position), false);
@@ -313,13 +346,13 @@ namespace LentoCore.Lexer
 
         private void ScanAttribute()
         {
-            while (!EOF() && char.IsLetter(Peek())) Eat();
+            while (!EOF() && CheckNext(char.IsLetter)) Eat();
             Add(TokenType.Attribute);
         }
         
         private void ScanSingleLineComment()
         {
-            while (!EOF() && Peek() != '\n') Eat();
+            while (!EOF() && CheckNext('\n')) Eat();
             Add(TokenType.SingleLineComment);
         }
         private void ScanMultiLineComment()
@@ -328,7 +361,7 @@ namespace LentoCore.Lexer
             while (!EOF())
             {
                 c = Eat();
-                if (c == '*' && Peek() == '/')
+                if (c == '*' && CheckNext('/'))
                 {
                     Eat();
                     break;
