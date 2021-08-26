@@ -69,15 +69,13 @@ namespace LentoCore.Expressions
                 $"\n{Formatting.Indentation}{_identifier.Name}(" + string.Join($")\n{Formatting.Indentation}{_identifier.Name}(", function.Variations.Select(
                     v =>
                     {
-                        if (v.Value is Function.UserDefinedVariation userDefinedVariation) return GetArgumentTypeNameList(userDefinedVariation.Arguments);
+                        if (v.Value is Function.UserDefinedVariation userDefinedVariation) return GetArgumentTypesList(userDefinedVariation.Arguments.Select(a => a.Item2).ToArray());
                         if (v.Value is Function.BuiltInVariation builtInVariation) return GetArgumentTypesList(builtInVariation.ParameterTypes);
                         throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Unknown variation value '{v.Value}'"));
                     }).ToArray()) + ')'
                 ));
         }
         
-        private static string GetArgumentTypeNameList(List<(string, Atoms.AtomicType)> arguments) =>
-            string.Join(", ", arguments.Select(arg => $"{arg.Item2.ToString()} {arg.Item1}"));
         private static string GetArgumentTypesList(Atoms.AtomicType[] arguments) =>
             string.Join(", ", arguments.Select(arg => arg.ToString()));
         public override string ToString(string indent) => $"{_identifier.Name}({string.Join(", ", _arguments.Select(a => a.ToString()))})";
