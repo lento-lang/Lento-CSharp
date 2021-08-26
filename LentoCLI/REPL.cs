@@ -41,7 +41,7 @@ namespace LentoCLI
                 };
                 evaluator.OnEvaluationDone += (sender, e) =>
                 {
-                    Console.Write("Result: "); // Atomic result is printed afterwards
+                    Console.Write($"Result ({e.Result.GetAtomicType().ToString()}): "); // Atomic result is printed afterwards
                 };
             }
 
