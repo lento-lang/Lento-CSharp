@@ -318,7 +318,7 @@ namespace LentoCore.Parser
 
                 TypedIdentifier duplicate = identifiers.Find(ti => ti.Identifier.Name == paramName.Lexeme);
                 if (duplicate != null) throw new ParseErrorException(Error(paramName, $"duplicate parameter '{paramName.Lexeme}'"));
-                identifiers.Add(new TypedIdentifier(new Atoms.AtomicType(paramType.Lexeme), new Identifier(paramName.Lexeme)));
+                identifiers.Add(new TypedIdentifier(GetAtomicType(paramType.Lexeme), new Identifier(paramName.Lexeme)));
 
                 AssureCanRead("separating comma or assignment operator");
                 if (Peek().Type == TokenType.Comma)
@@ -330,6 +330,15 @@ namespace LentoCore.Parser
             }
 
             return identifiers.ToArray();
+        }
+
+        private AtomicType GetAtomicType(string identifier)
+        {
+            switch (identifier)
+            {
+                case "any": return AtomicAnyType.BaseType;
+                default: return new Atoms.AtomicType(identifier);
+            }
         }
         private Expression ParseFunctionCallExpression(LineColumn spanStart, Identifier ident)
         {
