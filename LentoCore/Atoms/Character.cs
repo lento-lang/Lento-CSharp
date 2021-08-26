@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +16,7 @@ namespace LentoCore.Atoms
             Value = value;
         }
         public new static AtomicType BaseType => new AtomicType(nameof(Character));
+        public override string StringRepresentation() => Value.ToString();
         public override string ToString() => $"'{Formatting.EscapeChar(Value)}'";
     }
 }

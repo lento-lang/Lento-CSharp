@@ -22,7 +22,8 @@ namespace LentoCore.Atoms
         }
 
         public new static AtomicType BaseType => null; // Base type
-
+        
+        public override string StringRepresentation() => ToString();
         public override string ToString() => Name;
     }
 }

@@ -19,6 +19,7 @@ namespace LentoCore.Atoms
             Elements = elements;
         }
         public new static AtomicType BaseType => new AtomicType(nameof(List));
+        public override string StringRepresentation() => ToString();
         public override string ToString() => $"[{string.Join(", ", Elements.Select(e => e.ToString()))}]";
     }
 }

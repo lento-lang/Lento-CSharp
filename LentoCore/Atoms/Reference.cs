@@ -14,6 +14,7 @@ namespace LentoCore.Atoms
             Referenced = referenced;
         }
         public new static AtomicType BaseType => new AtomicType(nameof(Reference));
+        public override string StringRepresentation() => ToString();
         public override string ToString() => $"<Reference: {Referenced.ToString()}>";
     }
 }

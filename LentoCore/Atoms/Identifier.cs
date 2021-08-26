@@ -15,6 +15,7 @@ namespace LentoCore.Atoms
             Name = name;
         }
         public new static AtomicType BaseType => new AtomicType(nameof(Identifier));
+        public override string StringRepresentation() => ToString();
         public override string ToString() => Name;
     }
 }

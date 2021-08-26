@@ -25,11 +25,11 @@ namespace LentoCore.StandardLibrary
                 else scope.Set(name, new Function(name, func, parameterTypes));
             }
             Atomic Print(Atomic[] args) {
-                Console.Write(string.Join(' ', args.Select(a => a.ToString())));
+                Console.Write(string.Join(' ', args.Select(a => a.StringRepresentation())));
                 return new Unit();
             }
             Atomic PrintLine(Atomic[] args) {
-                Console.WriteLine(string.Join(' ', args.Select(a => a.ToString())));
+                Console.WriteLine(string.Join(' ', args.Select(a => a.StringRepresentation())));
                 return new Unit();
             }
             BuiltIn("print", Print, AtomicAnyType.BaseType);

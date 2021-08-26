@@ -94,6 +94,7 @@ namespace LentoCore.Atoms
 
         private void UpdateType() => Type = new AtomicObjectType($"{GetType().Name}[{Name}]<{Variations.Count}>"
             , Variations.Count);
+        public override string StringRepresentation() => ToString();
         public override string ToString() => Type.ToString();
 
         public abstract class Variation { }
