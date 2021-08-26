@@ -19,6 +19,16 @@ Lento is an open-source, strongly typed and lazy evaluated programming language 
 
 
 
+## Documentation
+
+Learn more about the Lento programming language by visiting the links below. A good tip is to download the CLI toolchain and start playing around with the examples yourself!
+
+* #### [Code examples](doc/EXAMPLES.md)
+
+<!--* #### [Project euler solutions](doc/PROJECT_EULER.md)-->
+
+
+
 ##  The team
 
 Lento is being developed by a driven team that works hard to create a user environment as good as possible for all of you developers.
