@@ -30,7 +30,7 @@ namespace LentoCore.Expressions
             if (scope.Contains(_name))
             {
                 Atomic match = scope.Get(_name);
-                if (!(match is Atoms.Function currentFunction)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Cannot add variation to variable '{_name}'. {match.Type.ToString()} is not a function"));
+                if (!(match is Atoms.Function currentFunction)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Cannot add variation to variable '{_name}'. {match.Type} is not a function"));
                 currentFunction.AddVariation(Span.Start, arguments, Body, scope);
                 return currentFunction;
             }

@@ -236,7 +236,7 @@ namespace LentoCore.Lexer
                 case "false": { Add(TokenType.Boolean, lexeme); break; }
                 case "mut": { Add(TokenType.Mutable, lexeme); break; }
                 case "enum": { Add(TokenType.Enum, lexeme); break; }
-                case "type": { Add(TokenType.Type, lexeme); break; }
+                case "type": { Add(TokenType.TypeDeclaration, lexeme); break; }
                 case "if": { Add(TokenType.If, lexeme); break; }
                 case "for": { Add(TokenType.For, lexeme); break; }
                 case "case": { Add(TokenType.Case, lexeme); break; }

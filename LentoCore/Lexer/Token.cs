@@ -9,7 +9,7 @@ namespace LentoCore.Lexer
 
         Identifier, Atom, Integer, Float, Character, String, Boolean,
 
-        Mutable, Enum, If, For, Case, Condition, Type,
+        Mutable, Struct, Enum, If, Else, For, Case, Condition, TypeDeclaration,
         Attribute,
 
         Assign, Addition, Subtraction, Multiplication, Division, Modulus,
@@ -47,7 +47,7 @@ namespace LentoCore.Lexer
 
         public override string ToString()
         {
-            string name = Type.ToString();
+            string name = Type.FastToString();
             switch (Type)
             {
                 case TokenType.Identifier:

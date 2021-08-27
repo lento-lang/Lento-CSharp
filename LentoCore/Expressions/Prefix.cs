@@ -33,7 +33,7 @@ namespace LentoCore.Expressions
         
         private RuntimeErrorException OperationTypeError(Atomic val, PrefixOperator op, params System.Type[] expected)
         {
-            return new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, op.ToString(), val, expected));
+            return new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_rhs.Span.Start, op.FastToString(), val, expected));
         }
         public override Atomic Evaluate(Scope scope)
         {
@@ -60,10 +60,10 @@ namespace LentoCore.Expressions
                     if (_rhs is Expressions.AtomicValue<Atoms.IdentifierDotList> identifierDotList) return new Reference(identifierDotList.GetAtomicValue());
                     throw OperationTypeError(value, _operator, typeof(Atoms.Identifier), typeof(Atoms.IdentifierDotList));
                 }
-                default: throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Could not evaluate {_operator}. Invalid prefix operator!"));
+                default: throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Could not evaluate {_operator.FastToString()}. Invalid prefix operator!"));
             }
         }
 
-        public override string ToString(string indent) => $"{_operator}({_rhs.ToString(indent)})";
+        public override string ToString(string indent) => $"{_operator.FastToString()}({_rhs.ToString(indent)})";
     }
 }

@@ -309,7 +309,7 @@ namespace LentoCore.Parser
                 // Destructuring
                 throw new NotImplementedException(); // TODO: Implement this
             }
-            throw new NotImplementedException("Assignment is not implemented for left hand side atoms of type " + lhs.Type.ToString());
+            throw new NotImplementedException("Assignment is not implemented for left hand side atoms of type " + lhs.Type);
         }
 
         private TypedIdentifier[] ParseTypedIdentifierList(TokenType closingTokenType)

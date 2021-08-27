@@ -93,7 +93,7 @@ namespace LentoCore.Expressions
 
         private RuntimeErrorException OperationTypeError(Atomic lhs, BinaryOperator op, params Type[] expected)
         {
-            return new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_lhs.Span.Start, op.ToString(), lhs, expected));
+            return new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_lhs.Span.Start, op.FastToString(), lhs, expected));
         }
 
         public override Atomic Evaluate(Scope scope)

@@ -8,7 +8,7 @@ namespace LentoCore.Atoms
 {
     public abstract class Atomic
     {
-        public static AtomicType BaseType { get; }
+        public static AtomicType BaseType;
         public AtomicType Type;
         protected Atomic(AtomicType type)
         {

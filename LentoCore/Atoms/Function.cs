@@ -86,7 +86,7 @@ namespace LentoCore.Atoms
             arguments.Select(arg => arg.Item2).ToArray();
 
         private static string GetArgumentTypeNameList(List<(string, Atoms.AtomicType)> arguments) =>
-            string.Join(", ", arguments.Select(arg => $"{arg.Item2.ToString()} {arg.Item1}"));
+            string.Join(", ", arguments.Select(arg => $"{arg.Item2} {arg.Item1}"));
 
         private static string GetArgumentTypesList(Atoms.AtomicType[] arguments) =>
             string.Join(", ", arguments.Select(arg => arg.ToString()));

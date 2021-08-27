@@ -19,7 +19,7 @@ namespace LentoCore.StandardLibrary
                 if (scope.Contains(name))
                 {
                     Atomic match = scope.Get(name);
-                    if (!(match is Atoms.Function currentFunction)) throw new ArgumentException($"Cannot add variation to variable '{name}'. {match.Type.ToString()} is not a function");
+                    if (!(match is Atoms.Function currentFunction)) throw new ArgumentException($"Cannot add variation to variable '{name}'. {match.Type} is not a function");
                     currentFunction.AddBuiltInVariation(func, parameterTypes);
                 }
                 else scope.Set(name, new Function(name, func, parameterTypes));

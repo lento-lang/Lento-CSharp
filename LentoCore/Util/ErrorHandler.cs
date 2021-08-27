@@ -15,10 +15,10 @@ namespace LentoCore.Util
         public static string EvaluateError(LineColumn position, string message) => $"Runtime error at line {position.Line} column {position.Column}: {message}";
         
         public static string EvaluateErrorTypeMismatch(LineColumn position, Atomic got, params System.Type[] expectedTypes) =>
-            EvaluateError(position, $"Type mismatch. Expected {Formatting.FormattableOptionsToString(expectedTypes.Select(et => et.Name))} but got '{got.ToString()}' of type {got.GetType().Name}");
+            EvaluateError(position, $"Type mismatch. Expected {Formatting.FormattableOptionsToString(expectedTypes.Select(et => et.Name))} but got '{got}' of type {got.GetType().Name}");
         public static string EvaluateErrorTypeMismatch(LineColumn position, string inOp, Atomic got, params System.Type[] expectedTypes) =>
-            EvaluateError(position, $"Type mismatch in {inOp} operation. Expected {Formatting.FormattableOptionsToString(expectedTypes.Select(et => et.Name))} but got '{got.ToString()}' of type {got.GetType().Name}");
+            EvaluateError(position, $"Type mismatch in {inOp} operation. Expected {Formatting.FormattableOptionsToString(expectedTypes.Select(et => et.Name))} but got '{got}' of type {got.GetType().Name}");
         public static string EvaluateErrorTypeMismatch(LineColumn position, Atomic got, string expected) =>
-            EvaluateError(position, $"Type mismatch. Expected {expected} but got '{got.ToString()}' of type {got.Type.ToString()}");
+            EvaluateError(position, $"Type mismatch. Expected {expected} but got '{got}' of type {got.Type}");
     }
 }
