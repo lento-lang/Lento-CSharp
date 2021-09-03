@@ -10,9 +10,11 @@ namespace LentoCore.Atoms
     public class AtomicType : Atomic
     {
         public string Name;
-        public AtomicType(string name) : base(null)
+        internal AtomicType() : base(null) { }
+        public AtomicType(string name) : this()
         {
             Name = name;
+            Type = BaseType;
         }
 
         public virtual bool Equals(AtomicType other)
@@ -20,8 +22,22 @@ namespace LentoCore.Atoms
             if (this is AtomicAnyType || other is AtomicAnyType) return true;
             return Name.Equals(other.Name);
         }
+        public new static AtomicType BaseType => GetBaseType(); // Base type
 
-        public new static AtomicType BaseType => null; // Base type
+        private static AtomicType GetBaseType()
+        {
+            AtomicType t1 = new AtomicType
+            {
+                Name = "Type"
+            };
+            AtomicType t2 = new AtomicType
+            {
+                Name = "Type",
+                Type = t1
+            };
+            t1.Type = t2;
+            return t1;
+        }
         
         public override string StringRepresentation() => ToString();
         public override string ToString() => Name;
