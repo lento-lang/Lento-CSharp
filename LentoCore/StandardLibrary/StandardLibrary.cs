@@ -42,6 +42,7 @@ namespace LentoCore.StandardLibrary
             BuiltIn("println", PrintLine, AtomicAnyType.BaseType, AtomicAnyType.BaseType, AtomicAnyType.BaseType);
             BuiltIn("println", PrintLine, AtomicAnyType.BaseType, AtomicAnyType.BaseType, AtomicAnyType.BaseType, AtomicAnyType.BaseType);
             BuiltIn("println", PrintLine, AtomicAnyType.BaseType, AtomicAnyType.BaseType, AtomicAnyType.BaseType, AtomicAnyType.BaseType, AtomicAnyType.BaseType);
+            BuiltIn("typeof", (args) => args[0].Type, AtomicAnyType.BaseType);
         }
     }
 }
