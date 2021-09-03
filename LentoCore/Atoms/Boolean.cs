@@ -14,7 +14,7 @@ namespace LentoCore.Atoms
         {
             Value = value;
         }
-        public new static AtomicType BaseType => new AtomicType(nameof(Boolean));
+        public new static AtomicType BaseType => new AtomicType("bool");
         public override string StringRepresentation() => ToString();
         public override string ToString() => Value.ToString().ToLower();
     }

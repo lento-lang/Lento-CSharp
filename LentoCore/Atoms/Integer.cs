@@ -14,7 +14,7 @@ namespace LentoCore.Atoms
         {
             Value = value;
         }
-        public new static AtomicType BaseType => new AtomicType(nameof(Integer));
+        public new static AtomicType BaseType => new AtomicType("int");
         public override string StringRepresentation() => ToString();
         public override string ToString() => Value.ToString();
     }
