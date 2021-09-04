@@ -25,14 +25,29 @@ namespace LentoCore.Expressions
 
         public override Atomic Evaluate(Scope scope)
         {
-            List<(string, Atoms.AtomicType)> arguments = new List<(string, Atoms.AtomicType)>();
-            foreach (var parameter in _parameters) arguments.Add((parameter.Identifier.Name, parameter.IdentifierType));
+            Atoms.Function existing = null;
             if (scope.Contains(_name))
             {
                 Atomic match = scope.Get(_name);
                 if (!(match is Atoms.Function currentFunction)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Cannot add variation to variable '{_name}'. {match.Type} is not a function"));
-                currentFunction.AddVariation(Span.Start, arguments, Body, scope);
-                return currentFunction;
+                existing = currentFunction;
+            }
+
+            List<(string, Atoms.AtomicType)> arguments = new List<(string, Atoms.AtomicType)>();
+            foreach (var parameter in _parameters)
+            {
+                string typeName = parameter.IdentifierType.Name;
+                if (scope.Contains(typeName))
+                {
+                    if (!scope.Get(typeName).Type.Equals(Atoms.AtomicType.BaseType)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"'{typeName}' is not a valid parameter type!"));
+                }
+                else throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Type '{typeName}' does not exist!"));
+                arguments.Add((parameter.Identifier.Name, parameter.IdentifierType));
+            }
+            if (existing != null)
+            {
+                existing.AddVariation(Span.Start, arguments, Body, scope);
+                return existing;
             }
             else
             {
