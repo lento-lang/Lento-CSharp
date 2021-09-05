@@ -323,6 +323,7 @@ namespace LentoCore.Parser
             List<TypedIdentifier> identifiers = new List<TypedIdentifier>();
             while (CanRead)
             {
+                if (Peek().Type == closingTokenType) break;
                 Token paramType = Eat();
                 if (paramType.Type != TokenType.Identifier) throw new ParseErrorException(ErrorUnexpected(paramType, "parameter identifier type"));
                 AssureCanRead("parameter identifier name");
@@ -339,7 +340,6 @@ namespace LentoCore.Parser
                     Eat();
                     AssureCanRead("another typed function parameter");
                 }
-                else if (Peek().Type == closingTokenType) break;
             }
 
             return identifiers.ToArray();

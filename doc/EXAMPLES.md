@@ -74,10 +74,10 @@ a; // Undefined variable 'a'
 ### Functions
 
 ```rust
-f int x = x * 2
+f(int x) = x * 2
 f(30) // 60
 
-apply_twice any f, int x = f(f(x))
+apply_twice any f, int x = f(f(x)) // Ommit surrounding parameter list parenthesis
 apply_twice(f, 5) // 20
 ```
 
@@ -87,8 +87,8 @@ apply_twice(f, 5) // 20
 f() = 2
 f int x = x
 
-x() // 2
-x(6) // 6
+f() // 2
+f(6) // 6
 
 f int x = x * 2
 // Function already contains a definition matching: f int x
