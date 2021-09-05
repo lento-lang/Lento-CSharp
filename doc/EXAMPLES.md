@@ -77,7 +77,7 @@ a; // Undefined variable 'a'
 f(int x) = x * 2
 f(30) // 60
 
-apply_twice any f, int x = f(f(x)) // Ommit surrounding parameter list parenthesis
+apply_twice any f, int x = f(f(x)) // Ommit parenthesis surrounding parameters
 apply_twice(f, 5) // 20
 ```
 
@@ -85,7 +85,7 @@ apply_twice(f, 5) // 20
 
 ```rust
 f() = 2
-f int x = x
+f int x = x // Ommit parenthesis surrounding parameters
 
 f() // 2
 f(6) // 6
