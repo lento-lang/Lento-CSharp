@@ -12,6 +12,15 @@ namespace LentoCore.Parser
 {
     public class Parser
     {
+        private class FunctionInfo {
+            public int MaxParameters { get; set; }
+            public FunctionInfo(int maxParameters)
+            {
+                MaxParameters = maxParameters;
+            }
+        }
+
+        private Dictionary<string, FunctionInfo> _parsedFunctions = new Dictionary<string, FunctionInfo>();
         private TokenStream _tokens;
 
         public AST Parse(TokenStream tokens)
@@ -57,18 +66,27 @@ namespace LentoCore.Parser
             if (ignoreNewlines && ret.Type == TokenType.Newline) return Seek(offset + 1, true);
             return ret;
         }
-        private bool SeekPattern(params TokenType[] pattern) => SeekPattern(0, pattern);
-
-        private bool SeekPattern(int offset, params TokenType[] pattern)
+        // TODO: Add some check that makes SeekPattern halt if it stumbles upon some token that aren't allowed
+        private bool SeekPattern(params TokenType[] pattern)
         {
-            if (!_tokens.CanSeek(offset + pattern.Length)) return false;
-            if (_tokens.Seek(offset).Type != pattern[0]) return SeekPattern(offset + 1, pattern);
-            // Token matches the first type in the pattern, if this does not match fail
-            for (int i = 1; i < pattern.Length; i++)
+            if (pattern.Length == 0) throw new ArgumentException("No TokenTypes in pattern", nameof(pattern));
+            for(int offset = 0; _tokens.CanSeek(offset + pattern.Length); offset++)
             {
-                if (_tokens.Seek(offset + i).Type != pattern[i]) return false;
+                if (_tokens.Seek(offset).Type != pattern[0]) continue;
+                // Token matches the first type in the pattern, if this does not match fail
+                bool allMatch = true;
+                for (int i = 1; i < pattern.Length; i++)
+                {
+                    if (_tokens.Seek(offset + i).Type != pattern[i])
+                    {
+                        allMatch = false;
+                        break;
+                    }
+                }
+                if (allMatch) return true;
+                // else continue
             }
-            return true;
+            return false;
         }
 
         private Token Eat() => Eat(true);
@@ -127,7 +145,8 @@ namespace LentoCore.Parser
                         return new AtomicValue<Atoms.IdentifierDotList>(new IdentifierDotList(identifiers.ToArray()), new LineColumnSpan(token.Span.Start, identifier.Span.End));
                     }
                     // minBindingPower == 0 makes variable assignments and function declarations not allowed inside expressions.
-                    if (CanRead && Peek().Type == TokenType.Assign || Peek().Type == TokenType.Identifier) return ParseAssignExpression(token.Span.Start, ident);
+                    if (CanRead && Peek().Type == TokenType.Assign) return ParseAssignExpression(token.Span.Start, ident);
+                    if (CanRead && SeekPattern(TokenType.Identifier, TokenType.Assign)) return ParseNoParenthesisedFunctionDeclaration(token.Span.Start, ident);
                     if (CanRead && Peek().Type == TokenType.LeftParen && SeekPattern(TokenType.RightParen, TokenType.Assign)) return ParseParenthesisedFunctionDeclaration(token.Span.Start, ident);
                     if (CanRead && Peek().Type == TokenType.LeftParen) return ParseParenthesisedFunctionCall(token.Span.Start, ident);
                     return new AtomicValue<Atoms.Identifier>(ident, token.Span);
@@ -272,50 +291,23 @@ namespace LentoCore.Parser
             }
             return expressions;
         }
-
         /// <summary>
-        /// Assign expressions could either be variable declaration, function declaration, or struct, tuple or list destructuring.
+        /// Expressions not separated by any delmimitering tokens and not ending with any specific tokens
         /// </summary>
-        /// <example>
-        /// pi = 3.1415
-        /// add a b = a + b
-        /// [x | xs] = [1, 2, 3, 4, 5]
-        /// #(ok, err, ign) = #(:Ok, :Error, :Ignore)
-        /// </example>
-        /// <returns>Expression for either case.</returns>
-        private Expression ParseAssignExpression(LineColumn start, Atomic lhs)
+        /// <param name="count"></param>
+        /// <returns></returns>
+        private List<Expression> ParseExpressions(int count)
         {
-            if (lhs is Atoms.Identifier identifier)
+            List<Expression> expressions = new List<Expression>(count);
+            while (!EndOfStream)
             {
-                // Variable or function
-                if (Peek().Type == TokenType.Assign)
-                {
-                    // Variable
-                    Eat(); // Assignment
-                    Expression value = ParseExpression(0);
-                    return new VariableDeclaration(new LineColumnSpan(start, value.Span.End), identifier.Name, value);
-                }
-                if (Peek().Type == TokenType.Identifier)
-                {
-                    // non-parenthesised Function declaration
-                    Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.Assign);
-                    AssertNext(TokenType.Assign);
-                    Expression body = ParseExpression(0); 
-                    return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), identifier.Name, parameterList, body);
-                }
-                throw new ParseErrorException(ErrorUnexpected(Peek(), "Assignment (equal sign) or function parameter list (identifier)"));
+                if (expressions.Count >= count || Peek().Type == TokenType.LeftParen) break; // '(func a b) c' will only pass a b to func
+                AssureCanRead("expression");
+                Expression expression = ParseExpression(0);
+                expressions.Add(expression);
+                throw new ParseErrorException(ErrorUnexpectedEOF($"{count - expressions.Count} more expressions"));
             }
-            if (lhs is Atoms.Tuple tuple)
-            {
-                // Destructuring
-                throw new NotImplementedException(); // TODO: Implement this
-            }
-            if (lhs is Atoms.List list)
-            {
-                // Destructuring
-                throw new NotImplementedException(); // TODO: Implement this
-            }
-            throw new NotImplementedException("Assignment is not implemented for left hand side atoms of type " + lhs.Type);
+            return expressions;
         }
 
         private TypedIdentifier[] ParseTypedIdentifierList(TokenType closingTokenType)
@@ -355,28 +347,80 @@ namespace LentoCore.Parser
                 default: return new Atoms.AtomicType(identifier);
             }
         }
-        private Expression ParseParenthesisedFunctionCall(LineColumn spanStart, Identifier ident)
-        {
-            Eat(); // LeftParen
-            List<Expression> arguments = ParseExpressions(TokenType.RightParen, TokenType.Comma);
-            Token rightParen = AssertNext("Right closing parenthesis", TokenType.RightParen);
-            if (CanRead && Peek().Type == TokenType.Assign)
-            {
-                // Function declaration using 'name(type param) = body' notation
-                // Validate params
 
+        /// <summary>
+        /// Assign expressions could either be variable declaration, function declaration, or struct, tuple or list destructuring.
+        /// </summary>
+        /// <example>
+        /// pi = 3.1415
+        /// add a b = a + b
+        /// [x | xs] = [1, 2, 3, 4, 5]
+        /// #(ok, err, ign) = #(:Ok, :Error, :Ignore)
+        /// </example>
+        /// <returns>Expression for either case.</returns>
+        private Expression ParseAssignExpression(LineColumn start, Atomic lhs)
+        {
+            if (lhs is Atoms.Identifier identifier)
+            {
+                // Variable or function
+                if (Peek().Type == TokenType.Assign)
+                {
+                    // Variable
+                    Eat(); // Assignment
+                    Expression value = ParseExpression(0);
+                    return new VariableDeclaration(new LineColumnSpan(start, value.Span.End), identifier.Name, value);
+                }
+                throw new ParseErrorException(ErrorUnexpected(Peek(), "Assignment (equal sign)"));
             }
-            return new FunctionCall(new LineColumnSpan(spanStart, rightParen.Span.End), ident, arguments.ToArray());
+            if (lhs is Atoms.Tuple tuple)
+            {
+                // Destructuring
+                throw new NotImplementedException(); // TODO: Implement this
+            }
+            if (lhs is Atoms.List list)
+            {
+                // Destructuring
+                throw new NotImplementedException(); // TODO: Implement this
+            }
+            throw new NotImplementedException("Assignment is not implemented for left hand side atoms of type " + lhs.Type);
         }
+
         private Expression ParseParenthesisedFunctionDeclaration(LineColumn start, Identifier ident)
         {
-            // We know that the the next token is '(' and we have found the ending ') ='.
+            // Function declaration using 'name(type param) = body' notation
             Eat(); // LeftParen
             Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.RightParen);
             AssertNext(TokenType.RightParen);
             AssertNext(TokenType.Assign);
             Expression body = ParseExpression(0);
+            if (_parsedFunctions.ContainsKey(ident.Name)) _parsedFunctions[ident.Name].MaxParameters = Math.Max(_parsedFunctions[ident.Name].MaxParameters, parameterList.Length);
+            else _parsedFunctions.Add(ident.Name, new FunctionInfo(parameterList.Length));
             return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), ident.Name, parameterList, body);
+        }
+
+        private Expression ParseNoParenthesisedFunctionDeclaration(LineColumn start, Identifier ident)
+        {
+            // Function declaration using 'name type param = body' notation
+            Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.Assign);
+            AssertNext(TokenType.Assign);
+            Expression body = ParseExpression(0);
+            _parsedFunctions.Add(ident.Name, new FunctionInfo(parameterList.Length));
+            return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), ident.Name, parameterList, body);
+        }
+        private Expression ParseParenthesisedFunctionCall(LineColumn spanStart, Identifier ident)
+        {
+            // Function call using 'name(arg1, arg2, ...)' notation
+            Eat(); // LeftParen
+            List<Expression> arguments = ParseExpressions(TokenType.RightParen, TokenType.Comma);
+            Token rightParen = AssertNext("Right closing parenthesis", TokenType.RightParen);
+            return new FunctionCall(new LineColumnSpan(spanStart, rightParen.Span.End), ident, arguments.ToArray());
+        }
+        private Expression ParseNoParenthesisedFunctionCall(LineColumn spanStart, Identifier ident)
+        {
+            // Function call using 'name arg1 arg2 ...' notation
+            FunctionInfo identData = _parsedFunctions[ident.Name];
+            List<Expression> arguments = ParseExpressions(identData.MaxParameters);
+            return new FunctionCall(new LineColumnSpan(spanStart, arguments.Last().Span.End), ident, arguments.ToArray());
         }
     }
 }
