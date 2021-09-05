@@ -149,6 +149,7 @@ namespace LentoCore.Parser
                     if (CanRead && SeekPattern(TokenType.Identifier, TokenType.Assign)) return ParseNoParenthesisedFunctionDeclaration(token.Span.Start, ident);
                     if (CanRead && Peek().Type == TokenType.LeftParen && SeekPattern(TokenType.RightParen, TokenType.Assign)) return ParseParenthesisedFunctionDeclaration(token.Span.Start, ident);
                     if (CanRead && Peek().Type == TokenType.LeftParen) return ParseParenthesisedFunctionCall(token.Span.Start, ident);
+                    if (CanRead && TryParseNoParenthesisedFunctionCall(token.Span.Start, ident, out Expression result)) return result;
                     return new AtomicValue<Atoms.Identifier>(ident, token.Span);
                 }
                 case TokenType.LeftParen:
@@ -301,11 +302,10 @@ namespace LentoCore.Parser
             List<Expression> expressions = new List<Expression>(count);
             while (!EndOfStream)
             {
-                if (expressions.Count >= count || Peek().Type == TokenType.LeftParen) break; // '(func a b) c' will only pass a b to func
-                AssureCanRead("expression");
+                if (expressions.Count >= count || Peek().Type == TokenType.RightParen) break; // '(func a b) c' will only pass a b to func
+                AssureCanRead($"{count - expressions.Count} more expressions");
                 Expression expression = ParseExpression(0);
                 expressions.Add(expression);
-                throw new ParseErrorException(ErrorUnexpectedEOF($"{count - expressions.Count} more expressions"));
             }
             return expressions;
         }
@@ -404,7 +404,8 @@ namespace LentoCore.Parser
             Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.Assign);
             AssertNext(TokenType.Assign);
             Expression body = ParseExpression(0);
-            _parsedFunctions.Add(ident.Name, new FunctionInfo(parameterList.Length));
+            if (_parsedFunctions.ContainsKey(ident.Name)) _parsedFunctions[ident.Name].MaxParameters = Math.Max(_parsedFunctions[ident.Name].MaxParameters, parameterList.Length);
+            else _parsedFunctions.Add(ident.Name, new FunctionInfo(parameterList.Length));
             return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), ident.Name, parameterList, body);
         }
         private Expression ParseParenthesisedFunctionCall(LineColumn spanStart, Identifier ident)
@@ -415,12 +416,18 @@ namespace LentoCore.Parser
             Token rightParen = AssertNext("Right closing parenthesis", TokenType.RightParen);
             return new FunctionCall(new LineColumnSpan(spanStart, rightParen.Span.End), ident, arguments.ToArray());
         }
-        private Expression ParseNoParenthesisedFunctionCall(LineColumn spanStart, Identifier ident)
+        private bool TryParseNoParenthesisedFunctionCall(LineColumn spanStart, Identifier ident, out Expression result)
         {
             // Function call using 'name arg1 arg2 ...' notation
+            if (!_parsedFunctions.ContainsKey(ident.Name))
+            {
+                result = default;
+                return false;
+            }
             FunctionInfo identData = _parsedFunctions[ident.Name];
             List<Expression> arguments = ParseExpressions(identData.MaxParameters);
-            return new FunctionCall(new LineColumnSpan(spanStart, arguments.Last().Span.End), ident, arguments.ToArray());
+            result = new FunctionCall(new LineColumnSpan(spanStart, arguments.Last().Span.End), ident, arguments.ToArray());
+            return true;
         }
     }
 }
