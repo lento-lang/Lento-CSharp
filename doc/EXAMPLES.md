@@ -92,6 +92,11 @@ f(6) // 6
 
 f int x = x * 2
 // Function already contains a definition matching: f int x
+
+F(int a, int b) = a * b
+F F 2 3 3     // 18
+F F(2, 3) 3   // 18
+F(F(2, 3), 3) // 18
 ```
 
 ### Small Standard Library
