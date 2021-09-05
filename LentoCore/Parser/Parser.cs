@@ -310,7 +310,7 @@ namespace LentoCore.Parser
             return expressions;
         }
 
-        private TypedIdentifier[] ParseTypedIdentifierList(TokenType closingTokenType)
+        private TypedIdentifier[] ParseTypedIdentifierList(TokenType closingTokenType, bool delmitingComma)
         {
             List<TypedIdentifier> identifiers = new List<TypedIdentifier>();
             while (CanRead)
@@ -340,12 +340,14 @@ namespace LentoCore.Parser
                 if (duplicate != null) throw new ParseErrorException(Error(paramName, $"duplicate parameter '{paramName.Lexeme}'"));
                 identifiers.Add(new TypedIdentifier(GetAtomicType(paramTypeName), new Identifier(paramName.Lexeme)));
 
-                AssureCanRead("separating comma or assignment operator");
-                if (Peek().Type == TokenType.Comma)
+                if (Peek().Type == closingTokenType) break;
+                if (delmitingComma)
                 {
+                    AssureCanRead("separating comma");
+                    if (Peek().Type != TokenType.Comma) throw new ParseErrorException(ErrorUnexpected(Peek(), "separating comma"));
                     Eat();
-                    AssureCanRead("another typed function parameter");
                 }
+                AssureCanRead("another typed function parameter");
             }
 
             return identifiers.ToArray();
@@ -403,7 +405,7 @@ namespace LentoCore.Parser
         {
             // Function declaration using 'name(type param) = body' notation
             Eat(); // LeftParen
-            Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.RightParen);
+            Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.RightParen, true);
             AssertNext(TokenType.RightParen);
             AssertNext(TokenType.Assign);
             Expression body = ParseExpression(0);
@@ -415,7 +417,7 @@ namespace LentoCore.Parser
         private Expression ParseNoParenthesisedFunctionDeclaration(LineColumn start, Identifier ident)
         {
             // Function declaration using 'name type param = body' notation
-            Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.Assign);
+            Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.Assign, false);
             AssertNext(TokenType.Assign);
             Expression body = ParseExpression(0);
             if (_parsedFunctions.ContainsKey(ident.Name)) _parsedFunctions[ident.Name].MaxParameters = Math.Max(_parsedFunctions[ident.Name].MaxParameters, parameterList.Length);
