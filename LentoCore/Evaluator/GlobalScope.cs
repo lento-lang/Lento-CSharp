@@ -20,6 +20,10 @@ namespace LentoCore.Evaluator
             Environment.Add(Atoms.Unit.BaseType.Name, Atoms.Unit.BaseType);
             Environment.Add(Atoms.Function.BaseType.Name, Atoms.Function.BaseType);
             Environment.Add(Atoms.AtomicAnyType.BaseType.Name, Atoms.AtomicAnyType.BaseType);
+
+            // Add mathematical aliases
+            Environment.Add("Nat", Atoms.Integer.BaseType);
+            Environment.Add("Real", Atoms.Float.BaseType);
         }
     }
 }
