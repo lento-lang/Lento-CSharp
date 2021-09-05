@@ -57,6 +57,19 @@ namespace LentoCore.Parser
             if (ignoreNewlines && ret.Type == TokenType.Newline) return Seek(offset + 1, true);
             return ret;
         }
+        private bool SeekPattern(params TokenType[] pattern) => SeekPattern(0, pattern);
+
+        private bool SeekPattern(int offset, params TokenType[] pattern)
+        {
+            if (!_tokens.CanSeek(offset + pattern.Length)) return false;
+            if (_tokens.Seek(offset).Type != pattern[0]) return SeekPattern(offset + 1, pattern);
+            // Token matches the first type in the pattern, if this does not match fail
+            for (int i = 1; i < pattern.Length; i++)
+            {
+                if (_tokens.Seek(offset + i).Type != pattern[i]) return false;
+            }
+            return true;
+        }
 
         private Token Eat() => Eat(true);
         private Token Eat(bool ignoreNewlines) {
@@ -100,12 +113,10 @@ namespace LentoCore.Parser
                 }
                 case TokenType.Identifier:
                 {
+                    Atoms.Identifier ident = new Atoms.Identifier(token.Lexeme);
                     if (CanRead && Peek().Type == TokenType.Dot)
                     {
-                        List<Identifier> identifiers = new List<Identifier>
-                        {
-                            new Identifier(token.Lexeme)
-                        };
+                        List<Identifier> identifiers = new List<Identifier>{ ident };
                         Token identifier;
                         do
                         {
@@ -115,14 +126,10 @@ namespace LentoCore.Parser
                         } while (CanRead && Peek().Type == TokenType.Dot);
                         return new AtomicValue<Atoms.IdentifierDotList>(new IdentifierDotList(identifiers.ToArray()), new LineColumnSpan(token.Span.Start, identifier.Span.End));
                     }
-
-                    Atoms.Identifier ident = new Atoms.Identifier(token.Lexeme);
-                    if (CanRead)
-                    {
-                        if (Peek().Type == TokenType.Assign || Peek().Type == TokenType.Identifier) return ParseAssignExpression(token.Span.Start, ident);
-                        if (Peek().Type == TokenType.LeftParen)
-                            return ParseFunctionCallExpression(token.Span.Start, ident);
-                    }
+                    // minBindingPower == 0 makes variable assignments and function declarations not allowed inside expressions.
+                    if (CanRead && Peek().Type == TokenType.Assign || Peek().Type == TokenType.Identifier) return ParseAssignExpression(token.Span.Start, ident);
+                    if (CanRead && Peek().Type == TokenType.LeftParen && SeekPattern(TokenType.RightParen, TokenType.Assign)) return ParseParenthesisedFunctionDeclaration(token.Span.Start, ident);
+                    if (CanRead && Peek().Type == TokenType.LeftParen) return ParseParenthesisedFunctionCall(token.Span.Start, ident);
                     return new AtomicValue<Atoms.Identifier>(ident, token.Span);
                 }
                 case TokenType.LeftParen:
@@ -290,7 +297,7 @@ namespace LentoCore.Parser
                 }
                 if (Peek().Type == TokenType.Identifier)
                 {
-                    // Function
+                    // non-parenthesised Function declaration
                     Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.Assign);
                     AssertNext(TokenType.Assign);
                     Expression body = ParseExpression(0); 
@@ -348,12 +355,28 @@ namespace LentoCore.Parser
                 default: return new Atoms.AtomicType(identifier);
             }
         }
-        private Expression ParseFunctionCallExpression(LineColumn spanStart, Identifier ident)
+        private Expression ParseParenthesisedFunctionCall(LineColumn spanStart, Identifier ident)
         {
             Eat(); // LeftParen
             List<Expression> arguments = ParseExpressions(TokenType.RightParen, TokenType.Comma);
             Token rightParen = AssertNext("Right closing parenthesis", TokenType.RightParen);
+            if (CanRead && Peek().Type == TokenType.Assign)
+            {
+                // Function declaration using 'name(type param) = body' notation
+                // Validate params
+
+            }
             return new FunctionCall(new LineColumnSpan(spanStart, rightParen.Span.End), ident, arguments.ToArray());
+        }
+        private Expression ParseParenthesisedFunctionDeclaration(LineColumn start, Identifier ident)
+        {
+            // We know that the the next token is '(' and we have found the ending ') ='.
+            Eat(); // LeftParen
+            Atoms.TypedIdentifier[] parameterList = ParseTypedIdentifierList(TokenType.RightParen);
+            AssertNext(TokenType.RightParen);
+            AssertNext(TokenType.Assign);
+            Expression body = ParseExpression(0);
+            return new FunctionDeclaration(new LineColumnSpan(start, body.Span.End), ident.Name, parameterList, body);
         }
     }
 }
