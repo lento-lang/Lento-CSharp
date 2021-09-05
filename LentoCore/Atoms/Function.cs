@@ -44,7 +44,7 @@ namespace LentoCore.Atoms
             Atoms.AtomicType[] argTypes = GetArgumentTypes(arguments);
             if (ValidateArgumentSignatureCollisions(argTypes))
                 throw new RuntimeErrorException(ErrorHandler.EvaluateError(position,
-                    $"Function already contains a definition matching: {Name} {GetArgumentTypeNameList(arguments)}"));
+                    $"Function already contains a definition matching: {Name}({GetArgumentTypesList(argTypes)})"));
             Variations.Add(argTypes, new UserDefinedVariation(arguments, expression, scope));
             UpdateType();
         }
