@@ -65,7 +65,7 @@ namespace LentoCore.Expressions
                     }
                 }
             }
-            throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"No function variation matches the given argument signature '{_identifier.Name}({string.Join(", ", argumentTypes.Select(t => t.ToString()))})'." +
+            throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"No function variation matches the given signature '{_identifier.Name}({string.Join(", ", argumentTypes.Select(t => t.ToString()))})'." +
                 $"\nValid function variations are:" +
                 $"\n{Formatting.Indentation}{_identifier.Name}(" + string.Join($")\n{Formatting.Indentation}{_identifier.Name}(", function.Variations.Select(
                     v =>
