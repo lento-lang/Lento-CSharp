@@ -318,13 +318,27 @@ namespace LentoCore.Parser
                 if (Peek().Type == closingTokenType) break;
                 Token paramType = Eat();
                 if (paramType.Type != TokenType.Identifier) throw new ParseErrorException(ErrorUnexpected(paramType, "parameter identifier type"));
+                string paramTypeName = paramType.Lexeme;
+                if (Peek().Type == TokenType.LessThan)
+                {
+                    paramTypeName += Eat().Lexeme; // <
+                    // Parse generic type parameters
+                    while (!EndOfStream && Peek().Type != TokenType.GreaterThan)
+                    {
+                        Token t = Eat();
+                        if (!(t.Type == TokenType.Identifier || t.Type == TokenType.Integer)) throw new ParseErrorException(ErrorUnexpected(t, $"invalid generic type argument '{t.Lexeme}'"));
+                        paramTypeName += t.Lexeme;
+                    }
+                    paramTypeName += Eat().Lexeme; // >
+                }
+
                 AssureCanRead("parameter identifier name");
                 Token paramName = Eat();
                 if (paramName.Type != TokenType.Identifier) throw new ParseErrorException(ErrorUnexpected(paramName, "parameter identifier name"));
 
                 TypedIdentifier duplicate = identifiers.Find(ti => ti.Identifier.Name == paramName.Lexeme);
                 if (duplicate != null) throw new ParseErrorException(Error(paramName, $"duplicate parameter '{paramName.Lexeme}'"));
-                identifiers.Add(new TypedIdentifier(GetAtomicType(paramType.Lexeme), new Identifier(paramName.Lexeme)));
+                identifiers.Add(new TypedIdentifier(GetAtomicType(paramTypeName), new Identifier(paramName.Lexeme)));
 
                 AssureCanRead("separating comma or assignment operator");
                 if (Peek().Type == TokenType.Comma)

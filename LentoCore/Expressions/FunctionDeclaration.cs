@@ -36,7 +36,7 @@ namespace LentoCore.Expressions
             List<(string, Atoms.AtomicType)> arguments = new List<(string, Atoms.AtomicType)>();
             foreach (var parameter in _parameters)
             {
-                string typeName = parameter.IdentifierType.Name;
+                string typeName = parameter.IdentifierType.Name.Split('<')[0]; // Get type name for normal types and generic ones
                 if (scope.Contains(typeName))
                 {
                     if (!scope.Get(typeName).Type.Equals(Atoms.AtomicType.BaseType)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"'{typeName}' is not a valid parameter type!"));
