@@ -77,7 +77,7 @@ a; // Undefined variable 'a'
 f(int x) = x * 2
 f(30) // 60
 
-apply_twice any f, int x = f(f(x)) // Ommit parenthesis surrounding parameters
+apply_twice any f int x = f(f(x)) // Ommit parenthesis surrounding parameters
 apply_twice(f, 5) // 20
 ```
 
@@ -100,6 +100,7 @@ F(F(2, 3), 3) // 18
 
 F(Tuple<1> t) = t * 2
 F#(5)   // #(10)
+F #(5)   // #(10)
 F(#(5, 2)) // No function variation matches the given argument signature 'F(Tuple<2>)'
 ```
 
