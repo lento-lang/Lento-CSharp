@@ -99,7 +99,7 @@ F F(2, 3) 3   // 18
 F(F(2, 3), 3) // 18
 
 F(Tuple<1> t) = t * 2
-F#(5)   // 10
+F#(5)   // #(10)
 F(#(5, 2)) // No function variation matches the given argument signature 'F(Tuple<2>)'
 ```
 
