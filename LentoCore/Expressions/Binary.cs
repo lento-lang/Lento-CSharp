@@ -79,8 +79,8 @@ namespace LentoCore.Expressions
                 result = new Atoms.Tuple(new Tuple(Span, new Expression[@tupleLhs.Size]), new Atomic[@tupleLhs.Size]);
                 for (int i = 0; i < result.Size; i++)
                 {
-                    Expression left = @tupleLhs.BaseExpression.Elements[i];
-                    Expression right = @tupleRhs.BaseExpression.Elements[i];
+                    Expression left = new AtomicValue<Atomic>(@tupleLhs.Elements[i], @tupleLhs.BaseExpression.Span);
+                    Expression right = new AtomicValue<Atomic>(@tupleRhs.Elements[i], @tupleLhs.BaseExpression.Span);
                     result.BaseExpression.Elements[i] = new Binary(op, left, right, new LineColumnSpan(left.Span.Start, right.Span.End));
                 }
                 result = (Atoms.Tuple)result.BaseExpression.Evaluate(scope);
