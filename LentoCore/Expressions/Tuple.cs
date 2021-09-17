@@ -24,7 +24,7 @@ namespace LentoCore.Expressions
             Atomic[] evaluatedElements = Elements.Select(e => e.Evaluate(scope)).ToArray();
             return new Atoms.Tuple(this, evaluatedElements);
         }
-
+        public override AtomicType GetReturnType() => Atoms.Tuple.BaseType;
         public override string ToString(string indent) => $"Tuple: (\n{indent + Formatting.Indentation}{string.Join($",\n{indent}{Formatting.Indentation}", Elements.Select(e => e.ToString(indent + Formatting.Indentation)))}\n{indent})";
     }
 }

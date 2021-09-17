@@ -17,44 +17,44 @@ namespace LentoCore.Atoms
 
         public string Name;
 
-        public Function(string name, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression,
+        public Function(string name, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression, AtomicType returnType,
             Scope scope) : base(BaseType)
         {
             Name = name;
             Variations = new Dictionary<Atoms.AtomicType[], Variation>
             {
-                {GetArgumentTypes(arguments), new UserDefinedVariation(arguments, expression, scope)}
+                {GetArgumentTypes(arguments), new UserDefinedVariation(arguments, expression, returnType, scope)}
             };
             UpdateType();
         }
 
-        public Function(string name, Func<Atomic[], Atomic> func, params AtomicType[] argumentTypes) : base(BaseType)
+        public Function(string name, Func<Atomic[], Atomic> func, AtomicType returnType, params AtomicType[] argumentTypes) : base(BaseType)
         {
             Name = name;
             Variations = new Dictionary<Atoms.AtomicType[], Variation>
             {
-                {argumentTypes, new BuiltInVariation(name, func, argumentTypes)}
+                {argumentTypes, new BuiltInVariation(name, func, argumentTypes, returnType)}
             };
             UpdateType();
         }
 
         public void AddVariation(LineColumn position, List<(string, Atoms.AtomicType)> arguments,
-            Expressions.Expression expression, Scope scope)
+            Expressions.Expression expression, AtomicType returnType, Scope scope)
         {
             Atoms.AtomicType[] argTypes = GetArgumentTypes(arguments);
             if (ValidateArgumentSignatureCollisions(argTypes))
                 throw new RuntimeErrorException(ErrorHandler.EvaluateError(position,
                     $"Function already contains a definition matching: {Name}({GetArgumentTypesList(argTypes)})"));
-            Variations.Add(argTypes, new UserDefinedVariation(arguments, expression, scope));
+            Variations.Add(argTypes, new UserDefinedVariation(arguments, expression, returnType, scope));
             UpdateType();
         }
 
-        public void AddBuiltInVariation(Func<Atomic[], Atomic> func, params AtomicType[] argumentTypes)
+        public void AddBuiltInVariation(Func<Atomic[], Atomic> func, AtomicType returnType, params AtomicType[] argumentTypes)
         {
             if (ValidateArgumentSignatureCollisions(argumentTypes))
                 throw new RuntimeErrorException(
                     $"Function already contains a definition matching the given parameter signature");
-            Variations.Add(argumentTypes, new BuiltInVariation(Name, func, argumentTypes));
+            Variations.Add(argumentTypes, new BuiltInVariation(Name, func, argumentTypes, returnType));
             UpdateType();
         }
 
@@ -92,29 +92,39 @@ namespace LentoCore.Atoms
             string.Join(", ", arguments.Select(arg => arg.ToString()));
         public new static AtomicType BaseType => new AtomicType(nameof(Function));
 
-        private void UpdateType() => Type = new AtomicObjectType($"{GetType().Name}[{Name}]<{Variations.Count}>"
-            , Variations.Count);
+        private void UpdateType() => Type = new FunctionType(Name, Variations);
         public override string StringRepresentation() => ToString();
         public override string ToString() => Type.ToString();
 
-        public abstract class Variation { }
+        public abstract class Variation {
+            public AtomicType ReturnType;
+
+            public Variation(AtomicType returnType)
+            {
+                ReturnType = returnType;
+            }
+        }
 
         public class UserDefinedVariation : Variation
         {
             private readonly Expressions.Expression _expression;
             public List<(string, Atoms.AtomicType)> Arguments; // <Name, Type>
             public Scope Scope;
-            public UserDefinedVariation(List<(string, AtomicType)> arguments, Expression expression, Scope scope)
+            public UserDefinedVariation(List<(string, AtomicType)> arguments, Expression expression, AtomicType returnType, Scope scope) : base(returnType)
             {
                 _expression = expression;
                 Arguments = arguments;
                 Scope = scope;
             }
-            public Atomic EvaluateVariation(Scope callScope)
+
+            public Atomic Evaluate(Scope scope)
             {
-                return _expression.Evaluate(callScope);
+                return _expression.Evaluate(scope);
             }
-            public override string ToString() => $"Variation<{GetArgumentTypeNameList(Arguments)}>";
+
+            public AtomicType GetReturnType() => _expression.GetReturnType();
+
+            public string ToString(string indent) => $"{indent}Variation<{GetArgumentTypeNameList(Arguments)}>";
         }
 
         public class BuiltInVariation : Variation
@@ -123,19 +133,21 @@ namespace LentoCore.Atoms
             private readonly string _name;
             private readonly Func<Atomic[], Atomic> _func;
 
-            public BuiltInVariation(string name, Func<Atomic[], Atomic> func, AtomicType[] parameterTypes)
+            public BuiltInVariation(string name, Func<Atomic[], Atomic> func, AtomicType[] parameterTypes, AtomicType returnType) : base(returnType)
             {
                 _name = name;
                 _func = func;
                 ParameterTypes = parameterTypes;
             }
 
-            public Atomic EvaluateVariation(Atomic[] arguments, LineColumnSpan span)
+            public Atomic Evaluate(Atomic[] arguments, LineColumnSpan span)
             {
                 if (arguments.Length != ParameterTypes.Length) throw new RuntimeErrorException(ErrorHandler.EvaluateError(span.Start, $"Call to built-in function {_name} expected {GetArgumentTypesList(ParameterTypes)} arguments but got {GetArgumentTypesList(arguments.Select(a => a.Type).ToArray())}"));
                 return _func(arguments);
             }
             public override string ToString() => $"BuiltInVariation<{GetArgumentTypesList(ParameterTypes)}>";
+
+            public AtomicType GetReturnType() => ReturnType;
         }
     }
 }

@@ -18,7 +18,8 @@ namespace LentoCore.Expressions
             Span = span;
         }
 
-        public abstract Atomic Evaluate(Scope scope); // Add Scope as parameter
+        public abstract Atomic Evaluate(Scope scope);
+        public abstract AtomicType GetReturnType();
         public override string ToString() => ToString("");
         public abstract string ToString(string indent);
     }

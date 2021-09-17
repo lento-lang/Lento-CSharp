@@ -64,6 +64,33 @@ namespace LentoCore.Expressions
             }
         }
 
+        public override AtomicType GetReturnType()
+        {
+            Atomic value = _rhs.GetReturnType();
+            switch (_operator)
+            {
+                case PrefixOperator.Negative:
+                    {
+                        if (value.Equals(Integer.BaseType)) return Integer.BaseType;
+                        if (value.Equals(Float.BaseType)) return Float.BaseType;
+                        if (value.Equals(Atoms.Tuple.BaseType)) return Atoms.Tuple.BaseType;
+                        throw OperationTypeError(value, _operator, typeof(Integer), typeof(Float));
+                    }
+                case PrefixOperator.Not:
+                    {
+                        if (value.Equals(Atoms.Boolean.BaseType)) return Atoms.Boolean.BaseType;
+                        if (value.Equals(Atoms.Tuple.BaseType)) return Atoms.Tuple.BaseType;
+                        throw OperationTypeError(value, _operator, typeof(Atoms.Boolean));
+                    }
+                case PrefixOperator.Referenced:
+                    {
+                        if (value.Equals(Identifier.BaseType)) return Reference.BaseType;
+                        if (value.Equals(IdentifierDotList.BaseType)) return Reference.BaseType;
+                        throw OperationTypeError(value, _operator, typeof(Atoms.Identifier), typeof(Atoms.IdentifierDotList));
+                    }
+                default: throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Could not evaluate {_operator.FastToString()}. Invalid prefix operator!"));
+            }
+        }
         public override string ToString(string indent) => $"{_operator.FastToString()}({_rhs.ToString(indent)})";
     }
 }

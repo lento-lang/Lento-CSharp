@@ -53,12 +53,12 @@ namespace LentoCore.Expressions
                                 callScope.Set(argumentNames[i], _arguments[i].Evaluate(variationScope));
                             }
 
-                            return userDefinedVariation.EvaluateVariation(callScope);
+                            return userDefinedVariation.Evaluate(callScope);
                         }
 
                         if (variation is Function.BuiltInVariation builtInVariation)
                         {
-                            return builtInVariation.EvaluateVariation(arguments, Span);
+                            return builtInVariation.Evaluate(arguments, Span);
                         }
 
                         throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Unknown variation value '{variation}'"));
@@ -76,7 +76,7 @@ namespace LentoCore.Expressions
                     }).ToArray()) + ')'
                 ));
         }
-        
+        public override AtomicType GetReturnType() => throw new NotImplementedException();
         private static string GetArgumentTypesList(Atoms.AtomicType[] arguments) =>
             string.Join(", ", arguments.Select(arg => arg.ToString()));
         public override string ToString(string indent) => $"{_identifier.Name}({string.Join(", ", _arguments.Select(a => a.ToString()))})";

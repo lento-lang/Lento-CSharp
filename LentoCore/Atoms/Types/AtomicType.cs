@@ -10,7 +10,7 @@ namespace LentoCore.Atoms
     public class AtomicType : Atomic
     {
         public string Name;
-        internal AtomicType() : base(null) { }
+        private AtomicType() : base(null) { }
         public AtomicType(string name) : this()
         {
             Name = name;
@@ -19,7 +19,7 @@ namespace LentoCore.Atoms
 
         public virtual bool Equals(AtomicType other)
         {
-            if (this is AtomicAnyType || other is AtomicAnyType) return true;
+            if (this is AnyType || other is AnyType) return true;
             return Name.Equals(other.Name);
         }
         public new static AtomicType BaseType => GetBaseType(); // Base type

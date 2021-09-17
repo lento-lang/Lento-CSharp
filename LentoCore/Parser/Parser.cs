@@ -357,7 +357,7 @@ namespace LentoCore.Parser
         {
             switch (identifier)
             {
-                case "any": return AtomicAnyType.BaseType;
+                case "any": return AnyType.BaseType;
                 case "Nat": return Atoms.Integer.BaseType;
                 case "Real": return Atoms.Float.BaseType;
                 default: return new Atoms.AtomicType(identifier);

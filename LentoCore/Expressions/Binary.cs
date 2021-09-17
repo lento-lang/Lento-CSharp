@@ -218,5 +218,143 @@ namespace LentoCore.Expressions
         }
 
         public override string ToString(string indent) => $"{_operator}({_lhs.ToString(indent)}, {_rhs.ToString(indent)})";
+
+        public override AtomicType GetReturnType()
+        {
+            AtomicType lhs = _lhs.GetReturnType();
+            AtomicType rhs = _rhs.GetReturnType();
+            switch (_operator)
+            {
+                case BinaryOperator.Add:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Integer.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Atoms.Tuple.BaseType) && rhs.Equals(Atoms.Tuple.BaseType)) return Atoms.Tuple.BaseType;
+                        if (lhs.Equals(String.BaseType) && rhs.Equals(String.BaseType)) return String.BaseType;
+                        if (lhs.Equals(String.BaseType) && rhs.Equals(Character.BaseType)) return String.BaseType;
+                        if (lhs.Equals(Character.BaseType) && rhs.Equals(String.BaseType)) return String.BaseType;
+                        if (lhs.Equals(Atoms.List.BaseType) && rhs.Equals(Atoms.List.BaseType)) return Atoms.List.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
+                    }
+                case BinaryOperator.Subtract:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Integer.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Atoms.Tuple.BaseType) && rhs.Equals(Atoms.Tuple.BaseType)) return Atoms.Tuple.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
+                    }
+                case BinaryOperator.Multiply:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Integer.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Atoms.Tuple.BaseType) && rhs.Equals(Atoms.Integer.BaseType)) return Atoms.Tuple.BaseType;
+                        if (lhs.Equals(Atoms.Integer.BaseType) && rhs.Equals(Atoms.Tuple.BaseType)) return Atoms.Tuple.BaseType;
+                        if (lhs.Equals(Atoms.Tuple.BaseType) && rhs.Equals(Atoms.Float.BaseType)) return Atoms.Tuple.BaseType;
+                        if (lhs.Equals(Atoms.Float.BaseType) && rhs.Equals(Atoms.Tuple.BaseType)) return Atoms.Tuple.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
+                    }
+                case BinaryOperator.Divide:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Integer.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
+                    }
+                case BinaryOperator.Modulus:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Integer.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Float.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
+                    }
+                case BinaryOperator.Equals:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Boolean.BaseType) && rhs.Equals(Boolean.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Atom.BaseType) && rhs.Equals(Atom.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(String.BaseType) && rhs.Equals(String.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Atoms.Tuple.BaseType) && rhs.Equals(Atoms.Tuple.BaseType)) return Boolean.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple));
+                    }
+                case BinaryOperator.NotEquals:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Boolean.BaseType) && rhs.Equals(Boolean.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Atom.BaseType) && rhs.Equals(Atom.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(String.BaseType) && rhs.Equals(String.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Atoms.Tuple.BaseType) && rhs.Equals(Atoms.Tuple.BaseType)) return Boolean.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple));
+                    }
+                case BinaryOperator.LessThan:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Character));
+                    }
+                case BinaryOperator.LessThanEquals:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType; 
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Character));
+                    }
+                case BinaryOperator.GreaterThan:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType; 
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Character));
+                    }
+                case BinaryOperator.GreaterThanEquals:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType; 
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Character));
+                    }
+                case BinaryOperator.And:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Boolean.BaseType) && rhs.Equals(Boolean.BaseType)) return Boolean.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Boolean));
+                    }
+                case BinaryOperator.Or:
+                    {
+                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(Boolean.BaseType) && rhs.Equals(Boolean.BaseType)) return Boolean.BaseType; 
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Boolean));
+                    }
+                case BinaryOperator.Exclude:
+                    {
+                        throw new NotImplementedException();
+                    }
+                default: throw new RuntimeErrorException(ErrorHandler.EvaluateError(_lhs.Span.End, $"Unknown infix binary operator '{_operator}'!"));
+            }
+        }
     }
 }

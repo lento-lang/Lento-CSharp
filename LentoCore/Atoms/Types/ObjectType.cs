@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace LentoCore.Atoms
 {
-    public class AtomicObjectType : AtomicType
+    public class ObjectType : AtomicType
     {
         public object Properties;
-        public AtomicObjectType(string name, object properties) : base(name)
+        public ObjectType(string name, object properties) : base(name)
         {
             Properties = properties;
         }
 
-        public override bool Equals(AtomicType other) => other is AtomicAnyType || (base.Equals(other) &&
-                                                         other is AtomicObjectType atomicObjcType &&
+        public override bool Equals(AtomicType other) => other is AnyType || (base.Equals(other) &&
+                                                         other is ObjectType atomicObjcType &&
                                                          Properties.Equals(atomicObjcType.Properties));
     }
 }

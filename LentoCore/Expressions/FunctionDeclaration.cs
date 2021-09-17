@@ -44,19 +44,22 @@ namespace LentoCore.Expressions
                 else throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Type '{typeName}' does not exist!"));
                 arguments.Add((parameter.Identifier.Name, parameter.IdentifierType));
             }
+            AtomicType returnType = Body.GetReturnType();
             if (existing != null)
             {
-                existing.AddVariation(Span.Start, arguments, Body, scope);
+                existing.AddVariation(Span.Start, arguments, Body, returnType, scope);
                 return existing;
             }
             else
             {
-                Atoms.Function newFunction = new Atoms.Function(_name, arguments, Body, scope);
+                Atoms.Function newFunction = new Atoms.Function(_name, arguments, Body, returnType, scope);
                 scope.Set(_name, newFunction);
                 return newFunction;
             }
         }
 
         public override string ToString(string indent) => $"Function declaration: {_name}({string.Join(", ", _parameters.Select(p => p.ToString()))}) = {Body.ToString(indent)}";
+
+        public override AtomicType GetReturnType() => Body.GetReturnType();
     }
 }
