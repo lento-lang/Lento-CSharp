@@ -20,5 +20,7 @@ namespace LentoCore.Atoms
         public AtomicType[] Types { get; }
 
         public override bool Equals(AtomicType other) => Types.Any(type => type.Equals(other));
+
+        public override string StringRepresentation() => string.Join(" | ", Types.Select(t => t.StringRepresentation()));
     }
 }

@@ -62,8 +62,11 @@ namespace LentoCore.Expressions
 
         public override AtomicType GetReturnType(TypeTable table)
         {
+            TypeTable copy = (TypeTable)table.Clone();
             foreach (TypedIdentifier identifier in _parameters) table.Set(identifier.Identifier.Name, identifier.IdentifierType);
-            return Body.GetReturnType(table);
+            AtomicType returnType = Body.GetReturnType(table);
+            table = copy;
+            return returnType;
         }
     }
 }

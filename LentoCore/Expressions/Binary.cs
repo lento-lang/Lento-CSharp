@@ -111,7 +111,7 @@ namespace LentoCore.Expressions
                     if (Operation<Atoms.String, string>(lhs, rhs, (l, r) => l.Value + r.Value, out string resultStringString)) return new Atoms.String(resultStringString);
                     if (Operation<Atoms.List, System.Collections.Generic.List<Atomic>>(lhs, rhs, (l, r) => l.Elements.Concat(r.Elements).ToList(), out System.Collections.Generic.List<Atomic> resultList)) return new Atoms.List(resultList);
                     if (SymmetricOperation<Atoms.String, Atoms.Character, string>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out string resultStringChar)) return new Atoms.String(resultStringChar);
-                    throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
+                    throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(String), typeof(Tuple), typeof(List));
                 }
                 case BinaryOperator.Subtract:
                 {
@@ -236,7 +236,7 @@ namespace LentoCore.Expressions
                         if (lhs.Equals(String.BaseType) && rhs.Equals(Character.BaseType)) return String.BaseType;
                         if (lhs.Equals(Character.BaseType) && rhs.Equals(String.BaseType)) return String.BaseType;
                         if (lhs.Equals(Atoms.List.BaseType) && rhs.Equals(Atoms.List.BaseType)) return Atoms.List.BaseType;
-                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float));
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(String), typeof(Tuple), typeof(List));
                     }
                 case BinaryOperator.Subtract:
                     {

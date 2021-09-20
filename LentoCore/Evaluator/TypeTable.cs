@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LentoCore.Evaluator
 {
-    public class TypeTable
+    public class TypeTable : ICloneable
     {
         private readonly Dictionary<string, AtomicType> types;
 
@@ -29,6 +29,13 @@ namespace LentoCore.Evaluator
         public void Join(TypeTable other)
         {
             foreach(KeyValuePair<string, AtomicType> pairs in other.types) Set(pairs.Key, pairs.Value);
+        }
+
+        public object Clone()
+        {
+            var n = new TypeTable();
+            n.Join(this);
+            return n;
         }
     }
 }

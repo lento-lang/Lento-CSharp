@@ -68,6 +68,10 @@ namespace LentoCLI
                     {
                         Console.WriteLine(e.Message, ConsoleColor.Red);
                     }
+                    catch (TypeErrorException e)
+                    {
+                        Console.WriteLine(e.Message, ConsoleColor.Red);
+                    }
                     catch (RuntimeErrorException e)
                     {
                         Console.WriteLine(e.Message, ConsoleColor.Red);
