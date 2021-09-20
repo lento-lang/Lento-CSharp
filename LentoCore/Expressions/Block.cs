@@ -25,7 +25,7 @@ namespace LentoCore.Expressions
             return result;
         }
 
-        public override AtomicType GetReturnType(TypeTable table) => _expressions.LastOrDefault().GetReturnType(table);
-        public override string ToString(string indent) => $"{{\n{indent + Formatting.Indentation}{string.Join(indent + Formatting.Indentation, _expressions.Select(e => e.ToString(indent + Formatting.Indentation)))}\n{indent}}}";
+        public override AtomicType GetReturnType(TypeTable table) => _expressions.Length > 0 ? _expressions.Last().GetReturnType(table) : Unit.BaseType;
+        public override string ToString(string indent) => _expressions.Length > 0 ? $"{{\n{indent + Formatting.Indentation}{string.Join(indent + Formatting.Indentation, _expressions.Select(e => e.ToString(indent + Formatting.Indentation)))}\n{indent}}}" : "{ }";
     }
 }
