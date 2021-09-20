@@ -23,7 +23,9 @@ namespace LentoCore.Expressions
         public override Atomic Evaluate(Scope scope)
         {
             if (scope.Contains(_name)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"A local variable or function named '{_name}' is already defined in this scope"));
-            return scope.Set(_name, _value.Evaluate(scope));
+            Atomic value = scope.Set(_name, _value.Evaluate(scope));
+            scope.TypeTable.Set(_name, value.Type);
+            return value;
         }
         public override AtomicType GetReturnType(TypeTable table) => _value.GetReturnType(table);
 
