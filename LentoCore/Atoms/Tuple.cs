@@ -15,7 +15,11 @@ namespace LentoCore.Atoms
 
         public Tuple() : this(new Atomic[0]) { }
         public Tuple(params Atomic[] elements) : this(null, elements) { }
-        public Tuple(Expressions.Tuple baseExpression, Atomic[] elements) : base(new ObjectType($"{BaseType}<{elements?.Length ?? 0}>", elements?.Length ?? 0))
+        public Tuple(Expressions.Tuple baseExpression, Atomic[] elements) : base(
+            elements?.Length > 0
+            ? new ObjectType($"{BaseType}<{elements?.Length ?? 0}>", elements?.Length ?? 0)
+            : Unit.BaseType
+            )
         {
             BaseExpression = baseExpression ?? new Expressions.Tuple(null, elements?.Select(e => (Expression) new AtomicValue<Atomic>(e, null)).ToArray());
             Elements = elements;
