@@ -91,9 +91,9 @@ namespace LentoCore.Expressions
             return false;
         }
 
-        private RuntimeErrorException OperationTypeError(Atomic lhs, BinaryOperator op, params Type[] expected)
+        private TypeErrorException OperationTypeError(Atomic lhs, BinaryOperator op, params Type[] expected)
         {
-            return new RuntimeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_lhs.Span.Start, op.FastToString(), lhs, expected));
+            return new TypeErrorException(ErrorHandler.EvaluateErrorTypeMismatch(_lhs.Span.Start, op.FastToString(), lhs, expected));
         }
 
         public override Atomic Evaluate(Scope scope)
@@ -219,10 +219,10 @@ namespace LentoCore.Expressions
 
         public override string ToString(string indent) => $"{_operator}({_lhs.ToString(indent)}, {_rhs.ToString(indent)})";
 
-        public override AtomicType GetReturnType()
+        public override AtomicType GetReturnType(TypeTable table)
         {
-            AtomicType lhs = _lhs.GetReturnType();
-            AtomicType rhs = _rhs.GetReturnType();
+            AtomicType lhs = _lhs.GetReturnType(table);
+            AtomicType rhs = _rhs.GetReturnType(table);
             switch (_operator)
             {
                 case BinaryOperator.Add:

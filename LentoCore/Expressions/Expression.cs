@@ -19,7 +19,7 @@ namespace LentoCore.Expressions
         }
 
         public abstract Atomic Evaluate(Scope scope);
-        public abstract AtomicType GetReturnType();
+        public abstract AtomicType GetReturnType(TypeTable types);
         public override string ToString() => ToString("");
         public abstract string ToString(string indent);
     }

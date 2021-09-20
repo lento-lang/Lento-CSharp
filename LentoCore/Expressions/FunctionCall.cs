@@ -76,7 +76,12 @@ namespace LentoCore.Expressions
                     }).ToArray()) + ')'
                 ));
         }
-        public override AtomicType GetReturnType() => throw new NotImplementedException();
+        public override AtomicType GetReturnType(TypeTable table)
+        {
+            string hash = Hashing.Function(_identifier.Name, _arguments.Select(a => a.GetReturnType(table)));
+            if (!table.Contains(hash)) return new UnknownType();
+            return table.Get(hash);
+        }
         private static string GetArgumentTypesList(Atoms.AtomicType[] arguments) =>
             string.Join(", ", arguments.Select(arg => arg.ToString()));
         public override string ToString(string indent) => $"{_identifier.Name}({string.Join(", ", _arguments.Select(a => a.ToString()))})";

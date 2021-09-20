@@ -122,7 +122,7 @@ namespace LentoCore.Atoms
                 return _expression.Evaluate(scope);
             }
 
-            public AtomicType GetReturnType() => _expression.GetReturnType();
+            public AtomicType GetReturnType(TypeTable table) => _expression.GetReturnType(table);
 
             public string ToString(string indent) => $"{indent}Variation<{GetArgumentTypeNameList(Arguments)}>";
         }

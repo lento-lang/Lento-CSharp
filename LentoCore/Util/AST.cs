@@ -22,7 +22,7 @@ namespace LentoCore.Util
             return result;
         }
 
-        public override AtomicType GetReturnType() => Unit.BaseType; // Undeterministic
+        public override AtomicType GetReturnType(TypeTable table) => CompilationUnit.Select(e => e.GetReturnType(table)).Last();
         public override string ToString(string indent) => string.Join('\n', CompilationUnit.Select(e => e.ToString(indent)));
     }
 }

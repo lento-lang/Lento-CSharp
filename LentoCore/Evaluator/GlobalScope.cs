@@ -8,7 +8,14 @@ namespace LentoCore.Evaluator
 {
     public class GlobalScope : Scope
     {
-        public GlobalScope() : base("Global", null) {
+        public GlobalScope(TypeTable table) : base("Global", null, table)
+        {
+            Initialize();
+        }
+        public GlobalScope() : this(new TypeTable()) { }
+
+        private void Initialize()
+        {
             // Add all built in primitive types
             Environment.Add(Atoms.Integer.BaseType.Name, Atoms.Integer.BaseType);
             Environment.Add(Atoms.Float.BaseType.Name, Atoms.Float.BaseType);

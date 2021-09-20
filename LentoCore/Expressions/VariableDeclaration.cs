@@ -25,7 +25,7 @@ namespace LentoCore.Expressions
             if (scope.Contains(_name)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"A local variable or function named '{_name}' is already defined in this scope"));
             return scope.Set(_name, _value.Evaluate(scope));
         }
-        public override AtomicType GetReturnType() => _value.GetReturnType();
+        public override AtomicType GetReturnType(TypeTable table) => _value.GetReturnType(table);
 
         public override string ToString(string indent) => $"Variable declaration: {_name.ToString()} = {_value.ToString(indent)}";
     }

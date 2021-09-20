@@ -15,13 +15,15 @@ namespace LentoCore.Evaluator
         protected string Name;
         protected Scope Parent;
         protected Dictionary<string, Atomic> Environment;
+        public TypeTable TypeTable;
 
-        protected Scope(string name, Scope parent)
+        protected Scope(string name, Scope parent, TypeTable typeTable)
         {
             ID = _scopeCount++;
             Name = name;
             Parent = parent;
             Environment = new Dictionary<string, Atomic>();
+            TypeTable = typeTable;
         }
 
         /// <summary>
@@ -29,7 +31,7 @@ namespace LentoCore.Evaluator
         /// </summary>
         /// <param name="name"></param>
         /// <returns>The new child scope</returns>
-        public Scope Derive(string name) => new Scope(name, this);
+        public Scope Derive(string name) => new Scope(name, this, TypeTable);
 
         /// <summary>
         /// Get a variable from the current scope or its parent scopes.

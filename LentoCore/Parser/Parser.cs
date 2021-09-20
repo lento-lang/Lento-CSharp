@@ -21,6 +21,12 @@ namespace LentoCore.Parser
         }
 
         private Dictionary<string, FunctionInfo> _parsedFunctions = new Dictionary<string, FunctionInfo>();
+        public void AddParseIdentifiedFunction(string name, int parameters)
+        {
+            if (_parsedFunctions.ContainsKey(name) && _parsedFunctions[name].MaxParameters < parameters) _parsedFunctions[name].MaxParameters = parameters;
+            _parsedFunctions.Add(name, new FunctionInfo(parameters));
+        }
+
         private TokenStream _tokens;
 
         public AST Parse(TokenStream tokens)
@@ -442,7 +448,8 @@ namespace LentoCore.Parser
             }
             FunctionInfo identData = _parsedFunctions[ident.Name];
             List<Expression> arguments = ParseExpressions(identData.MaxParameters);
-            result = new FunctionCall(new LineColumnSpan(spanStart, arguments.Last().Span.End), ident, arguments.ToArray());
+            if (arguments.Count == 0) result = new AtomicValue<Identifier>(ident, new LineColumnSpan(spanStart, spanStart.CloneAndAdd(ident.Name.Length)));
+            else result = new FunctionCall(new LineColumnSpan(spanStart, arguments.Last().Span.End), ident, arguments.ToArray());
             return true;
         }
     }

@@ -49,6 +49,13 @@ namespace LentoCore.Util
             return result;
         }
 
+        public LineColumn CloneAndAdd(int offset) => new LineColumn
+        {
+            Index = Index + offset,
+            Line = Line,
+            Column = Column + offset
+        };
+
         public int Index { get; private set; }
         public int Line { get; private set; }
         public int Column { get; private set; }

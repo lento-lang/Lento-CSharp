@@ -17,37 +17,34 @@ namespace LentoCore.Evaluator
         private readonly Tokenizer _lexer;
         private readonly Parser.Parser _parser;
         private readonly TypeChecker.TypeChecker _typeChecker;
-        
+        private readonly bool loadStandardLibrary;
+
         public event EventHandler<TokenizeDoneEventArgs> OnTokenizeDone;
         public event EventHandler<ParseDoneEventArgs> OnParseDone;
         public event EventHandler<EvaluationDoneEventArgs> OnEvaluationDone;
 
-        public Evaluator()
+        public Evaluator(bool loadStandardLibrary)
         {
             _lexer = new Tokenizer();
             _parser = new Parser.Parser();
             _typeChecker = new TypeChecker.TypeChecker();
+
+            if (loadStandardLibrary) StandardLibrary.StandardLibrary.Load(_parser);
+            this.loadStandardLibrary = loadStandardLibrary;
         }
 
-        public Atomic EvaluateFile(Stream fileStream, bool loadStandardLibrary)
+        public Atomic EvaluateFile(Stream fileStream)
         {
             TokenStream tokens = _lexer.Tokenize(fileStream);
             OnTokenizeDone?.Invoke(this, new TokenizeDoneEventArgs(tokens));
             AST ast = _parser.Parse(tokens);
             OnParseDone?.Invoke(this, new ParseDoneEventArgs(ast));
-            _typeChecker.Check(ast);
-            Scope globalScope = new GlobalScope();
+            TypeTable tt = _typeChecker.Check(ast, new TypeTable());
+            Scope globalScope = new GlobalScope(tt);
             if (loadStandardLibrary) StandardLibrary.StandardLibrary.Load(globalScope);
             Atomic result = ast.Evaluate(globalScope);
             OnEvaluationDone?.Invoke(this, new EvaluationDoneEventArgs(result));
             return result;
-        }
-
-        public Atomic EvaluateInput(string input, bool loadStandardLibrary)
-        {
-            Scope globalScope = new GlobalScope();
-            if (loadStandardLibrary) StandardLibrary.StandardLibrary.Load(globalScope);
-            return EvaluateInput(input, globalScope);
         }
 
         public Atomic EvaluateInput(string input, Scope scope)
@@ -56,7 +53,8 @@ namespace LentoCore.Evaluator
             OnTokenizeDone?.Invoke(this, new TokenizeDoneEventArgs(tokens));
             AST ast = _parser.Parse(tokens);
             OnParseDone?.Invoke(this, new ParseDoneEventArgs(ast));
-            _typeChecker.Check(ast);
+            TypeTable tt = _typeChecker.Check(ast, scope.TypeTable);
+            scope.TypeTable.Join(tt);
             Atomic result = ast.Evaluate(scope);
             OnEvaluationDone?.Invoke(this, new EvaluationDoneEventArgs(result));
             return result;

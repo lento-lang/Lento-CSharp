@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using LentoCore.Atoms;
 using LentoCore.Evaluator;
 using LentoCore.Exception;
+using LentoCore.Expressions;
 using LentoCore.Util;
 
 namespace LentoCore.StandardLibrary
@@ -23,6 +24,7 @@ namespace LentoCore.StandardLibrary
                     currentFunction.AddBuiltInVariation(func, returnType, parameterTypes);
                 }
                 else scope.Set(name, new Function(name, func, returnType, parameterTypes));
+                scope.TypeTable.Set(Hashing.Function(name, parameterTypes), returnType);
             }
             Atomic Print(Atomic[] args) {
                 Console.Write(string.Join(' ', args.Select(a => a.StringRepresentation())));
@@ -48,6 +50,18 @@ namespace LentoCore.StandardLibrary
             BuiltIn("parse_float", (args) => new Atoms.Tuple(new Atoms.Boolean(float.TryParse(args[0].StringRepresentation(), out float r)), new Atoms.Float(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
             BuiltIn("parse_bool", (args) => new Atoms.Tuple(new Atoms.Boolean(bool.TryParse(args[0].StringRepresentation(), out bool r)), new Atoms.Boolean(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
             BuiltIn("parse_atom", (args) => new Atoms.Tuple(new Atoms.Boolean(true), new Atoms.Atom(args[0].StringRepresentation())), Atoms.Tuple.BaseType, Atoms.String.BaseType);
+        }
+
+        internal static void Load(Parser.Parser parser)
+        {
+            parser.AddParseIdentifiedFunction("print", 5);
+            parser.AddParseIdentifiedFunction("println", 5);
+            parser.AddParseIdentifiedFunction("typeof", 1);
+            parser.AddParseIdentifiedFunction("str", 1);
+            parser.AddParseIdentifiedFunction("parse_int", 1);
+            parser.AddParseIdentifiedFunction("parse_float", 1);
+            parser.AddParseIdentifiedFunction("parse_bool", 1);
+            parser.AddParseIdentifiedFunction("parse_atom", 1);
         }
     }
 }

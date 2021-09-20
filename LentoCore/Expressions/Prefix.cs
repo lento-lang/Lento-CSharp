@@ -64,9 +64,9 @@ namespace LentoCore.Expressions
             }
         }
 
-        public override AtomicType GetReturnType()
+        public override AtomicType GetReturnType(TypeTable table)
         {
-            Atomic value = _rhs.GetReturnType();
+            Atomic value = _rhs.GetReturnType(table);
             switch (_operator)
             {
                 case PrefixOperator.Negative:

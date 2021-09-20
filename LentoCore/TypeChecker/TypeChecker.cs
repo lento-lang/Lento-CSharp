@@ -1,4 +1,5 @@
-﻿using LentoCore.Util;
+﻿using LentoCore.Evaluator;
+using LentoCore.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,10 @@ namespace LentoCore.TypeChecker
     {
         public TypeChecker() { }
 
-        public void Check(AST ast)
+        public TypeTable Check(AST ast, TypeTable tt)
         {
-
+            ast.GetReturnType(tt);
+            return tt;
         }
     }
 }

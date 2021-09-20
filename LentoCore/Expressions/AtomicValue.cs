@@ -36,7 +36,16 @@ namespace LentoCore.Expressions
 
         public TAtom GetAtomicValue() => _value;
 
-        public override AtomicType GetReturnType() => _value.Type;
+        public override AtomicType GetReturnType(TypeTable table)
+        {
+            if (_value is Atoms.Identifier ident)
+            {
+                var matches = table.Find(name => name.Split(':')[0] == ident.Name);
+                if (matches.Length == 0) throw new TypeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Type of identifier '{ident.Name}' could not be determined"));
+                return new SumType(matches.Select(p => p.Value).ToArray());
+            }
+            return _value.Type;
+        }
 
         public override string ToString(string indent) => $"Atomic {typeof(TAtom).Name}: {_value}";
     }

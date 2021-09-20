@@ -25,7 +25,7 @@ namespace LentoCore.Expressions
             return new Atoms.List(this, evaluatedElements);
         }
 
-        public override AtomicType GetReturnType() => Atoms.List.BaseType;
+        public override AtomicType GetReturnType(TypeTable table) => Atoms.List.BaseType;
         public override string ToString(string indent) => $"List: [\n{indent + Formatting.Indentation}{string.Join($",\n{indent}{Formatting.Indentation}", Elements.Select(e => e.ToString(indent + Formatting.Indentation)))}\n{indent}]";
     }
 }

@@ -17,7 +17,10 @@ namespace LentoCLI
     {
         public static void Run(bool verbose)
         {
-            Evaluator evaluator = new Evaluator();
+            Evaluator evaluator = new Evaluator(true);
+            GlobalScope scope = new GlobalScope();
+            StandardLibrary.Load(scope);
+
             if (verbose)
             {
                 evaluator.OnTokenizeDone += (sender, e) =>
@@ -45,9 +48,6 @@ namespace LentoCLI
                     Console.Write($"Result ({e.Result.Type}): "); // Atomic result is printed afterwards
                 };
             }
-
-            GlobalScope scope = new GlobalScope();
-            StandardLibrary.Load(scope);
 
             while (true)
             {
