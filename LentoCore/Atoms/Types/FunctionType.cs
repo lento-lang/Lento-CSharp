@@ -8,15 +8,15 @@ namespace LentoCore.Atoms
 {
     public class FunctionType : ObjectType
     {
-        public FunctionType(string name, Dictionary<AtomicType[], Function.Variation> variations) : base(name, variations)
-        {
-            Variations = variations;
-        }
+        private readonly Function function;
 
-        public Dictionary<AtomicType[], Function.Variation> Variations { get; }
+        public FunctionType(Function function) : base(function.Name, function.Variations)
+        {
+            this.function = function;
+        }
 
         public override bool Equals(AtomicType other) => other is AnyType || (other is ObjectType atomicObjcType &&
                                                          Properties.Equals(atomicObjcType.Properties));
-        public override string ToString() => $"Function[{Name}]<{Variations.Count}>";
+        public override string ToString(string indent) => $"Function[{Name}]{{\n{function.VariationsToString(indent)}\n}}";
     }
 }

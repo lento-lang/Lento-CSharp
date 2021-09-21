@@ -17,6 +17,6 @@ namespace LentoCore.Atoms
         }
         public new static AtomicType BaseType => new AtomicType("char");
         public override string StringRepresentation() => Value.ToString();
-        public override string ToString() => $"'{Formatting.EscapeChar(Value)}'";
+        public override string ToString(string indent) => $"'{Formatting.EscapeChar(Value)}'";
     }
 }

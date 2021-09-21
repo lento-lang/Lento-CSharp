@@ -40,6 +40,6 @@ namespace LentoCore.Atoms
         }
         
         public override string StringRepresentation() => ToString();
-        public override string ToString() => Name;
+        public override string ToString(string indent) => Name;
     }
 }

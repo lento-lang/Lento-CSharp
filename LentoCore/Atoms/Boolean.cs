@@ -16,6 +16,6 @@ namespace LentoCore.Atoms
         }
         public new static AtomicType BaseType => new AtomicType("bool");
         public override string StringRepresentation() => ToString();
-        public override string ToString() => Value.ToString().ToLower();
+        public override string ToString(string indent) => Value.ToString().ToLower();
     }
 }

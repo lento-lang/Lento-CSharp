@@ -17,6 +17,6 @@ namespace LentoCore.Atoms
         }
         public new static AtomicType BaseType => new AtomicType("float");
         public override string StringRepresentation() => ToString();
-        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture).Replace(',','.');
+        public override string ToString(string indent) => Value.ToString(CultureInfo.InvariantCulture).Replace(',','.');
     }
 }

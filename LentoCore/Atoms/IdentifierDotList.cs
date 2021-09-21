@@ -16,6 +16,6 @@ namespace LentoCore.Atoms
         }
         public new static AtomicType BaseType => new AtomicType(nameof(IdentifierDotList));
         public override string StringRepresentation() => ToString();
-        public override string ToString() => string.Join('.', Identifiers.Select(i => i.ToString()));
+        public override string ToString(string indent) => string.Join('.', Identifiers.Select(i => i.ToString()));
     }
 }

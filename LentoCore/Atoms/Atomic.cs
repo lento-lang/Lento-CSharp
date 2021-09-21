@@ -15,6 +15,7 @@ namespace LentoCore.Atoms
             Type = type;
         }
         public abstract string StringRepresentation();
-        public abstract override string ToString();
+        public abstract string ToString(string indent);
+        public sealed override string ToString() => ToString("");
     }
 }
