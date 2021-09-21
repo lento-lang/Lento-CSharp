@@ -46,6 +46,8 @@ namespace LentoCore.StandardLibrary
             BuiltIn("println", PrintLine, Unit.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType);
             BuiltIn("typeof", (args) => args[0].Type, AtomicType.BaseType, AnyType.BaseType);
             BuiltIn("str", (args) => new Atoms.String(args[0].StringRepresentation()), Atoms.String.BaseType, AnyType.BaseType);
+            BuiltIn("lst", (args) => new Atoms.List(((Atoms.Tuple)args[0]).Elements.ToList()), Atoms.List.BaseType, AnyType.BaseType);
+            BuiltIn("tpl", (args) => new Atoms.Tuple(((Atoms.List)args[0]).Elements.ToArray()), Atoms.Tuple.BaseType, Atoms.List.BaseType);
             BuiltIn("parse_int", (args) => new Atoms.Tuple(new Atoms.Boolean(int.TryParse(args[0].StringRepresentation(), out int r)), new Atoms.Integer(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
             BuiltIn("parse_float", (args) => new Atoms.Tuple(new Atoms.Boolean(float.TryParse(args[0].StringRepresentation(), out float r)), new Atoms.Float(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
             BuiltIn("parse_bool", (args) => new Atoms.Tuple(new Atoms.Boolean(bool.TryParse(args[0].StringRepresentation(), out bool r)), new Atoms.Boolean(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
@@ -58,6 +60,8 @@ namespace LentoCore.StandardLibrary
             parser.AddParseIdentifiedFunction("println", 5);
             parser.AddParseIdentifiedFunction("typeof", 1);
             parser.AddParseIdentifiedFunction("str", 1);
+            parser.AddParseIdentifiedFunction("lst", 1);
+            parser.AddParseIdentifiedFunction("tpl", 1);
             parser.AddParseIdentifiedFunction("parse_int", 1);
             parser.AddParseIdentifiedFunction("parse_float", 1);
             parser.AddParseIdentifiedFunction("parse_bool", 1);
