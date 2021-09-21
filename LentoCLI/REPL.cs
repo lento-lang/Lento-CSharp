@@ -58,6 +58,7 @@ namespace LentoCLI
                     try
                     {
                         Atomic result = evaluator.EvaluateInput(expr, scope);
+                        if (!verbose && result.Type.Equals(Unit.BaseType)) continue; 
                         Console.WriteLine(result.ToString(), ConsoleColor.Cyan);
                     }
                     catch (SyntaxErrorException e)
