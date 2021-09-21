@@ -10,6 +10,6 @@ namespace LentoCore.Atoms
     {
         public Unit() : base(new Atomic[0]) { }
         public new static AtomicType BaseType => new AtomicType(nameof(Unit));
-        public override string ToString() => "#()";
+        public override string ToString(string indent) => "#()";
     }
 }
