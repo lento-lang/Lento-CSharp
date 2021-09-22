@@ -22,6 +22,7 @@ namespace LentoCore.StandardLibrary
             }
             // Add all built in primitive types
             AddType(Atoms.Integer.BaseType.Name, Atoms.Integer.BaseType);
+            AddType(Atoms.Long.BaseType.Name, Atoms.Long.BaseType);
             AddType(Atoms.Float.BaseType.Name, Atoms.Float.BaseType);
             AddType(Atoms.Boolean.BaseType.Name, Atoms.Boolean.BaseType);
             AddType(Atoms.Character.BaseType.Name, Atoms.Character.BaseType);

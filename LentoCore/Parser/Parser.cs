@@ -127,7 +127,12 @@ namespace LentoCore.Parser
                 // Values
                 case TokenType.Atom: return new AtomicValue<Atoms.Atom>(new Atoms.Atom(token.Lexeme), token.Span);
                 case TokenType.Boolean: return new AtomicValue<Atoms.Boolean>(new Atoms.Boolean(token.Lexeme == "true"), token.Span);
-                case TokenType.Integer: return new AtomicValue<Atoms.Integer>(new Atoms.Integer(int.Parse(token.Lexeme)), token.Span);
+                case TokenType.Integer:
+                    {
+                        if (int.TryParse(token.Lexeme, out int intValue))
+                            return new AtomicValue<Atoms.Integer>(new Atoms.Integer(intValue), token.Span);
+                        return new AtomicValue<Atoms.Long>(new Atoms.Long(long.Parse(token.Lexeme)), token.Span);
+                    }
                 case TokenType.Float: return new AtomicValue<Atoms.Float>(new Atoms.Float(float.Parse(token.Lexeme.Replace('.',','))), token.Span);
                 case TokenType.String: return new AtomicValue<Atoms.String>(new Atoms.String(token.Lexeme), token.Span);
                 case TokenType.Character:
