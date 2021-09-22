@@ -22,7 +22,9 @@ namespace LentoCore.Util
             return result;
         }
 
-        public override AtomicType GetReturnType(TypeTable table) => CompilationUnit.Select(e => e.GetReturnType(table)).Last();
+        public override AtomicType GetReturnType(TypeTable table) => CompilationUnit.Length > 0
+            ? CompilationUnit.Select(e => e.GetReturnType(table)).ToList().Last() // .ToList is required to make sure the Select method maps over all elements.
+            : Unit.BaseType;
         public override string ToString(string indent) => string.Join('\n', CompilationUnit.Select(e => e.ToString(indent)));
     }
 }
