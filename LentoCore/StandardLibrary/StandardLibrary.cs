@@ -13,7 +13,30 @@ namespace LentoCore.StandardLibrary
 {
     public static class StandardLibrary
     {
-        public static void Load(Scope scope)
+        public static void LoadTypes(GlobalScope scope)
+        {
+            void AddType(string name, AtomicType type)
+            {
+                scope.Set(name, type);
+                scope.TypeTable.Set(name, type);
+            }
+            // Add all built in primitive types
+            AddType(Atoms.Integer.BaseType.Name, Atoms.Integer.BaseType);
+            AddType(Atoms.Float.BaseType.Name, Atoms.Float.BaseType);
+            AddType(Atoms.Boolean.BaseType.Name, Atoms.Boolean.BaseType);
+            AddType(Atoms.Character.BaseType.Name, Atoms.Character.BaseType);
+            AddType(Atoms.String.BaseType.Name, Atoms.String.BaseType);
+            AddType(Atoms.List.BaseType.Name, Atoms.List.BaseType);
+            AddType(Atoms.Tuple.BaseType.Name, Atoms.Tuple.BaseType);
+            AddType(Atoms.Unit.BaseType.Name, Atoms.Unit.BaseType);
+            AddType(Atoms.Function.BaseType.Name, Atoms.Function.BaseType);
+            AddType(Atoms.AnyType.BaseType.Name, Atoms.AnyType.BaseType);
+
+            // Add mathematical aliases
+            AddType("Nat", Atoms.Integer.BaseType);
+            AddType("Real", Atoms.Float.BaseType);
+        }
+        public static void LoadFunctions(GlobalScope scope)
         {
             void BuiltIn(string name, Func<Atomic[], Atomic> func, AtomicType returnType, params AtomicType[] parameterTypes)
             {
@@ -54,7 +77,7 @@ namespace LentoCore.StandardLibrary
             BuiltIn("parse_atom", (args) => new Atoms.Tuple(new Atoms.Boolean(true), new Atoms.Atom(args[0].StringRepresentation())), Atoms.Tuple.BaseType, Atoms.String.BaseType);
         }
 
-        internal static void Load(Parser.Parser parser)
+        internal static void LoadParser(Parser.Parser parser)
         {
             parser.AddParseIdentifiedFunction("print", 5);
             parser.AddParseIdentifiedFunction("println", 5);

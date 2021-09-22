@@ -16,7 +16,8 @@ namespace LentoCLI
         {
             Evaluator evaluator = new Evaluator(true);
             GlobalScope scope = new GlobalScope();
-            StandardLibrary.Load(scope);
+            StandardLibrary.LoadTypes(scope);
+            StandardLibrary.LoadFunctions(scope);
 
             if (verbose)
             {

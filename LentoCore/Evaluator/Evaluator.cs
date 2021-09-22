@@ -29,7 +29,7 @@ namespace LentoCore.Evaluator
             _parser = new Parser.Parser();
             _typeChecker = new TypeChecker.TypeChecker();
 
-            if (loadStandardLibrary) StandardLibrary.StandardLibrary.Load(_parser);
+            if (loadStandardLibrary) StandardLibrary.StandardLibrary.LoadParser(_parser);
             this.loadStandardLibrary = loadStandardLibrary;
         }
 
@@ -40,8 +40,12 @@ namespace LentoCore.Evaluator
             AST ast = _parser.Parse(tokens);
             OnParseDone?.Invoke(this, new ParseDoneEventArgs(ast));
             TypeTable tt = _typeChecker.Check(ast, new TypeTable());
-            Scope globalScope = new GlobalScope(tt);
-            if (loadStandardLibrary) StandardLibrary.StandardLibrary.Load(globalScope);
+            GlobalScope globalScope = new GlobalScope(tt);
+            if (loadStandardLibrary)
+            {
+                StandardLibrary.StandardLibrary.LoadTypes(globalScope);
+                StandardLibrary.StandardLibrary.LoadFunctions(globalScope);
+            }
             Atomic result = ast.Evaluate(globalScope);
             OnEvaluationDone?.Invoke(this, new EvaluationDoneEventArgs(result));
             return result;
