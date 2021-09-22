@@ -154,12 +154,13 @@ namespace LentoCore.Expressions
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
                     if (Operation<Atoms.String, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultString)) return new Atoms.Boolean(resultString);
                     if (Operation<Atoms.Unit, bool>(lhs, rhs, (l, r) => true, out bool _)) return new Atoms.Boolean(true);
+                        if (Operation<AtomicType, bool>(lhs, rhs, (l, r) => l.Equals(r), out bool resultType)) return new Boolean(resultType);
                     if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple))
                     {
                         if (resultTuple.Elements.All(e => e is Atoms.Boolean b && b.Value == true)) return new Boolean(true);
                         return new Boolean(false);
                     };
-                    throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple));
+                    throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple), typeof(AtomicType));
                 }
                 case BinaryOperator.NotEquals:
                 {
@@ -286,7 +287,8 @@ namespace LentoCore.Expressions
                         if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType;
                         if (lhs.Equals(String.BaseType) && rhs.Equals(String.BaseType)) return Boolean.BaseType;
                         if (lhs.Equals(Atoms.Tuple.BaseType) && rhs.Equals(Atoms.Tuple.BaseType)) return Boolean.BaseType;
-                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple));
+                        if (lhs.Equals(Atoms.AtomicType.BaseType) && rhs.Equals(Atoms.AtomicType.BaseType)) return Boolean.BaseType;
+                        throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple), typeof(AtomicType));
                     }
                 case BinaryOperator.NotEquals:
                     {
