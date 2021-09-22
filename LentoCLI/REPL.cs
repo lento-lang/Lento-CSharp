@@ -2,10 +2,7 @@
 using System.Linq;
 using LentoCore.Atoms;
 using LentoCore.Exception;
-using LentoCore.TypeChecker;
 using LentoCore.Lexer;
-using LentoCore.Parser;
-using LentoCore.Util;
 using LentoCore.Evaluator;
 using LentoCore.Expressions;
 using LentoCore.StandardLibrary;
