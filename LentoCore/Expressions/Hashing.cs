@@ -8,6 +8,8 @@ namespace LentoCore.Expressions
 {
     internal static class Hashing
     {
-        public static string Function(string name, IEnumerable<Atoms.AtomicType> paramTypes) => name + ':' + string.Join(',', paramTypes);
+        private static readonly char _separator = ':';
+        public static string Function(string name, IEnumerable<Atoms.AtomicType> paramTypes) => name + _separator + string.Join(',', paramTypes);
+        public static Predicate<string> ByName(string name) => p => p.Split(_separator)[0].Equals(name);
     }
 }

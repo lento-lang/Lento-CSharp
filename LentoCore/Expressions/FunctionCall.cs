@@ -71,8 +71,13 @@ namespace LentoCore.Expressions
         public override AtomicType GetReturnType(TypeTable table)
         {
             string hash = Hashing.Function(_identifier.Name, _arguments.Select(a => a.GetReturnType(table)));
-            if (!table.Contains(hash)) return new UnknownType();
-            return table.Get(hash);
+            if (table.Contains(hash)) return table.Get(hash);
+            var matches = table.Find(Hashing.ByName(_identifier.Name));
+            if (matches.Length == 0) return new UnknownType();
+            AtomicType firstType = matches.First().Value;
+            if (matches.All(m => m.Value.Equals(firstType))) return firstType;
+            return new UnknownType();
+            
         }
         private static string GetArgumentTypesList(Atoms.AtomicType[] arguments) =>
             string.Join(", ", arguments.Select(arg => arg.ToString()));
