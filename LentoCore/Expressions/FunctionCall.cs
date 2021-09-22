@@ -66,16 +66,7 @@ namespace LentoCore.Expressions
                 }
             }
             throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"No function variation matches the given signature '{_identifier.Name}({string.Join(", ", argumentTypes.Select(t => t.ToString()))})'." +
-                $"\nValid function variations are:" +
-                $"\n{Formatting.Indentation}" + string.Join("\n"+Formatting.Indentation, function.Variations.Select(
-                    v =>
-                    {
-                        string prefix = $"{v.Value.ReturnType.StringRepresentation()} {_identifier.Name}(";
-                        if (v.Value is Function.UserDefinedVariation userDefinedVariation) return prefix + GetArgumentTypesList(userDefinedVariation.Arguments.Select(a => a.Item2).ToArray()) + ')';
-                        if (v.Value is Function.BuiltInVariation builtInVariation) return prefix + GetArgumentTypesList(builtInVariation.ParameterTypes) + ')';
-                        throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Unknown variation value '{v.Value}'"));
-                    }))
-                ));
+                "\nValid function variations are:\n" + function.VariationsToString(Formatting.Indentation)));
         }
         public override AtomicType GetReturnType(TypeTable table)
         {
