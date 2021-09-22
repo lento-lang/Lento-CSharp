@@ -19,8 +19,11 @@ namespace LentoCore.Atoms
 
         public virtual bool Equals(AtomicType other)
         {
+            if (Name == other.Name) return true;
             if (this is AnyType || other is AnyType) return true;
-            return Name.Equals(other.Name);
+            if (other.Name == "Type" && Name != "Type" && BaseType.Name == "Type") return true;
+            if (other.Name != "Type" && Name == "Type" && other.Type.Name == "Type") return true;
+            return false;
         }
         public new static AtomicType BaseType => GetBaseType(); // Base type
 
