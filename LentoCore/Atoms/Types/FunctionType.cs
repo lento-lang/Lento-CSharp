@@ -17,6 +17,6 @@ namespace LentoCore.Atoms
 
         public override bool Equals(AtomicType other) => other is AnyType || (other is ObjectType atomicObjcType &&
                                                          Properties.Equals(atomicObjcType.Properties));
-        public override string ToString(string indent) => $"Function[{Name}]{{\n{function.VariationsToString(indent)}\n}}";
+        public override string ToString(string indent) => $"Function[{Name}]{{{function.VariationsToString(indent)}\n}}";
     }
 }
