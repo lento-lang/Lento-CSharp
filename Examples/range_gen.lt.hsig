@@ -1,0 +1,9 @@
+range_gen_new int max = #(0, max, false)
+range_gen_get Tuple<2> #(current, _, isDone) = isDone ? #() : current
+range_gen_next Tuple<2> #(current, max, isDone) = isDone ? #(current, max, true) : current + 1 < max ? #(current + 1, max, false) : #(current, max, true)
+
+r = range_gen_new(2)
+range_gen_get r // returns 0
+range_gen_get range_gen_next r // returns 1
+range_gen_get range_gen_next range_gen_next range_gen_next r // returns unit
+
