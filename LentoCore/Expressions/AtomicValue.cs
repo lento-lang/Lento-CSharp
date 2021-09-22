@@ -42,7 +42,8 @@ namespace LentoCore.Expressions
             {
                 var matches = table.Find(name => name.Split(':')[0] == ident.Name);
                 if (matches.Length == 0) throw new TypeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Type of identifier '{ident.Name}' could not be determined"));
-                return new SumType(matches.Select(p => p.Value).ToArray());
+                if (matches.Length == 1) return matches[0].Value;
+                else return new SumType(matches.Select(p => p.Value).ToArray());
             }
             return _value.Type;
         }
