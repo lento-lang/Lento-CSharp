@@ -92,9 +92,19 @@ namespace LentoCore.Atoms
             string.Join(", ", arguments.Select(arg => arg.ToString()));
         public new static AtomicType BaseType => new AtomicType(nameof(Function));
 
-        private void UpdateType() => Type = new FunctionType(Name, Variations);
+        private void UpdateType() => Type = new FunctionType(this);
         public override string StringRepresentation() => ToString();
-        public override string ToString() => Type.ToString();
+        public override string ToString(string indent) => Type.ToString(indent);
+
+        public string VariationsToString(string indent) => $"\n{Formatting.Indentation}" + string.Join("\n" + Formatting.Indentation, Variations.Select(
+            v =>
+            {
+                string variation = $"{v.Value.ReturnType.StringRepresentation()} {Name}(";
+                if (v.Value is UserDefinedVariation userDefinedVariation) variation += GetArgumentTypesList(userDefinedVariation.Arguments.Select(a => a.Item2).ToArray());
+                if (v.Value is BuiltInVariation builtInVariation) variation += GetArgumentTypesList(builtInVariation.ParameterTypes);
+                return variation + ')';
+            })
+        );
 
         public abstract class Variation {
             public AtomicType ReturnType;
