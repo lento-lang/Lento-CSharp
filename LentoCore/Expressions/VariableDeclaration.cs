@@ -27,7 +27,12 @@ namespace LentoCore.Expressions
             scope.TypeTable.Set(_name, value.Type);
             return value;
         }
-        public override AtomicType GetReturnType(TypeTable table) => _value.GetReturnType(table);
+        public override AtomicType GetReturnType(TypeTable table)
+        {
+            AtomicType returnType = _value.GetReturnType(table);
+            table.Set(_name, returnType);
+            return returnType;
+        }
 
         public override string ToString(string indent) => $"Variable declaration: {_name.ToString()} = {_value.ToString(indent)}";
     }
