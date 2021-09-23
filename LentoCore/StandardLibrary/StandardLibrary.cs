@@ -64,6 +64,20 @@ namespace LentoCore.StandardLibrary
                 Console.WriteLine(string.Join(' ', args.Select(a => a.StringRepresentation())));
                 return new Unit();
             }
+
+            Atomic Str(Atomic[] args)
+            {
+                Atomic arg = args[0];
+                if (arg is Atoms.List list && list.Elements.All(e => e is Atoms.Character)) return new Atoms.String(string.Join("", list.Elements.Select(e => ((Atoms.Character)e).Value)));
+                return new Atoms.String(args[0].StringRepresentation());
+            }
+            Atomic Lst(Atomic[] args)
+            {
+                Atomic arg = args[0];
+                if (arg is Atoms.Tuple tuple) return new Atoms.List(tuple.Elements.ToList());
+                if (arg is Atoms.String str) return new Atoms.List(str.Value.Select(c => (Atomic)new Character(c)).ToList());
+                return new Atoms.List(new List<Atomic>());
+            }
             BuiltIn("print", Print, Unit.BaseType, AnyType.BaseType);
             BuiltIn("print", Print, Unit.BaseType, AnyType.BaseType, AnyType.BaseType);
             BuiltIn("print", Print, Unit.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType);
@@ -76,8 +90,8 @@ namespace LentoCore.StandardLibrary
             BuiltIn("println", PrintLine, Unit.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType);
             BuiltIn("typeof", (args) => new Atoms.String(args[0].Type.Name), Atoms.String.BaseType, AnyType.BaseType);
             BuiltIn("nameof", (args) => new Atoms.String(((AtomicType)args[0]).Name), Atoms.String.BaseType, Atoms.Types.AtomicType.BaseType);
-            BuiltIn("str", (args) => new Atoms.String(args[0].StringRepresentation()), Atoms.String.BaseType, AnyType.BaseType);
-            BuiltIn("lst", (args) => new Atoms.List(((Atoms.Tuple)args[0]).Elements.ToList()), Atoms.List.BaseType, AnyType.BaseType);
+            BuiltIn("str", Str, Atoms.String.BaseType, AnyType.BaseType);
+            BuiltIn("lst", Lst, Atoms.List.BaseType, AnyType.BaseType);
             BuiltIn("tpl", (args) => new Atoms.Tuple(((Atoms.List)args[0]).Elements.ToArray()), Atoms.Tuple.BaseType, Atoms.List.BaseType);
             BuiltIn("parse_int", (args) => new Atoms.Tuple(new Atoms.Boolean(int.TryParse(args[0].StringRepresentation(), out int r)), new Atoms.Integer(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
             BuiltIn("parse_float", (args) => new Atoms.Tuple(new Atoms.Boolean(float.TryParse(args[0].StringRepresentation(), out float r)), new Atoms.Float(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
