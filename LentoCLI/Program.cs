@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using ArgumentsUtil;
+using LentoCore.Atoms;
+using LentoCore.Evaluator;
+using LentoCore.Exception;
+using LentoCore.StandardLibrary;
 using Console = EzConsole.EzConsole;
 
 namespace LentoCLI
@@ -26,6 +31,7 @@ Compile file: lt -c [<lang> | exe | dll] [<file>]
 Options:
     -h, --help                Prints this help message.
     -v, --version             Prints the version of the program.
+    -e, --evaluate [<expr>]   Evaluate one or more expressions.
     -r, --repl (verbose)      Starts the REPL mode.
     -l, --lint [<files>]      Lints the given files.
     -c, --compile [<file>]    Compiles the given file. (Not implemented)
@@ -40,6 +46,8 @@ Options:
             Console.Title = "Lento";
 			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(Help);
 			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VersionText);
+            else if (arguments.ContainsKey("-evaluate")) EvaluateExpression(arguments["-evaluate"]); 
+            else if (arguments.ContainsKey("e")) EvaluateExpression(arguments["e"]);
             else if (arguments.ContainsKey("-repl")) REPL.Run(arguments["-repl"].Contains("verbose"));
             else if (arguments.ContainsKey("r")) REPL.Run(arguments["r"].Contains("verbose"));
 			else if (arguments.ContainsKey("-lint") || arguments.ContainsKey("l"))
@@ -63,6 +71,41 @@ Options:
 			}
 
             Console.Title = prevTitle;
+        }
+
+        private static void EvaluateExpression(string[] args)
+        {
+            System.Console.InputEncoding = Encoding.Unicode;
+            System.Console.OutputEncoding = Encoding.Unicode;
+            Evaluator evaluator = new Evaluator(true);
+            GlobalScope scope = new GlobalScope();
+            StandardLibrary.LoadTypes(scope);
+            StandardLibrary.LoadFunctions(scope);
+            try
+            {
+                foreach(string arg in args)
+                {
+                    Atomic result = evaluator.EvaluateInput(arg, scope);
+                    if (result.Type.Equals(Unit.BaseType)) continue;
+                    Console.WriteLine(result.ToString(), ConsoleColor.Cyan);
+                }
+            }
+            catch (SyntaxErrorException e)
+            {
+                Console.WriteLine(e.Message, ConsoleColor.Red);
+            }
+            catch (ParseErrorException e)
+            {
+                Console.WriteLine(e.Message, ConsoleColor.Red);
+            }
+            catch (TypeErrorException e)
+            {
+                Console.WriteLine(e.Message, ConsoleColor.Red);
+            }
+            catch (RuntimeErrorException e)
+            {
+                Console.WriteLine(e.Message, ConsoleColor.Red);
+            }
         }
     }
 }
