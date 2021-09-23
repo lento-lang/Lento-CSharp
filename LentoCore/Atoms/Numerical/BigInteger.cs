@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LentoCore.Atoms.Types;
+﻿using LentoCore.Atoms.Types;
 
-namespace LentoCore.Atoms
+namespace LentoCore.Atoms.Numerical
 {
-    public class BigInteger : Atomic
+    public class BigInteger : NumericalAtomic
     {
+        public new static NumericalAtomInfo NumericalInfo = new NumericalAtomInfo
+        {
+            Bits = 128,
+            FloatingPoint = false,
+            Signed = true
+        };
         public System.Numerics.BigInteger Value;
 
         public BigInteger(System.Numerics.BigInteger value) : base(BaseType)

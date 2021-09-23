@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LentoCore.Atoms.Types;
+﻿using LentoCore.Atoms.Types;
 
-namespace LentoCore.Atoms
+namespace LentoCore.Atoms.Numerical
 {
-    public class Long : Atomic
+    public class Long : NumericalAtomic
     {
+        public new static NumericalAtomInfo NumericalInfo = new NumericalAtomInfo
+        {
+            Bits = 64,
+            FloatingPoint = false,
+            Signed = true
+        };
         public long Value;
 
         public Long(long value) : base(BaseType)
@@ -16,6 +17,7 @@ namespace LentoCore.Atoms
             Value = value;
         }
         public new static AtomicType BaseType => new AtomicType("long");
+
         public override string StringRepresentation() => ToString();
         public override string ToString(string indent) => Value.ToString();
     }

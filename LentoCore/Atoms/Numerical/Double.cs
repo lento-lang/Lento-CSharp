@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LentoCore.Atoms.Types;
+﻿using LentoCore.Atoms.Types;
 
-namespace LentoCore.Atoms
+namespace LentoCore.Atoms.Numerical
 {
-    public class Double : Atomic
+    public class Double : NumericalAtomic
     {
+        public new static NumericalAtomInfo NumericalInfo = new NumericalAtomInfo
+        {
+            Bits = 64,
+            FloatingPoint = true,
+            Signed = true
+        };
         public double Value;
 
         public Double(double value) : base(BaseType)

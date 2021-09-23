@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LentoCore.Atoms.Numerical;
 using LentoCore.Atoms.Types;
 using LentoCore.Evaluator;
 using LentoCore.Exception;
@@ -43,8 +44,8 @@ namespace LentoCore.Expressions
             {
                 case PrefixOperator.Negative:
                 {
-                    if (value is Integer @integer) return new Atoms.Integer(@integer.Value * -1);
-                    if (value is Float @float) return new Atoms.Float(@float.Value * -1);
+                    if (value is Integer @integer) return new Integer(@integer.Value * -1);
+                    if (value is Float @float) return new Float(@float.Value * -1);
                     if (value is Atoms.Tuple @tuple) return EvaluateTupleElements(@tuple, _operator, scope);
                     throw OperationTypeError(value, _operator, typeof(Integer), typeof(Float));
                 }

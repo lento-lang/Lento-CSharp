@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LentoCore.Atoms;
+using LentoCore.Atoms.Numerical;
 using LentoCore.Atoms.Types;
 using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Expressions;
 using LentoCore.Util;
+using Double = LentoCore.Atoms.Numerical.Double;
 
 namespace LentoCore.StandardLibrary
 {
@@ -22,11 +24,11 @@ namespace LentoCore.StandardLibrary
                 scope.TypeTable.Set(name, type);
             }
             // Add all built in primitive types
-            AddType(Atoms.Integer.BaseType.Name, Atoms.Integer.BaseType);
-            AddType(Atoms.Long.BaseType.Name, Atoms.Long.BaseType);
-            AddType(Atoms.BigInteger.BaseType.Name, Atoms.BigInteger.BaseType);
-            AddType(Atoms.Float.BaseType.Name, Atoms.Float.BaseType);
-            AddType(Atoms.Double.BaseType.Name, Atoms.Double.BaseType);
+            AddType(Integer.BaseType.Name, Integer.BaseType);
+            AddType(Long.BaseType.Name, Long.BaseType);
+            AddType(LentoCore.Atoms.Numerical.BigInteger.BaseType.Name, LentoCore.Atoms.Numerical.BigInteger.BaseType);
+            AddType(Float.BaseType.Name, Float.BaseType);
+            AddType(Double.BaseType.Name, Double.BaseType);
             AddType(Atoms.Atom.BaseType.Name, Atoms.Atom.BaseType);
             AddType(Atoms.Boolean.BaseType.Name, Atoms.Boolean.BaseType);
             AddType(Atoms.Character.BaseType.Name, Atoms.Character.BaseType);
@@ -38,10 +40,10 @@ namespace LentoCore.StandardLibrary
             AddType(AnyType.BaseType.Name, AnyType.BaseType);
 
             // Add mathematical aliases
-            AddType("Nat", Atoms.Integer.BaseType);
-            AddType("BNat", Atoms.BigInteger.BaseType);
-            AddType("Real", Atoms.Float.BaseType);
-            AddType("BReal", Atoms.Double.BaseType);
+            AddType("Nat", Integer.BaseType);
+            AddType("BNat", LentoCore.Atoms.Numerical.BigInteger.BaseType);
+            AddType("Real", Float.BaseType);
+            AddType("BReal", Double.BaseType);
         }
         public static void LoadFunctions(GlobalScope scope)
         {
@@ -93,8 +95,8 @@ namespace LentoCore.StandardLibrary
             BuiltIn("str", Str, Atoms.String.BaseType, AnyType.BaseType);
             BuiltIn("lst", Lst, Atoms.List.BaseType, AnyType.BaseType);
             BuiltIn("tpl", (args) => new Atoms.Tuple(((Atoms.List)args[0]).Elements.ToArray()), Atoms.Tuple.BaseType, Atoms.List.BaseType);
-            BuiltIn("parse_int", (args) => new Atoms.Tuple(new Atoms.Boolean(int.TryParse(args[0].StringRepresentation(), out int r)), new Atoms.Integer(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
-            BuiltIn("parse_float", (args) => new Atoms.Tuple(new Atoms.Boolean(float.TryParse(args[0].StringRepresentation(), out float r)), new Atoms.Float(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
+            BuiltIn("parse_int", (args) => new Atoms.Tuple(new Atoms.Boolean(int.TryParse(args[0].StringRepresentation(), out int r)), new Integer(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
+            BuiltIn("parse_float", (args) => new Atoms.Tuple(new Atoms.Boolean(float.TryParse(args[0].StringRepresentation(), out float r)), new Float(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
             BuiltIn("parse_bool", (args) => new Atoms.Tuple(new Atoms.Boolean(bool.TryParse(args[0].StringRepresentation(), out bool r)), new Atoms.Boolean(r)), Atoms.Tuple.BaseType, Atoms.String.BaseType);
             BuiltIn("parse_atom", (args) => new Atoms.Tuple(new Atoms.Boolean(true), new Atoms.Atom(args[0].StringRepresentation())), Atoms.Tuple.BaseType, Atoms.String.BaseType);
         }

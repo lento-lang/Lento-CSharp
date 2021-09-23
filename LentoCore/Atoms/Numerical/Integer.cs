@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LentoCore.Atoms.Types;
+﻿using LentoCore.Atoms.Types;
 
-namespace LentoCore.Atoms
+namespace LentoCore.Atoms.Numerical
 {
-    public class Integer : Atomic
+    public class Integer : NumericalAtomic
     {
+        public new static NumericalAtomInfo NumericalInfo = new NumericalAtomInfo
+        {
+            Bits = 32,
+            FloatingPoint = false,
+            Signed = true
+        };
         public int Value;
 
         public Integer(int value) : base(BaseType)

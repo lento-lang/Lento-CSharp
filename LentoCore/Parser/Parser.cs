@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Threading;
 using LentoCore.Atoms;
+using LentoCore.Atoms.Numerical;
 using LentoCore.Atoms.Types;
 using LentoCore.Exception;
 using LentoCore.Expressions;
 using LentoCore.Lexer;
 using LentoCore.Util;
-using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
-using BigInteger = System.Numerics.BigInteger;
 
 namespace LentoCore.Parser
 {
@@ -176,19 +174,19 @@ namespace LentoCore.Parser
                 case TokenType.Integer:
                     {
                         if (int.TryParse(token.Lexeme, out int intValue))
-                            return new AtomicValue<Atoms.Integer>(new Atoms.Integer(intValue), token.Span);
+                            return new AtomicValue<Integer>(new Integer(intValue), token.Span);
                         if (long.TryParse(token.Lexeme, out long longValue))
-                            return new AtomicValue<Atoms.Long>(new Atoms.Long(longValue), token.Span);
-                        if (BigInteger.TryParse(token.Lexeme, out BigInteger bigIntegerValue))
-                            return new AtomicValue<Atoms.BigInteger>(new Atoms.BigInteger(bigIntegerValue), token.Span);
+                            return new AtomicValue<Long>(new Long(longValue), token.Span);
+                        if (System.Numerics.BigInteger.TryParse(token.Lexeme, out System.Numerics.BigInteger bigIntegerValue))
+                            return new AtomicValue<LentoCore.Atoms.Numerical.BigInteger>(new Atoms.Numerical.BigInteger(bigIntegerValue), token.Span);
                         throw new ParseErrorException(ErrorHandler.ParseError(token.Position, "Integer value is too large"));
                     }
                 case TokenType.Float:
                 {
                     if (float.TryParse(token.Lexeme.Replace('.',','), out float floatValue) && token.Lexeme.TrimStart('0').TrimEnd('0').Length < 7 + 2)
-                        return new AtomicValue<Atoms.Float>(new Atoms.Float(floatValue), token.Span);
+                        return new AtomicValue<Float>(new Float(floatValue), token.Span);
                     if (double.TryParse(token.Lexeme.Replace('.',','), out double doubleValue))
-                        return new AtomicValue<Atoms.Double>(new Atoms.Double(doubleValue), token.Span);
+                        return new AtomicValue<Atoms.Numerical.Double>(new Atoms.Numerical.Double(doubleValue), token.Span);
                     throw new ParseErrorException(ErrorHandler.ParseError(token.Position, "Float value is invalid"));
                 }
                 case TokenType.String: return new AtomicValue<Atoms.String>(new Atoms.String(token.Lexeme), token.Span);
@@ -426,8 +424,8 @@ namespace LentoCore.Parser
             switch (identifier)
             {
                 case "any": return AnyType.BaseType;
-                case "Nat": return Atoms.Integer.BaseType;
-                case "Real": return Atoms.Float.BaseType;
+                case "Nat": return Integer.BaseType;
+                case "Real": return Float.BaseType;
                 default: return new AtomicType(identifier);
             }
         }
