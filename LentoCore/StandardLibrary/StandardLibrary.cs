@@ -24,7 +24,9 @@ namespace LentoCore.StandardLibrary
             // Add all built in primitive types
             AddType(Atoms.Integer.BaseType.Name, Atoms.Integer.BaseType);
             AddType(Atoms.Long.BaseType.Name, Atoms.Long.BaseType);
+            AddType(Atoms.BigInteger.BaseType.Name, Atoms.BigInteger.BaseType);
             AddType(Atoms.Float.BaseType.Name, Atoms.Float.BaseType);
+            AddType(Atoms.Double.BaseType.Name, Atoms.Double.BaseType);
             AddType(Atoms.Atom.BaseType.Name, Atoms.Atom.BaseType);
             AddType(Atoms.Boolean.BaseType.Name, Atoms.Boolean.BaseType);
             AddType(Atoms.Character.BaseType.Name, Atoms.Character.BaseType);
@@ -37,7 +39,9 @@ namespace LentoCore.StandardLibrary
 
             // Add mathematical aliases
             AddType("Nat", Atoms.Integer.BaseType);
+            AddType("BNat", Atoms.BigInteger.BaseType);
             AddType("Real", Atoms.Float.BaseType);
+            AddType("BReal", Atoms.Double.BaseType);
         }
         public static void LoadFunctions(GlobalScope scope)
         {
