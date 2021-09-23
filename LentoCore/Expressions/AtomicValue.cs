@@ -42,9 +42,9 @@ namespace LentoCore.Expressions
             if (_value is Atoms.Identifier ident)
             {
                 var matches = table.Find(Hashing.ByName(ident.Name));
-                if (matches.Length == 0) throw new TypeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Type of identifier '{ident.Name}' could not be determined"));
+                if (matches.Length == 0) return new UnknownType();
                 if (matches.Length == 1) return matches[0].Value;
-                else return new SumType(matches.Select(p => p.Value).ToArray());
+                return new SumType(matches.Select(p => p.Value).ToArray());
             }
             return _value.Type;
         }
