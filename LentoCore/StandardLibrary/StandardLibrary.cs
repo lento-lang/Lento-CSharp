@@ -74,7 +74,8 @@ namespace LentoCore.StandardLibrary
             BuiltIn("println", PrintLine, Unit.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType);
             BuiltIn("println", PrintLine, Unit.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType);
             BuiltIn("println", PrintLine, Unit.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType, AnyType.BaseType);
-            BuiltIn("typeof", (args) => args[0].Type, AtomicType.BaseType, AnyType.BaseType);
+            BuiltIn("typeof", (args) => new Atoms.String(args[0].Type.Name), Atoms.String.BaseType, AnyType.BaseType);
+            BuiltIn("nameof", (args) => new Atoms.String(((AtomicType)args[0]).Name), Atoms.String.BaseType, Atoms.Types.AtomicType.BaseType);
             BuiltIn("str", (args) => new Atoms.String(args[0].StringRepresentation()), Atoms.String.BaseType, AnyType.BaseType);
             BuiltIn("lst", (args) => new Atoms.List(((Atoms.Tuple)args[0]).Elements.ToList()), Atoms.List.BaseType, AnyType.BaseType);
             BuiltIn("tpl", (args) => new Atoms.Tuple(((Atoms.List)args[0]).Elements.ToArray()), Atoms.Tuple.BaseType, Atoms.List.BaseType);
@@ -89,6 +90,7 @@ namespace LentoCore.StandardLibrary
             parser.AddParseIdentifiedFunction("print", 5);
             parser.AddParseIdentifiedFunction("println", 5);
             parser.AddParseIdentifiedFunction("typeof", 1, true);
+            parser.AddParseIdentifiedFunction("nameof", 1, true);
             parser.AddParseIdentifiedFunction("str", 1);
             parser.AddParseIdentifiedFunction("lst", 1);
             parser.AddParseIdentifiedFunction("tpl", 1);
