@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using LentoCore.Atoms;
 using LentoCore.Exception;
 using LentoCore.Lexer;
@@ -15,6 +16,8 @@ namespace LentoCLI
         public static void Run(bool verbose)
         {
             Console.Title = "Lento | REPL";
+            System.Console.InputEncoding = Encoding.Unicode;
+            System.Console.OutputEncoding = Encoding.Unicode;
             Evaluator evaluator = new Evaluator(true);
             GlobalScope scope = new GlobalScope();
             StandardLibrary.LoadTypes(scope);

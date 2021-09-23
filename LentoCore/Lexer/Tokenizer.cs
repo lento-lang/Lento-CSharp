@@ -14,6 +14,7 @@ namespace LentoCore.Lexer
         private StreamReader _input;
         private TokenStream _tokenStream;
         private readonly LineColumn _position;
+        private static readonly Encoding DefaultEncoding = Encoding.Default;
 
         public Tokenizer()
         {
@@ -26,15 +27,17 @@ namespace LentoCore.Lexer
         {
             _position.Clear();
             _tokenStream = new TokenStream();
-            _input = new StreamReader(sourceStream, encoding);
+            _input = new StreamReader(sourceStream, encoding, true);
             while (!EOF()) AddNext(); // Put in a thread and add a start method?
             _tokenStream.WriteEndOfStream();
             return _tokenStream;
         }
-        public TokenStream Tokenize(Stream sourceStream) => Tokenize(sourceStream, Encoding.UTF8);
+        public TokenStream Tokenize(Stream sourceStream) =>
+            Tokenize(sourceStream, DefaultEncoding);
         public TokenStream Tokenize(string input, Encoding encoding) =>
             Tokenize(new MemoryStream(encoding.GetBytes(input ?? "")), encoding);
-        public TokenStream Tokenize(string input) => Tokenize(input, Encoding.UTF8);
+        public TokenStream Tokenize(string input) =>
+            Tokenize(input, DefaultEncoding);
 
         #endregion
 
