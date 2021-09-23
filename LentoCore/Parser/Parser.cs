@@ -45,8 +45,24 @@ namespace LentoCore.Parser
         {
             _tokens = tokens;
             List<Expression> rootExpressions = ParseExpressions(TokenType.EOF, TokenType.Newline, TokenType.SemiColon);
-            if (!EndOfStream && (CanRead && Peek(false, false).Type != TokenType.EOF)) throw new ParseErrorException("Could not parse whole input");
-            return new AST(rootExpressions.ToArray(), new LineColumnSpan(rootExpressions.First().Span.Start, rootExpressions.Last().Span.End));
+            LineColumn first = new LineColumn();
+            LineColumn last = null;
+            if (rootExpressions.Count > 0)
+            {
+                first = rootExpressions.First().Span.Start;
+                last = rootExpressions.Last().Span.End;
+            }
+            if (!EndOfStream && CanRead)
+            {
+                Token n = Peek(false, false);
+                last ??= n.Span.End;
+                TokenType t = n.Type;
+                if (t != TokenType.EOF
+                    && t != TokenType.Newline
+                    && t != TokenType.MultiLineComment
+                    && t != TokenType.SingleLineComment) throw new ParseErrorException("Could not parse whole input");
+            }
+            return new AST(rootExpressions.ToArray(), new LineColumnSpan(first, last));
         }
 
         #region Helper functions
@@ -72,14 +88,24 @@ namespace LentoCore.Parser
                 }
                 throw new IndexOutOfRangeException("We have reached the end of the stream");
             }
+
             return Seek(0, ignoreNewlines, ignoreComments);
         }
         private Token Seek(int offset) => Seek(offset, true, true);
         private Token Seek(int offset, bool ignoreNewlines, bool ignoreComments) {
             if (EndOfStream || !_tokens.CanSeek(offset)) throw new IndexOutOfRangeException("Cannot seek outside of the stream");
             Token ret = _tokens.Seek(offset);
-            if (ignoreNewlines && ret.Type == TokenType.Newline) return Seek(offset + 1, true, ignoreComments);
-            if (ignoreComments && (ret.Type == TokenType.MultiLineComment || ret.Type == TokenType.SingleLineComment)) return Seek(offset + 1, ignoreNewlines, true);
+            if (ignoreNewlines && ret.Type == TokenType.Newline)
+            {
+                if (!_tokens.CanSeek(offset + 1)) return Token.EOF(ret.Position);
+                return Seek(offset + 1, true, ignoreComments);
+            }
+
+            if (ignoreComments && (ret.Type == TokenType.MultiLineComment || ret.Type == TokenType.SingleLineComment))
+            {
+                if (!_tokens.CanSeek(offset + 1)) return Token.EOF(ret.Position);
+                return Seek(offset + 1, ignoreNewlines, true);
+            }
             return ret;
         }
         // TODO: Add some check that makes SeekPattern halt if it stumbles upon some token that aren't allowed
