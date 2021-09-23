@@ -135,8 +135,14 @@ namespace LentoCore.Parser
         private Token Eat(bool ignoreNewlines, bool ignoreComments) {
             if (EndOfStream) throw new IndexOutOfRangeException("Cannot read from stream! We have reached the end of the stream.");
             Token ret = _tokens.Read();
-            if (ignoreNewlines && ret.Type == TokenType.Newline) return Eat(true, ignoreComments);
-            if (ignoreComments && (ret.Type == TokenType.MultiLineComment || ret.Type == TokenType.SingleLineComment)) return Eat(ignoreNewlines, true);
+            if (ignoreNewlines && ret.Type == TokenType.Newline) {
+                if (!_tokens.CanRead) return Token.EOF(ret.Position);
+                return Eat(true, ignoreComments);
+            }
+            if (ignoreComments && (ret.Type == TokenType.MultiLineComment || ret.Type == TokenType.SingleLineComment)) {
+                if (!_tokens.CanRead) return Token.EOF(ret.Position);
+                return Eat(ignoreNewlines, true);
+            }
             return ret;
         }
 
@@ -155,7 +161,7 @@ namespace LentoCore.Parser
 
         #endregion
 
-        private Expression ParseNextToken(int minBindingPower)
+        private Expression ParseNextToken(int minBindingPower, bool allowEOF = false)
         {
             AssureCanRead("expression");
             Token token = Eat();
@@ -236,7 +242,7 @@ namespace LentoCore.Parser
                 }
                 default:
                 {
-                    if (token.Type == TokenType.EOF || token.Type == TokenType.Newline) return new AtomicValue<Atoms.Unit>(new Atoms.Unit(), token.Span);
+                    if (allowEOF && (token.Type == TokenType.EOF || token.Type == TokenType.Newline)) return new AtomicValue<Atoms.Unit>(new Atoms.Unit(), token.Span);
                     throw new ParseErrorException(ErrorUnexpected(token, "expression"));
                 }
             }
@@ -303,9 +309,9 @@ namespace LentoCore.Parser
                 default: throw new ArgumentException("Unreachable hopefully");
             }
         }
-        private Expression ParseExpression(int minBindingPower)
+        private Expression ParseExpression(int minBindingPower, bool allowEOF = false)
         {
-            Expression lhs = ParseNextToken(minBindingPower);
+            Expression lhs = ParseNextToken(minBindingPower, allowEOF);
             while (true)
             {
                 // Infix operators
@@ -314,7 +320,7 @@ namespace LentoCore.Parser
                 InfixBindingPower bindingPower = GetBinaryOperatorBindingPower((BinaryOperator)op);
                 if (bindingPower.Left < minBindingPower) break;
                 Eat(); // The binary operator
-                Expression rhs = ParseExpression(bindingPower.Right); // Right hand side of the binary operator
+                Expression rhs = ParseExpression(bindingPower.Right, allowEOF); // Right hand side of the binary operator
                 lhs = new Expressions.Binary((BinaryOperator)op, lhs, rhs, new LineColumnSpan(lhs.Span.Start, rhs.Span.End)); // Aggregate downwards
             }
             return lhs;
@@ -326,7 +332,7 @@ namespace LentoCore.Parser
             {
                 AssureCanRead("expression");
                 if (Peek().Type == endingTokenType) break;
-                Expression expression = ParseExpression(0);
+                Expression expression = ParseExpression(0, false);
                 expressions.Add(expression);
                 if (!CanRead && endingTokenType == TokenType.EOF) break;
                 Token next = Peek(false, true);
