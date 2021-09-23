@@ -15,7 +15,7 @@ namespace LentoCore.Atoms
             Name = name;
         }
         
-        public new static AtomicType BaseType => new AtomicType("atom");
+        public new static AtomicType BaseType => new AtomicType(nameof(Atom));
         public override string StringRepresentation() => ToString();
         public override string ToString(string indent) => $":{Name}";
 

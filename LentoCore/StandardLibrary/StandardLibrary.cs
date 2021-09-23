@@ -24,6 +24,7 @@ namespace LentoCore.StandardLibrary
             AddType(Atoms.Integer.BaseType.Name, Atoms.Integer.BaseType);
             AddType(Atoms.Long.BaseType.Name, Atoms.Long.BaseType);
             AddType(Atoms.Float.BaseType.Name, Atoms.Float.BaseType);
+            AddType(Atoms.Atom.BaseType.Name, Atoms.Atom.BaseType);
             AddType(Atoms.Boolean.BaseType.Name, Atoms.Boolean.BaseType);
             AddType(Atoms.Character.BaseType.Name, Atoms.Character.BaseType);
             AddType(Atoms.String.BaseType.Name, Atoms.String.BaseType);
