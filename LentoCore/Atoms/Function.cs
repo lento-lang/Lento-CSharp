@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LentoCore.Atoms.Types;
 using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Expressions;
@@ -12,16 +13,16 @@ namespace LentoCore.Atoms
 {
     public class Function : Atomic
     {
-        public Dictionary<Atoms.AtomicType[], Variation>
+        public Dictionary<AtomicType[], Variation>
             Variations; /* Dictionary of parameter type vector signature corresponding to function variation */
 
         public string Name;
 
-        public Function(string name, List<(string, Atoms.AtomicType)> arguments, Expressions.Expression expression, AtomicType returnType,
+        public Function(string name, List<(string, AtomicType)> arguments, Expressions.Expression expression, AtomicType returnType,
             Scope scope) : base(BaseType)
         {
             Name = name;
-            Variations = new Dictionary<Atoms.AtomicType[], Variation>
+            Variations = new Dictionary<AtomicType[], Variation>
             {
                 {GetArgumentTypes(arguments), new UserDefinedVariation(arguments, expression, returnType, scope)}
             };
@@ -31,17 +32,17 @@ namespace LentoCore.Atoms
         public Function(string name, Func<Atomic[], Atomic> func, AtomicType returnType, params AtomicType[] argumentTypes) : base(BaseType)
         {
             Name = name;
-            Variations = new Dictionary<Atoms.AtomicType[], Variation>
+            Variations = new Dictionary<AtomicType[], Variation>
             {
                 {argumentTypes, new BuiltInVariation(name, func, argumentTypes, returnType)}
             };
             UpdateType();
         }
 
-        public void AddVariation(LineColumn position, List<(string, Atoms.AtomicType)> arguments,
+        public void AddVariation(LineColumn position, List<(string, AtomicType)> arguments,
             Expressions.Expression expression, AtomicType returnType, Scope scope)
         {
-            Atoms.AtomicType[] argTypes = GetArgumentTypes(arguments);
+            AtomicType[] argTypes = GetArgumentTypes(arguments);
             if (ValidateArgumentSignatureCollisions(argTypes))
                 throw new RuntimeErrorException(ErrorHandler.EvaluateError(position,
                     $"Function already contains a definition matching: {Name}({GetArgumentTypesList(argTypes)})"));
@@ -82,13 +83,13 @@ namespace LentoCore.Atoms
             return false;
         }
 
-        private static Atoms.AtomicType[] GetArgumentTypes(List<(string, Atoms.AtomicType)> arguments) =>
+        private static AtomicType[] GetArgumentTypes(List<(string, AtomicType)> arguments) =>
             arguments.Select(arg => arg.Item2).ToArray();
 
-        private static string GetArgumentTypeNameList(List<(string, Atoms.AtomicType)> arguments) =>
+        private static string GetArgumentTypeNameList(List<(string, AtomicType)> arguments) =>
             string.Join(", ", arguments.Select(arg => $"{arg.Item2} {arg.Item1}"));
 
-        private static string GetArgumentTypesList(Atoms.AtomicType[] arguments) =>
+        private static string GetArgumentTypesList(AtomicType[] arguments) =>
             string.Join(", ", arguments.Select(arg => arg.ToString()));
         public new static AtomicType BaseType => new AtomicType(nameof(Function));
 
@@ -118,7 +119,7 @@ namespace LentoCore.Atoms
         public class UserDefinedVariation : Variation
         {
             private readonly Expressions.Expression _expression;
-            public List<(string, Atoms.AtomicType)> Arguments; // <Name, Type>
+            public List<(string, AtomicType)> Arguments; // <Name, Type>
             public Scope Scope;
             public UserDefinedVariation(List<(string, AtomicType)> arguments, Expression expression, AtomicType returnType, Scope scope) : base(returnType)
             {

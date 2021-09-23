@@ -5,6 +5,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using LentoCore.Atoms;
+using LentoCore.Atoms.Types;
 using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Util;
@@ -33,13 +34,13 @@ namespace LentoCore.Expressions
                 existing = currentFunction;
             }
 
-            List<(string, Atoms.AtomicType)> arguments = new List<(string, Atoms.AtomicType)>();
+            List<(string, AtomicType)> arguments = new List<(string, AtomicType)>();
             foreach (var parameter in _parameters)
             {
                 string typeName = parameter.IdentifierType.Name.Split('<')[0]; // Get type name for normal types and generic ones
                 if (scope.Contains(typeName))
                 {
-                    if (!scope.Get(typeName).Type.Equals(Atoms.AtomicType.BaseType)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"'{typeName}' is not a valid parameter type!"));
+                    if (!scope.Get(typeName).Type.Equals(AtomicType.BaseType)) throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"'{typeName}' is not a valid parameter type!"));
                 }
                 else throw new RuntimeErrorException(ErrorHandler.EvaluateError(Span.Start, $"Type '{typeName}' does not exist!"));
                 arguments.Add((parameter.Identifier.Name, parameter.IdentifierType));

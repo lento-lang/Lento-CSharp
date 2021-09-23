@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LentoCore.Atoms.Types;
 using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Parser;
@@ -287,7 +288,7 @@ namespace LentoCore.Expressions
                         if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType;
                         if (lhs.Equals(String.BaseType) && rhs.Equals(String.BaseType)) return Boolean.BaseType;
                         if (lhs.Equals(Atoms.Tuple.BaseType) && rhs.Equals(Atoms.Tuple.BaseType)) return Boolean.BaseType;
-                        if (lhs.Equals(Atoms.AtomicType.BaseType) && rhs.Equals(Atoms.AtomicType.BaseType)) return Boolean.BaseType;
+                        if (lhs.Equals(AtomicType.BaseType) && rhs.Equals(AtomicType.BaseType)) return Boolean.BaseType;
                         throw OperationTypeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Boolean), typeof(Atom), typeof(Character), typeof(String), typeof(Unit), typeof(Atoms.Tuple), typeof(AtomicType));
                     }
                 case BinaryOperator.NotEquals:

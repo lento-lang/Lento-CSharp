@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using LentoCore.Atoms;
+using LentoCore.Atoms.Types;
 using LentoCore.Exception;
 using LentoCore.Expressions;
 using LentoCore.Lexer;
@@ -414,7 +415,7 @@ namespace LentoCore.Parser
                 case "any": return AnyType.BaseType;
                 case "Nat": return Atoms.Integer.BaseType;
                 case "Real": return Atoms.Float.BaseType;
-                default: return new Atoms.AtomicType(identifier);
+                default: return new AtomicType(identifier);
             }
         }
 

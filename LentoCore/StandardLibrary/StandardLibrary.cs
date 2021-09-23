@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LentoCore.Atoms;
+using LentoCore.Atoms.Types;
 using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Expressions;
@@ -32,7 +33,7 @@ namespace LentoCore.StandardLibrary
             AddType(Atoms.Tuple.BaseType.Name, Atoms.Tuple.BaseType);
             AddType(Atoms.Unit.BaseType.Name, Atoms.Unit.BaseType);
             AddType(Atoms.Function.BaseType.Name, Atoms.Function.BaseType);
-            AddType(Atoms.AnyType.BaseType.Name, Atoms.AnyType.BaseType);
+            AddType(AnyType.BaseType.Name, AnyType.BaseType);
 
             // Add mathematical aliases
             AddType("Nat", Atoms.Integer.BaseType);

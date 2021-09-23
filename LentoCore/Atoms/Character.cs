@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LentoCore.Util;
+ using LentoCore.Atoms.Types;
+ using LentoCore.Util;
 
 namespace LentoCore.Atoms
 {

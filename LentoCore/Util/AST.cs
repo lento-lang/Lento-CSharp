@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using LentoCore.Atoms;
+using LentoCore.Atoms.Types;
 using LentoCore.Evaluator;
 using LentoCore.Expressions;
 using LentoCore.Util;

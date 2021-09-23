@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LentoCore.Atoms;
+using LentoCore.Atoms.Types;
 using LentoCore.Evaluator;
 using LentoCore.Exception;
 using LentoCore.Util;
@@ -79,7 +80,7 @@ namespace LentoCore.Expressions
             return new UnknownType();
             
         }
-        private static string GetArgumentTypesList(Atoms.AtomicType[] arguments) =>
+        private static string GetArgumentTypesList(AtomicType[] arguments) =>
             string.Join(", ", arguments.Select(arg => arg.ToString()));
         public override string ToString(string indent) => $"{_identifier.Name}({string.Join(", ", _arguments.Select(a => a.ToString()))})";
     }
