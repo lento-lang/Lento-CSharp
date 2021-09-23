@@ -175,13 +175,20 @@ namespace LentoCore.Parser
                     {
                         if (int.TryParse(token.Lexeme, out int intValue))
                             return new AtomicValue<Atoms.Integer>(new Atoms.Integer(intValue), token.Span);
-                        return new AtomicValue<Atoms.Long>(new Atoms.Long(long.Parse(token.Lexeme)), token.Span);
+                        if (long.TryParse(token.Lexeme, out long longValue))
+                            return new AtomicValue<Atoms.Long>(new Atoms.Long(longValue), token.Span);
+                        throw new ParseErrorException(ErrorHandler.ParseError(token.Position, "Integer value is too large"));
                     }
-                case TokenType.Float: return new AtomicValue<Atoms.Float>(new Atoms.Float(float.Parse(token.Lexeme.Replace('.',','))), token.Span);
+                case TokenType.Float:
+                {
+                    if (float.TryParse(token.Lexeme.Replace('.',','), out float floatValue))
+                        return new AtomicValue<Atoms.Float>(new Atoms.Float(floatValue), token.Span);
+                    throw new ParseErrorException(ErrorHandler.ParseError(token.Position, "Float value is invalid"));
+                }
                 case TokenType.String: return new AtomicValue<Atoms.String>(new Atoms.String(token.Lexeme), token.Span);
                 case TokenType.Character:
                 {
-                    if (token.Lexeme.Length != 1) throw new ParseErrorException(Error(token, "Invalid character! Must be a single character value. Did you intend to use a string?"));
+                    if (token.Lexeme.Length != 1) throw new ParseErrorException(Error(token, "Character is invalid! Did you intend to use a string?"));
                     return new AtomicValue<Atoms.Character>(new Atoms.Character(token.Lexeme[0]), token.Span);
                 }
                 case TokenType.Identifier:
