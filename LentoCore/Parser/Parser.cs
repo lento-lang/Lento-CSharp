@@ -16,17 +16,17 @@ namespace LentoCore.Parser
         private class FunctionInfo
         {
             public int MaxParameters;
-            public bool SingleValueExpression;
+            public readonly bool SingleValue;
             /// <summary>
             /// Function information
             /// </summary>
             /// <param name="maxParameters">Function parameters of largest variation signature</param>
-            /// <param name="singleValueExpression">Only accept identifiers and value types, no larger expressions</param>
-            public FunctionInfo(int maxParameters, bool singleValueExpression = false)
+            /// <param name="singleValue">Only accept identifiers and value types, no larger expressions. Function can only accept one canonical expression.</param>
+            public FunctionInfo(int maxParameters, bool singleValue = false)
             {
                 MaxParameters = maxParameters;
-                SingleValueExpression = singleValueExpression;
-                if (singleValueExpression && maxParameters != 1)
+                SingleValue = singleValue;
+                if (singleValue && maxParameters != 1)
                     throw new ArgumentOutOfRangeException(nameof(maxParameters),
                         "maxParameters must be 1 if function expects a single value expression");
             }
@@ -464,7 +464,7 @@ namespace LentoCore.Parser
                 return false;
             }
             FunctionInfo identData = _parsedFunctions[ident.Name];
-            var arguments = identData.SingleValueExpression ? new List<Expression>{ ParseNextToken(0) } : ParseExpressions(identData.MaxParameters);
+            var arguments = identData.SingleValue ? new List<Expression>{ ParseNextToken(0) } : ParseExpressions(identData.MaxParameters);
             if (arguments.Count == 0) result = new AtomicValue<Identifier>(ident, new LineColumnSpan(spanStart, spanStart.CloneAndAdd(ident.Name.Length)));
             else result = new FunctionCall(new LineColumnSpan(spanStart, arguments.Last().Span.End), ident, arguments.ToArray());
             return true;
