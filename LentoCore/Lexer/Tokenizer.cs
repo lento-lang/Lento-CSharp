@@ -178,7 +178,7 @@ namespace LentoCore.Lexer
                 }
                 case '/':
                 {
-                    if (Peek() == '/') ScanSingleLineComment();
+                    if (ExpectNext('/')) ScanSingleLineComment();
                     else if (Peek() == '*') ScanMultiLineComment();
                     else Add(TokenType.Division);
                     break;
@@ -352,7 +352,7 @@ namespace LentoCore.Lexer
         
         private void ScanSingleLineComment()
         {
-            while (!EOF() && CheckNext('\n')) Eat();
+            while (!EOF() && !CheckNext('\n')) Eat();
             Add(TokenType.SingleLineComment);
         }
         private void ScanMultiLineComment()
