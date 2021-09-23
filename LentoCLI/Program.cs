@@ -9,7 +9,7 @@ namespace LentoCLI
     {
 		private static readonly Version Version = new Version("2.3.0");
 		private static readonly string VersionText = $"Lento CLI tool Version {Version}";
-        private const string Description = "The Lento programming language command line interface tool.";
+        private const string Description = "The Lento programming language command line interface.";
         private const string Copyright = "Copyright (c) 2021 William Rågstad";
         private static readonly string Help = $@"{VersionText}
 {Description}
