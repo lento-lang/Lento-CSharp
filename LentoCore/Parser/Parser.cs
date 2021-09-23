@@ -45,7 +45,7 @@ namespace LentoCore.Parser
         {
             _tokens = tokens;
             List<Expression> rootExpressions = ParseExpressions(TokenType.EOF, TokenType.Newline, TokenType.SemiColon);
-            if (!EndOfStream && (CanRead && Peek(false).Type != TokenType.EOF)) throw new ParseErrorException("Could not parse whole input");
+            if (!EndOfStream && (CanRead && Peek(false, false).Type != TokenType.EOF)) throw new ParseErrorException("Could not parse whole input");
             return new AST(rootExpressions.ToArray(), new LineColumnSpan(rootExpressions.First().Span.Start, rootExpressions.Last().Span.End));
         }
 
@@ -62,26 +62,24 @@ namespace LentoCore.Parser
         }
         private bool CanRead => _tokens.CanRead;
         private bool EndOfStream => _tokens.EndOfStream;
-        private Token Peek() => Peek(true);
-        private Token Peek(bool ignoreNewlines) => Peek(ignoreNewlines, 0);
-        private Token Peek(bool ignoreNewlines, int offset) {
-            if (EndOfStream || !_tokens.CanSeek(offset)) {
+        private Token Peek() => Peek(true, true);
+        private Token Peek(bool ignoreNewlines, bool ignoreComments) {
+            if (EndOfStream || !_tokens.CanSeek(0)) {
                 if (ignoreNewlines)
                 {
-                    while (CanRead) Eat(false); // Eat the whitespace
+                    while (CanRead) Eat(false, false); // Eat the whitespace
                     return Token.EOF(null);
                 }
-                throw new IndexOutOfRangeException("Cannot peek in stream at offset " + offset + "! We have reached the end of the stream.");
+                throw new IndexOutOfRangeException("We have reached the end of the stream");
             }
-            Token ret = _tokens.Seek(offset);
-            if (ignoreNewlines && ret.Type == TokenType.Newline) return Peek(true, offset + 1);
-            return ret;
+            return Seek(0, ignoreNewlines, ignoreComments);
         }
-        private Token Seek(int offset) => Seek(offset, true);
-        private Token Seek(int offset, bool ignoreNewlines) {
+        private Token Seek(int offset) => Seek(offset, true, true);
+        private Token Seek(int offset, bool ignoreNewlines, bool ignoreComments) {
             if (EndOfStream || !_tokens.CanSeek(offset)) throw new IndexOutOfRangeException("Cannot seek outside of the stream");
             Token ret = _tokens.Seek(offset);
-            if (ignoreNewlines && ret.Type == TokenType.Newline) return Seek(offset + 1, true);
+            if (ignoreNewlines && ret.Type == TokenType.Newline) return Seek(offset + 1, true, ignoreComments);
+            if (ignoreComments && (ret.Type == TokenType.MultiLineComment || ret.Type == TokenType.SingleLineComment)) return Seek(offset + 1, ignoreNewlines, true);
             return ret;
         }
         // TODO: Add some check that makes SeekPattern halt if it stumbles upon some token that aren't allowed
@@ -107,11 +105,12 @@ namespace LentoCore.Parser
             return false;
         }
 
-        private Token Eat() => Eat(true);
-        private Token Eat(bool ignoreNewlines) {
+        private Token Eat() => Eat(true, true);
+        private Token Eat(bool ignoreNewlines, bool ignoreComments) {
             if (EndOfStream) throw new IndexOutOfRangeException("Cannot read from stream! We have reached the end of the stream.");
             Token ret = _tokens.Read();
-            if (ignoreNewlines && ret.Type == TokenType.Newline) return Eat(true);
+            if (ignoreNewlines && ret.Type == TokenType.Newline) return Eat(true, ignoreComments);
+            if (ignoreComments && (ret.Type == TokenType.MultiLineComment || ret.Type == TokenType.SingleLineComment)) return Eat(ignoreNewlines, true);
             return ret;
         }
 
@@ -300,13 +299,13 @@ namespace LentoCore.Parser
             while (!EndOfStream)
             {
                 AssureCanRead("expression");
-                if (Peek(true).Type == endingTokenType) break;
+                if (Peek().Type == endingTokenType) break;
                 Expression expression = ParseExpression(0);
                 expressions.Add(expression);
                 if (!CanRead && endingTokenType == TokenType.EOF) break;
-                Token next = Peek(false);
+                Token next = Peek(false, true);
                 if (next.Type == endingTokenType) break;
-                if (expressionDelimiterTokenTypes.Contains(next.Type)) Eat(false); // Eat the separating token
+                if (expressionDelimiterTokenTypes.Contains(next.Type)) Eat(false, true); // Eat the separating token
                 else throw new ParseErrorException(ErrorUnexpected(next,
                     "expression" + (expressionDelimiterTokenTypes.Length > 0
                         ? " separated by a " + Formatting.FormattableOptionsToString(expressionDelimiterTokenTypes)
