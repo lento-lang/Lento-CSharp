@@ -7,24 +7,36 @@ using LentoCore.Exception;
 using LentoCore.Expressions;
 using LentoCore.Lexer;
 using LentoCore.Util;
+using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
 
 namespace LentoCore.Parser
 {
     public class Parser
     {
-        private class FunctionInfo {
-            public int MaxParameters { get; set; }
-            public FunctionInfo(int maxParameters)
+        private class FunctionInfo
+        {
+            public int MaxParameters;
+            public bool SingleValueExpression;
+            /// <summary>
+            /// Function information
+            /// </summary>
+            /// <param name="maxParameters">Function parameters of largest variation signature</param>
+            /// <param name="singleValueExpression">Only accept identifiers and value types, no larger expressions</param>
+            public FunctionInfo(int maxParameters, bool singleValueExpression = false)
             {
                 MaxParameters = maxParameters;
+                SingleValueExpression = singleValueExpression;
+                if (singleValueExpression && maxParameters != 1)
+                    throw new ArgumentOutOfRangeException(nameof(maxParameters),
+                        "maxParameters must be 1 if function expects a single value expression");
             }
         }
 
-        private Dictionary<string, FunctionInfo> _parsedFunctions = new Dictionary<string, FunctionInfo>();
-        public void AddParseIdentifiedFunction(string name, int parameters)
+        private readonly Dictionary<string, FunctionInfo> _parsedFunctions = new Dictionary<string, FunctionInfo>();
+        public void AddParseIdentifiedFunction(string name, int parameters, bool singleValueExpression = false)
         {
             if (_parsedFunctions.ContainsKey(name) && _parsedFunctions[name].MaxParameters < parameters) _parsedFunctions[name].MaxParameters = parameters;
-            _parsedFunctions.Add(name, new FunctionInfo(parameters));
+            _parsedFunctions.Add(name, new FunctionInfo(parameters, singleValueExpression));
         }
 
         private TokenStream _tokens;
@@ -452,7 +464,7 @@ namespace LentoCore.Parser
                 return false;
             }
             FunctionInfo identData = _parsedFunctions[ident.Name];
-            List<Expression> arguments = ParseExpressions(identData.MaxParameters);
+            var arguments = identData.SingleValueExpression ? new List<Expression>{ ParseNextToken(0) } : ParseExpressions(identData.MaxParameters);
             if (arguments.Count == 0) result = new AtomicValue<Identifier>(ident, new LineColumnSpan(spanStart, spanStart.CloneAndAdd(ident.Name.Length)));
             else result = new FunctionCall(new LineColumnSpan(spanStart, arguments.Last().Span.End), ident, arguments.ToArray());
             return true;

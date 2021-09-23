@@ -83,7 +83,7 @@ namespace LentoCore.StandardLibrary
         {
             parser.AddParseIdentifiedFunction("print", 5);
             parser.AddParseIdentifiedFunction("println", 5);
-            parser.AddParseIdentifiedFunction("typeof", 1);
+            parser.AddParseIdentifiedFunction("typeof", 1, true);
             parser.AddParseIdentifiedFunction("str", 1);
             parser.AddParseIdentifiedFunction("lst", 1);
             parser.AddParseIdentifiedFunction("tpl", 1);
