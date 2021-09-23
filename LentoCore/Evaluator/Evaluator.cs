@@ -17,7 +17,7 @@ namespace LentoCore.Evaluator
         private readonly Tokenizer _lexer;
         private readonly Parser.Parser _parser;
         private readonly TypeChecker.TypeChecker _typeChecker;
-        private readonly bool loadStandardLibrary;
+        private readonly bool _loadStandardLibrary;
 
         public event EventHandler<TokenizeDoneEventArgs> OnTokenizeDone;
         public event EventHandler<ParseDoneEventArgs> OnParseDone;
@@ -30,7 +30,7 @@ namespace LentoCore.Evaluator
             _typeChecker = new TypeChecker.TypeChecker();
 
             if (loadStandardLibrary) StandardLibrary.StandardLibrary.LoadParser(_parser);
-            this.loadStandardLibrary = loadStandardLibrary;
+            _loadStandardLibrary = loadStandardLibrary;
         }
 
         public Atomic EvaluateFile(Stream fileStream)
@@ -41,7 +41,7 @@ namespace LentoCore.Evaluator
             OnParseDone?.Invoke(this, new ParseDoneEventArgs(ast));
             TypeTable tt = _typeChecker.Check(ast, new TypeTable());
             GlobalScope globalScope = new GlobalScope(tt);
-            if (loadStandardLibrary)
+            if (_loadStandardLibrary)
             {
                 StandardLibrary.StandardLibrary.LoadTypes(globalScope);
                 StandardLibrary.StandardLibrary.LoadFunctions(globalScope);
