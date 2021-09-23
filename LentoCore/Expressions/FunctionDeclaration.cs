@@ -55,7 +55,7 @@ namespace LentoCore.Expressions
                 existing = new Atoms.Function(_name, arguments, Body, returnType, scope);
                 scope.Set(_name, existing);
             }
-            scope.TypeTable.Set(Hashing.Function(_name, arguments.Select(p => p.Item2)), existing.Type);
+            scope.TypeTable.Set(Hashing.Function(_name, arguments.Select(p => p.Item2)), returnType);
             return existing;
         }
 
