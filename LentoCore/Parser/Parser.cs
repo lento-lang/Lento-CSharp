@@ -33,10 +33,10 @@ namespace LentoCore.Parser
         }
 
         private readonly Dictionary<string, FunctionInfo> _parsedFunctions = new Dictionary<string, FunctionInfo>();
-        public void AddParseIdentifiedFunction(string name, int parameters, bool singleValueExpression = false)
+        public void AddParseIdentifiedFunction(string name, int parameters, bool singleValue = false)
         {
             if (_parsedFunctions.ContainsKey(name) && _parsedFunctions[name].MaxParameters < parameters) _parsedFunctions[name].MaxParameters = parameters;
-            _parsedFunctions.Add(name, new FunctionInfo(parameters, singleValueExpression));
+            _parsedFunctions.Add(name, new FunctionInfo(parameters, singleValue));
         }
 
         private TokenStream _tokens;
