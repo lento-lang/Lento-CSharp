@@ -14,6 +14,7 @@ namespace LentoCLI
     {
         public static void Run(bool verbose)
         {
+            Console.Title = "Lento | REPL";
             Evaluator evaluator = new Evaluator(true);
             GlobalScope scope = new GlobalScope();
             StandardLibrary.LoadTypes(scope);

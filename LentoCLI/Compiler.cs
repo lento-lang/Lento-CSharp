@@ -14,6 +14,7 @@ namespace LentoCLI
     {
         public static void Run(string file)
         {
+            Console.Title = "Lento | Compiler";
             try
             {
                 if (FileHelper.ValidateAndOpen(file, out FileStream fs))

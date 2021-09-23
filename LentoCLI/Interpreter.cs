@@ -14,6 +14,7 @@ namespace LentoCLI
     {
         public static void Run(string[] files)
         {
+            Console.Title = "Lento | Interpreter";
             string currentFile = null;
             try
             {

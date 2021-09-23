@@ -10,7 +10,7 @@ namespace LentoCLI
     {
         public static void Run(string[] files)
         {
-
+            Console.Title = "Lento | Linter";
         }
     }
 }

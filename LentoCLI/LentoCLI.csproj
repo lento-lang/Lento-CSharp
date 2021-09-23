@@ -5,7 +5,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>lt</AssemblyName>
     <StartupObject>LentoCLI.Program</StartupObject>
-    <ApplicationIcon>owl high.ico</ApplicationIcon>
+    <ApplicationIcon>lento.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

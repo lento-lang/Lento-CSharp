@@ -36,7 +36,8 @@ Options:
         {
             // args = new[] {"-r"};
 			Arguments arguments = Arguments.Parse(args, (char)KeySelector.Linux);
-
+            string prevTitle = Console.Title;
+            Console.Title = "Lento";
 			if (args.Length == 0 || arguments.ContainsKey("-help") || arguments.ContainsKey("h")) Console.WriteLine(Help);
 			else if (arguments.ContainsKey("-version") || arguments.ContainsKey("v")) Console.WriteLine(VersionText);
             else if (arguments.ContainsKey("-repl")) REPL.Run(arguments["-repl"].Contains("verbose"));
@@ -45,7 +46,7 @@ Options:
 			{
 				string[] files = arguments.ContainsKey("-lint") ? arguments["-lint"] : arguments["l"];
 				if (files.Length > 0) Linter.Run(files);
-				else Console.WriteLine("No files found to lint", ConsoleColor.Red);
+				else Console.WriteLine("No file(s) found to lint", ConsoleColor.Red);
 			}
 			else if (arguments.ContainsKey("-compile") || arguments.ContainsKey("c"))
 			{
@@ -60,6 +61,8 @@ Options:
 				Console.WriteLine("Error: Could not parse arguments!\nUnknown option: " + string.Join(' ', args), ConsoleColor.Red);
 				Console.WriteLine("\nUse --help to get more information.");
 			}
-		}
+
+            Console.Title = prevTitle;
+        }
     }
 }
