@@ -114,8 +114,18 @@ namespace LentoCore.Expressions
                 case BinaryOperator.Add:
                 {
                     if (Operation<Integer, int>(lhs, rhs, (l, r) => l.Value + r.Value, out int resultInt)) return new Integer(resultInt);
+                    if (Operation<Long, long>(lhs, rhs, (l, r) => l.Value + r.Value, out long resultLong)) return new Long(resultLong);
+                    if (Operation<BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value + r.Value, out System.Numerics.BigInteger resultBigInteger)) return new BigInteger(resultBigInteger);
                     if (Operation<Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultFloat)) return new Float(resultFloat);
+                    if (Operation<Double, double>(lhs, rhs, (l, r) => l.Value + r.Value, out double resultDouble)) return new Double(resultDouble);
+                    if (SymmetricOperation<Integer, Long, long>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out long resultIntLong)) return new Long(resultIntLong);
+                    if (SymmetricOperation<Integer, BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out System.Numerics.BigInteger resultIntBigInteger)) return new BigInteger(resultIntBigInteger);
                     if (SymmetricOperation<Integer, Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out float resultIntFloat)) return new Float(resultIntFloat);
+                    if (SymmetricOperation<Integer, Double, double>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out double resultIntDouble)) return new Double(resultIntDouble);
+                    if (SymmetricOperation<Long, BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out System.Numerics.BigInteger resultLongBigInteger)) return new BigInteger(resultLongBigInteger);
+                    if (SymmetricOperation<Long, Float, double>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out double resultLongFloat)) return new Double(resultLongFloat);
+                    if (SymmetricOperation<Long, Double, double>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out double resultLongDouble)) return new Double(resultLongDouble);
+                    if (SymmetricOperation<Float, Double, double>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out double resultFloatDouble)) return new Double(resultFloatDouble);
                     if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
                     if (Operation<Atoms.String, string>(lhs, rhs, (l, r) => l.Value + r.Value, out string resultStringString)) return new Atoms.String(resultStringString);
                     if (Operation<Atoms.List, System.Collections.Generic.List<Atomic>>(lhs, rhs, (l, r) => l.Elements.Concat(r.Elements).ToList(), out System.Collections.Generic.List<Atomic> resultList)) return new Atoms.List(resultList);
@@ -125,16 +135,36 @@ namespace LentoCore.Expressions
                 case BinaryOperator.Subtract:
                 {
                     if (Operation<Integer, int>(lhs, rhs, (l, r) => l.Value - r.Value, out int resultInt)) return new Integer(resultInt);
+                    if (Operation<Long, long>(lhs, rhs, (l, r) => l.Value - r.Value, out long resultLong)) return new Long(resultLong);
+                    if (Operation<BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value - r.Value, out System.Numerics.BigInteger resultBigInteger)) return new BigInteger(resultBigInteger);
                     if (Operation<Float, float>(lhs, rhs, (l, r) => l.Value - r.Value, out float resultFloat)) return new Float(resultFloat);
+                    if (Operation<Double, double>(lhs, rhs, (l, r) => l.Value - r.Value, out double resultDouble)) return new Double(resultDouble);
+                    if (SymmetricOperation<Integer, Long, long>(lhs, rhs, (l, r) => l.Value - r.Value, (l, r) => l.Value - r.Value, out long resultIntLong)) return new Long(resultIntLong);
+                    if (SymmetricOperation<Integer, BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value - r.Value, (l, r) => l.Value - r.Value, out System.Numerics.BigInteger resultIntBigInteger)) return new BigInteger(resultIntBigInteger);
                     if (SymmetricOperation<Integer, Float, float>(lhs, rhs, (l, r) => l.Value - r.Value, (l, r) => l.Value - r.Value, out float resultIntFloat)) return new Float(resultIntFloat);
+                    if (SymmetricOperation<Integer, Double, double>(lhs, rhs, (l, r) => l.Value - r.Value, (l, r) => l.Value - r.Value, out double resultIntDouble)) return new Double(resultIntDouble);
+                    if (SymmetricOperation<Long, BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value - r.Value, (l, r) => l.Value - r.Value, out System.Numerics.BigInteger resultLongBigInteger)) return new BigInteger(resultLongBigInteger);
+                    if (SymmetricOperation<Long, Float, double>(lhs, rhs, (l, r) => l.Value - r.Value, (l, r) => l.Value - r.Value, out double resultLongFloat)) return new Double(resultLongFloat);
+                    if (SymmetricOperation<Long, Double, double>(lhs, rhs, (l, r) => l.Value - r.Value, (l, r) => l.Value - r.Value, out double resultLongDouble)) return new Double(resultLongDouble);
+                    if (SymmetricOperation<Float, Double, double>(lhs, rhs, (l, r) => l.Value - r.Value, (l, r) => l.Value - r.Value, out double resultFloatDouble)) return new Double(resultFloatDouble);
                     if (TupleOperation(lhs, rhs, _operator, scope, out Atoms.Tuple resultTuple)) return resultTuple;
                     throw OperationRuntimeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Long), typeof(Double));
                 }
                 case BinaryOperator.Multiply:
                 {
                     if (Operation<Integer, int>(lhs, rhs, (l, r) => l.Value * r.Value, out int resultInt)) return new Integer(resultInt);
+                    if (Operation<Long, long>(lhs, rhs, (l, r) => l.Value * r.Value, out long resultLong)) return new Long(resultLong);
+                    if (Operation<BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value * r.Value, out System.Numerics.BigInteger resultBigInteger)) return new BigInteger(resultBigInteger);
                     if (Operation<Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultFloat)) return new Float(resultFloat);
+                    if (Operation<Double, double>(lhs, rhs, (l, r) => l.Value * r.Value, out double resultDouble)) return new Double(resultDouble);
+                    if (SymmetricOperation<Integer, Long, long>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out long resultIntLong)) return new Long(resultIntLong);
+                    if (SymmetricOperation<Integer, BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out System.Numerics.BigInteger resultIntBigInteger)) return new BigInteger(resultIntBigInteger);
                     if (SymmetricOperation<Integer, Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out float resultIntFloat)) return new Float(resultIntFloat);
+                    if (SymmetricOperation<Integer, Double, double>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out double resultIntDouble)) return new Double(resultIntDouble);
+                    if (SymmetricOperation<Long, BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out System.Numerics.BigInteger resultLongBigInteger)) return new BigInteger(resultLongBigInteger);
+                    if (SymmetricOperation<Long, Float, double>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out double resultLongFloat)) return new Double(resultLongFloat);
+                    if (SymmetricOperation<Long, Double, double>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out double resultLongDouble)) return new Double(resultLongDouble);
+                    if (SymmetricOperation<Float, Double, double>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out double resultFloatDouble)) return new Double(resultFloatDouble);
                     if (TupleCrossOperation<Integer>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTupleInt)) return resultTupleInt;
                     if (TupleCrossOperation<Float>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTupleFloat)) return resultTupleFloat;
                     throw OperationRuntimeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Long), typeof(Double));
@@ -142,8 +172,18 @@ namespace LentoCore.Expressions
                 case BinaryOperator.Divide:
                 {
                     if (Operation<Integer, int>(lhs, rhs, (l, r) => l.Value / r.Value, out int resultInt)) return new Integer(resultInt);
+                    if (Operation<Long, long>(lhs, rhs, (l, r) => l.Value / r.Value, out long resultLong)) return new Long(resultLong);
+                    if (Operation<BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value / r.Value, out System.Numerics.BigInteger resultBigInteger)) return new BigInteger(resultBigInteger);
                     if (Operation<Float, float>(lhs, rhs, (l, r) => l.Value / r.Value, out float resultFloat)) return new Float(resultFloat);
+                    if (Operation<Double, double>(lhs, rhs, (l, r) => l.Value / r.Value, out double resultDouble)) return new Double(resultDouble);
+                    if (SymmetricOperation<Integer, Long, long>(lhs, rhs, (l, r) => l.Value / r.Value, (l, r) => l.Value / r.Value, out long resultIntLong)) return new Long(resultIntLong);
+                    if (SymmetricOperation<Integer, BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value / r.Value, (l, r) => l.Value / r.Value, out System.Numerics.BigInteger resultIntBigInteger)) return new BigInteger(resultIntBigInteger);
                     if (SymmetricOperation<Integer, Float, float>(lhs, rhs, (l, r) => l.Value / r.Value, (l, r) => l.Value / r.Value, out float resultIntFloat)) return new Float(resultIntFloat);
+                    if (SymmetricOperation<Integer, Double, double>(lhs, rhs, (l, r) => l.Value / r.Value, (l, r) => l.Value / r.Value, out double resultIntDouble)) return new Double(resultIntDouble);
+                    if (SymmetricOperation<Long, BigInteger, System.Numerics.BigInteger>(lhs, rhs, (l, r) => l.Value / r.Value, (l, r) => l.Value / r.Value, out System.Numerics.BigInteger resultLongBigInteger)) return new BigInteger(resultLongBigInteger);
+                    if (SymmetricOperation<Long, Float, double>(lhs, rhs, (l, r) => l.Value / r.Value, (l, r) => l.Value / r.Value, out double resultLongFloat)) return new Double(resultLongFloat);
+                    if (SymmetricOperation<Long, Double, double>(lhs, rhs, (l, r) => l.Value / r.Value, (l, r) => l.Value / r.Value, out double resultLongDouble)) return new Double(resultLongDouble);
+                    if (SymmetricOperation<Float, Double, double>(lhs, rhs, (l, r) => l.Value / r.Value, (l, r) => l.Value / r.Value, out double resultFloatDouble)) return new Double(resultFloatDouble);
                     throw OperationRuntimeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Long), typeof(Double));
                 }
                 case BinaryOperator.Modulus:
@@ -155,9 +195,20 @@ namespace LentoCore.Expressions
                 }
                 case BinaryOperator.Equals:
                 {
-                    if (Operation<Integer, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultInt)) return new Atoms.Boolean(resultInt);
-                    if (Operation<Float, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultFloat)) return new Atoms.Boolean(resultFloat);
-                    if (SymmetricOperation<Integer, Float, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
+                    if (Operation<Integer, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultInt)) return new Boolean(resultInt);
+                    if (Operation<Long, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultLong)) return new Boolean(resultLong);
+                    if (Operation<BigInteger, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultBigInteger)) return new Boolean(resultBigInteger);
+                    if (Operation<Float, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultFloat)) return new Boolean(resultFloat);
+                    if (Operation<Double, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < double.Epsilon, out bool resultDouble)) return new Boolean(resultDouble);
+                    if (SymmetricOperation<Integer, Long, bool>(lhs, rhs, (l, r) => l.Value == r.Value, (l, r) => l.Value == r.Value, out bool resultIntLong)) return new Boolean(resultIntLong);
+                    if (SymmetricOperation<Integer, BigInteger, bool>(lhs, rhs, (l, r) => l.Value == r.Value, (l, r) => l.Value == r.Value, out bool resultIntBigInteger)) return new Boolean(resultIntBigInteger);
+                    if (SymmetricOperation<Integer, Float, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultIntFloat)) return new Boolean(resultIntFloat);
+                    if (SymmetricOperation<Integer, Double, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < double.Epsilon, (l, r) => Math.Abs(l.Value - r.Value) < double.Epsilon, out bool resultIntDouble)) return new Boolean(resultIntDouble);
+                    if (SymmetricOperation<Long, BigInteger, bool>(lhs, rhs, (l, r) => l.Value == r.Value, (l, r) => l.Value == r.Value, out bool resultLongBigInteger)) return new Boolean(resultLongBigInteger);
+                    if (SymmetricOperation<Long, Float, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, (l, r) => Math.Abs(l.Value - r.Value) < float.Epsilon, out bool resultLongFloat)) return new Boolean(resultLongFloat);
+                    if (SymmetricOperation<Long, Double, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < double.Epsilon, (l, r) => Math.Abs(l.Value - r.Value) < double.Epsilon, out bool resultLongDouble)) return new Boolean(resultLongDouble);
+                    if (SymmetricOperation<Float, Double, bool>(lhs, rhs, (l, r) => Math.Abs(l.Value - r.Value) < double.Epsilon, (l, r) => Math.Abs(l.Value - r.Value) < double.Epsilon, out bool resultFloatDouble)) return new Boolean(resultFloatDouble);
+
                     if (Operation<Atoms.Boolean, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultBool)) return new Atoms.Boolean(resultBool);
                     if (Operation<Atoms.Atom, bool>(lhs, rhs, (l, r) => l.Name == r.Name, out bool resultAtom)) return new Atoms.Boolean(resultAtom);
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value == r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
@@ -177,9 +228,6 @@ namespace LentoCore.Expressions
                 }
                 case BinaryOperator.LessThan:
                 {
-                    if (Operation<Integer, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultInt)) return new Atoms.Boolean(resultInt);
-                    if (Operation<Float, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultFloat)) return new Atoms.Boolean(resultFloat);
-                    if (SymmetricOperation<Integer, Float, bool>(lhs, rhs, (l, r) => l.Value < r.Value, (l, r) => l.Value < r.Value, out bool resultIntFloat)) return new Atoms.Boolean(resultIntFloat);
                     if (Operation<Atoms.Character, bool>(lhs, rhs, (l, r) => l.Value < r.Value, out bool resultChar)) return new Atoms.Boolean(resultChar);
                     throw OperationRuntimeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Long), typeof(Double), typeof(Character));
                 }
@@ -273,10 +321,7 @@ namespace LentoCore.Expressions
                 case BinaryOperator.Equals:
                 case BinaryOperator.NotEquals:
                     {
-                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
-                        if (lhs.Equals(Integer.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
-                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Integer.BaseType)) return Boolean.BaseType;
-                        if (lhs.Equals(Float.BaseType) && rhs.Equals(Float.BaseType)) return Boolean.BaseType;
+                        if (CrossNumericalOperation(lhs, rhs, out AtomicType _)) return Boolean.BaseType;
                         if (lhs.Equals(Boolean.BaseType) && rhs.Equals(Boolean.BaseType)) return Boolean.BaseType;
                         if (lhs.Equals(Atom.BaseType) && rhs.Equals(Atom.BaseType)) return Boolean.BaseType;
                         if (lhs.Equals(Character.BaseType) && rhs.Equals(Character.BaseType)) return Boolean.BaseType;
