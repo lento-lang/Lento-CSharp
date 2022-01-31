@@ -3,23 +3,25 @@
     <img src="assets/logo_white.png" height=250px/>
     <h1>The Lento Programming Language</h1>
     <em>
-    	A functional programming language<br>
-        that aims to purify the object-oriented paradigm.
+        A functional programming language to purify<br>
+        the object-oriented paradigm
     </em>
 </div>
 
+<br/>
+<br/>
 
 
-
-## Welcome!
+# Welcome!
 
 Lento is an open-source, strongly typed and lazy evaluated programming language with aim to purify the object-oriented paradigm. Types provide a way to describe the shape of an object, providing better documentation, and allowing Lento to validate that your code is working correctly.
 
 > [Learn more about Lento here](http://lento-lang.org/)!
 
 
+<br/>
 
-## Documentation
+## Documentation 📗
 
 Learn more about the Lento programming language by visiting the links below. A good tip is to download the CLI toolchain and start playing around with the examples yourself!
 
@@ -29,12 +31,15 @@ Learn more about the Lento programming language by visiting the links below. A g
 
 
 
-##  The team
+##  The Team 👨‍💼
+
 
 Lento is being developed by a driven team that works hard to create a user environment as good as possible for all of you developers.
 
->  [Meet the team](https://lento-lang.org/doc/team.php)
+>  [Meet the team](https://lento-lang.org/doc/team.php) 🙋‍
 
+Do you want to join the project team? Maybe even get your own testimonial on the official language website?<br/>
+Then consider contributing to the project and become a member with magical powers 🧙‍♂️! Read more in the section below.
 
 
 ## Contribute 🌟
@@ -43,4 +48,4 @@ Lento is truly a community effort, and we welcome contribution from hobbyists an
 
 **Get started** by pulling the main branch and start fiddling around.<br/>
 When you feel confident enough, take a look at the **[good first issues](https://github.com/Lento-lang/Lento/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)**.
-
+Any maybe your code will be used by thousands of developers around the world! 💪🎉🎊
