@@ -41,3 +41,6 @@ Lento is being developed by a driven team that works hard to create a user envir
 
 Lento is truly a community effort, and we welcome contribution from hobbyists and production users, from newcomers and seasoned professionals. Come help us make the Lento experience even better!
 
+**Get started** by pulling the main branch and start fiddling around.<br/>
+When you feel confident enough, take a look at the **[good first issues](https://github.com/Lento-lang/Lento/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)**.
+
