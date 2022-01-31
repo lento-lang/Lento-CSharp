@@ -36,7 +36,7 @@ Learn more about the Lento programming language by visiting the links below. A g
 
 Lento is being developed by a driven team that works hard to create a user environment as good as possible for all of you developers.
 
->  [Meet the team](https://lento-lang.org/doc/team.php) 🙋‍
+>  [Meet the team 🙋‍](https://lento-lang.org/doc/team.php)
 
 Do you want to join the project team? Maybe even get your own testimonial on the official language website?<br/>
 Then consider contributing to the project and become a member with magical powers 🧙‍♂️! Read more in the section below.
