@@ -30,6 +30,40 @@ namespace LentoCore.Expressions
             _lhs = lhs;
             _rhs = rhs;
         }
+
+        #region Helper functions
+
+        private bool overflow_int_add(int x, int y)
+        {
+            if (x == 0 || y == 0) return false;
+            if (y > int.MaxValue - x) return true;
+            if (y < int.MinValue - x) return true;
+            return false;
+        }
+        private bool overflow_long_add(long x, long y)
+        {
+            if (x == 0 || y == 0) return false;
+            if (y > long.MaxValue - x) return true;
+            if (y < long.MinValue - x) return true;
+            return false;
+        }
+        private bool overflow_int_mul(int x, int y)
+        {
+            if (x == 0) return false;
+            if (y > int.MaxValue / x) return true;
+            if (y < int.MinValue / x) return true;
+            return false;
+        }
+        private bool overflow_long_mul(long x, long y)
+        {
+            if (x == 0) return false;
+            if (y > long.MaxValue / x) return true;
+            if (y < long.MinValue / x) return true;
+            return false;
+        }
+
+        #endregion
+
         private bool Operation<TAtomic, TPrimitive>(Atomic lhs, Atomic rhs, Func<TAtomic, TAtomic, TPrimitive> op,
             out TPrimitive result) => CrossOperation(lhs, rhs, op, out result);
         private bool CrossOperation<TAtomicLeft, TAtomicRight, TPrimitive>(Atomic lhs, Atomic rhs, Func<TAtomicLeft, TAtomicRight, TPrimitive> op, out TPrimitive result)
@@ -113,6 +147,9 @@ namespace LentoCore.Expressions
             {
                 case BinaryOperator.Add:
                 {
+                    if (lhs is Integer li && rhs is Integer ri && overflow_int_add(li.Value, ri.Value)) return new Long((long)li.Value + ri.Value);
+                    if (lhs is Long ll && rhs is Long rl && overflow_long_add(ll.Value, rl.Value)) return new BigInteger(new System.Numerics.BigInteger(ll.Value) + rl.Value);
+                    
                     if (Operation<Integer, int>(lhs, rhs, (l, r) => l.Value + r.Value, out int resultInt)) return new Integer(resultInt);
                     if (Operation<Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, out float resultFloat)) return new Float(resultFloat);
                     if (SymmetricOperation<Integer, Float, float>(lhs, rhs, (l, r) => l.Value + r.Value, (l, r) => l.Value + r.Value, out float resultIntFloat)) return new Float(resultIntFloat);
@@ -132,9 +169,12 @@ namespace LentoCore.Expressions
                 }
                 case BinaryOperator.Multiply:
                 {
+                    if (lhs is Integer li && rhs is Integer ri && overflow_int_mul(li.Value, ri.Value)) return new Long((long)li.Value * ri.Value);
+                    if (lhs is Long ll && rhs is Long rl && overflow_long_mul(ll.Value, rl.Value)) return new BigInteger(new System.Numerics.BigInteger(ll.Value) * rl.Value);
                     if (Operation<Integer, int>(lhs, rhs, (l, r) => l.Value * r.Value, out int resultInt)) return new Integer(resultInt);
                     if (Operation<Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, out float resultFloat)) return new Float(resultFloat);
                     if (SymmetricOperation<Integer, Float, float>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out float resultIntFloat)) return new Float(resultIntFloat);
+                    if (SymmetricOperation<Long, Integer, long>(lhs, rhs, (l, r) => l.Value * r.Value, (l, r) => l.Value * r.Value, out long resultLong)) return new Long(resultLong);
                     if (TupleCrossOperation<Integer>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTupleInt)) return resultTupleInt;
                     if (TupleCrossOperation<Float>(lhs, rhs, _operator, scope, out Atoms.Tuple resultTupleFloat)) return resultTupleFloat;
                     throw OperationRuntimeError(lhs, _operator, typeof(Integer), typeof(Float), typeof(Long), typeof(Double));
