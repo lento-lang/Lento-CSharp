@@ -1,3 +1,7 @@
+> [!warning]
+> As of 2023 this implementation of the Lento language has been **deprecated** and will not be maintained.
+> Please adhere to the latest version at https://github.com/lento-lang/Lento.
+
 <div align=center>
     <br><br>
     <img src="assets/logo_white.png" height=250px/>
